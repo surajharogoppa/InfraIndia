@@ -1,0 +1,77 @@
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard, FolderKanban, BarChart3, Map,
+  Database, Shield, GitCompare, Info
+} from 'lucide-react';
+
+const NAV = [
+  {
+    section: 'Platform',
+    items: [
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/projects', icon: FolderKanban, label: 'Project Explorer' },
+      { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/map', icon: Map, label: 'Map Explorer' },
+      { to: '/compare', icon: GitCompare, label: 'Compare Projects' },
+    ]
+  },
+  {
+    section: 'System',
+    items: [
+      { to: '/sources', icon: Database, label: 'Data Sources' },
+      { to: '/admin', icon: Shield, label: 'Admin' },
+    ]
+  },
+];
+
+export default function Sidebar({ open, onClose }) {
+  return (
+    <>
+      {/* Overlay for mobile */}
+      {open && <div className="sidebar-overlay" onClick={onClose} />}
+
+      <aside className={`sidebar${open ? ' open' : ''}`}>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">🏗️</div>
+          <div>
+            <div className="sidebar-logo-text">GovProject</div>
+            <div className="sidebar-logo-sub">Intelligence Platform</div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="sidebar-nav">
+          {NAV.map(({ section, items }) => (
+            <div key={section}>
+              <div className="sidebar-section">
+                <div className="sidebar-section-label">{section}</div>
+              </div>
+              {items.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === '/'}
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={onClose}
+                >
+                  <Icon className="nav-link-icon" size={18} />
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="sidebar-footer">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <Info size={12} />
+            <strong>Independent Platform</strong>
+          </div>
+          Data sourced from publicly available official government sources. Not an official government service.
+        </div>
+      </aside>
+    </>
+  );
+}
