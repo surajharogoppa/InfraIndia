@@ -1,0 +1,685 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* Override Django Admin restrictive 600px width defaults */
+  body.dashboard #content,
+  .dashboard #content,
+  #content.colMS,
+  #content {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 24px 32px !important;
+    float: none !important;
+  }
+
+  .colMS #content-main,
+  #content-main {
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #content-related {
+    display: none !important;
+  }
+
+  /* InfraIndia Dashboard Container */
+  .infra-dashboard {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Section Navigation Bar */
+  .infra-nav-bar {
+    background: var(--body-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .infra-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .infra-nav-link {
+    background: var(--darkened-bg, #f1f5f9);
+    color: var(--body-fg, #334155);
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    transition: all 150ms ease;
+  }
+
+  .infra-nav-link:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+  }
+
+  .infra-nav-link.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+  }
+
+  /* KPI Grid - Balanced 5-Column Grid */
+  .infra-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 1250px) {
+    .infra-kpi-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .infra-kpi-grid {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+  }
+
+  .infra-kpi-card {
+    background: var(--body-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    min-height: 125px;
+    box-sizing: border-box;
+  }
+
+  .infra-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .infra-kpi-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #64748b;
+  }
+
+  .infra-kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--body-fg, #1e293b);
+    margin: 6px 0;
+    line-height: 1.1;
+  }
+
+  .infra-kpi-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .infra-kpi-footer {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color, #f1f5f9);
+  }
+
+  .infra-kpi-link {
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  /* Operations Bar */
+  .infra-ops-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 16px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .infra-ops-btn,
+  .infra-ops-btn:link,
+  .infra-ops-btn:visited {
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #ffffff !important;
+    transition: opacity 150ms ease, transform 150ms ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .infra-ops-btn:hover,
+  .infra-ops-btn:focus {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    color: #ffffff !important;
+  }
+
+  /* Content Grid */
+  .infra-grid-2col {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+    align-items: start;
+  }
+
+  @media (max-width: 1100px) {
+    .infra-grid-2col {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Tables & Panels */
+  .infra-panel {
+    background: var(--body-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .infra-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+  }
+
+  .infra-panel-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--body-fg, #1e293b);
+  }
+
+  /* Table Responsive Container */
+  .infra-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
+  }
+
+  .infra-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .infra-table th {
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    color: #64748b;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--darkened-bg, #f8fafc);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .infra-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .infra-table tr:hover td {
+    background: var(--darkened-bg, #f8fafc);
+  }
+
+  /* Badges */
+  .infra-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-block;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .infra-badge-success { background: #16a34a; color: #ffffff; }
+  .infra-badge-failed  { background: #dc2626; color: #ffffff; }
+  .infra-badge-running { background: #2563eb; color: #ffffff; }
+  .infra-badge-warning { background: #d97706; color: #ffffff; }
+
+  /* App List Grid & Module Cards */
+  .app-list-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--body-fg, #1e293b);
+    margin: 32px 0 18px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .app-list-container #content-main {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)) !important;
+    gap: 20px !important;
+    align-items: start !important;
+    float: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .dashboard .module {
+    margin: 0 !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--border-color, #e2e8f0) !important;
+    background: var(--body-bg, #ffffff) !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    transition: box-shadow 150ms ease !important;
+  }
+
+  .dashboard .module:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .dashboard .module table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+  }
+
+  .dashboard .module table caption {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    padding: 11px 16px !important;
+    text-transform: uppercase !important;
+    text-align: left !important;
+  }
+
+  .dashboard .module table caption a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+  }
+
+  .dashboard .module table th {
+    width: auto !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid var(--border-color, #f1f5f9) !important;
+    background: transparent !important;
+    text-align: left !important;
+  }
+
+  .dashboard .module table th a {
+    color: var(--body-fg, #1e293b) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+  }
+
+  .dashboard .module table th a:hover {
+    color: #2563eb !important;
+  }
+
+  .dashboard .module table td {
+    padding: 10px 16px !important;
+    white-space: nowrap !important;
+    text-align: right !important;
+    border-bottom: 1px solid var(--border-color, #f1f5f9) !important;
+    vertical-align: middle !important;
+  }
+
+  .dashboard .module table tr:last-child th,
+  .dashboard .module table tr:last-child td {
+    border-bottom: none !important;
+  }
+
+  .dashboard .module table tr:hover td,
+  .dashboard .module table tr:hover th {
+    background: var(--darkened-bg, #f8fafc) !important;
+  }
+
+  .dashboard .module table td a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    padding: 4px 10px !important;
+    border-radius: 4px !important;
+    transition: all 120ms ease !important;
+  }
+
+  .dashboard .module table td a.addlink {
+    color: #16a34a !important;
+    background: #f0fdf4 !important;
+    border: 1px solid #bbf7d0 !important;
+    margin-right: 6px !important;
+  }
+
+  .dashboard .module table td a.addlink:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+  }
+
+  .dashboard .module table td a.changelink,
+  .dashboard .module table td a.viewlink {
+    color: #2563eb !important;
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+  }
+
+  .dashboard .module table td a.changelink:hover,
+  .dashboard .module table td a.viewlink:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="infra-dashboard">
+
+  <!-- PRD Section 44 Navigation Tabs -->
+  <div class="infra-nav-bar">
+    <div class="infra-nav-links">
+      <span style="font-weight: 700; font-size: 12px; color: #64748b; margin-right: 4px;">Sections:</span>
+      <a href="{% url 'admin:index' %}" class="infra-nav-link active">📊 Overview</a>
+      <a href="/admin/sources/datasource/" class="infra-nav-link">📡 Data Sources</a>
+      <a href="/admin/ingestion/ingestionrun/" class="infra-nav-link">🔄 Ingestion Runs</a>
+      <a href="/admin/projects/project/" class="infra-nav-link">🏗️ Projects</a>
+      <a href="/admin/ingestion/dataqualityissue/?status__exact=PENDING" class="infra-nav-link">
+        ⚠️ Data Quality
+        {% if pending_quality_issues %}
+          <span style="background: #ea580c; color: #fff; border-radius: 99px; padding: 1px 6px; font-size: 10px; font-weight: 700;">{{ pending_quality_issues }}</span>
+        {% endif %}
+      </a>
+      <a href="/admin/documents/document/" class="infra-nav-link">📁 Documents</a>
+      <a href="/admin/auth/user/" class="infra-nav-link">👤 Users</a>
+      <a href="/admin/admin/logentry/" class="infra-nav-link">📜 System Logs</a>
+    </div>
+    <div>
+      <span style="font-size: 11px; color: #64748b; font-weight: 600;">PRD Section 44 Compliant</span>
+    </div>
+  </div>
+
+  <!-- KPI Overview Cards -->
+  <div class="infra-kpi-grid">
+    <!-- Projects Card -->
+    <div class="infra-kpi-card" style="border-left: 4px solid #2563eb;">
+      <div>
+        <div class="infra-kpi-title">Total Projects</div>
+        <div class="infra-kpi-value">{{ total_projects|default:"0" }}</div>
+        <div class="infra-kpi-subtitle" style="color: #16a34a;">
+          {{ active_projects|default:"0" }} active · {{ completed_projects|default:"0" }} completed
+        </div>
+      </div>
+      <div class="infra-kpi-footer">
+        <a href="/admin/projects/project/" class="infra-kpi-link" style="color: #2563eb;">Browse All Projects &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Data Sources Card -->
+    <div class="infra-kpi-card" style="border-left: 4px solid #059669;">
+      <div>
+        <div class="infra-kpi-title">Data Sources</div>
+        <div class="infra-kpi-value">
+          {{ active_sources|default:"0" }}
+          <span style="font-size: 14px; font-weight: 500; color: #94a3b8;">/ {{ total_sources|default:"0" }} active</span>
+        </div>
+        <div class="infra-kpi-subtitle" style="color: #059669;">MoSPI / PAIMANA Connected</div>
+      </div>
+      <div class="infra-kpi-footer">
+        <a href="/admin/sources/datasource/" class="infra-kpi-link" style="color: #059669;">Inspect Data Sources &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Ingestion Runs Card -->
+    <div class="infra-kpi-card" style="border-left: 4px solid #7c3aed;">
+      <div>
+        <div class="infra-kpi-title">Ingestion Runs</div>
+        <div class="infra-kpi-value">{{ total_runs|default:"0" }}</div>
+        <div class="infra-kpi-subtitle" style="color: {% if failed_runs_count %}#dc2626{% else %}#16a34a{% endif %};">
+          {% if failed_runs_count %}{{ failed_runs_count }} failed run(s){% else %}All pipeline runs completed{% endif %}
+        </div>
+      </div>
+      <div class="infra-kpi-footer">
+        <a href="/admin/ingestion/ingestionrun/" class="infra-kpi-link" style="color: #7c3aed;">View Run History &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Quality Queue Card -->
+    <div class="infra-kpi-card" style="border-left: 4px solid {% if pending_quality_issues %}#ea580c{% else %}#16a34a{% endif %};">
+      <div>
+        <div class="infra-kpi-title">Data Quality Queue</div>
+        <div class="infra-kpi-value" style="color: {% if pending_quality_issues %}#ea580c{% else %}inherit{% endif %};">
+          {{ pending_quality_issues|default:"0" }}
+          <span style="font-size: 13px; font-weight: 500; color: #64748b;">pending</span>
+        </div>
+        <div class="infra-kpi-subtitle" style="color: #64748b;">Validation check queue</div>
+      </div>
+      <div class="infra-kpi-footer">
+        <a href="/admin/ingestion/dataqualityissue/?status__exact=PENDING" class="infra-kpi-link" style="color: #ea580c;">Review Queue &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Documents Card -->
+    <div class="infra-kpi-card" style="border-left: 4px solid #0891b2;">
+      <div>
+        <div class="infra-kpi-title">Documents</div>
+        <div class="infra-kpi-value">{{ total_documents|default:"0" }}</div>
+        <div class="infra-kpi-subtitle" style="color: #0891b2;">Monthly Reports &amp; DPRs</div>
+      </div>
+      <div class="infra-kpi-footer">
+        <a href="/admin/documents/document/" class="infra-kpi-link" style="color: #0891b2;">View Documents &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Operations Banner -->
+  <div class="infra-ops-bar">
+    <div>
+      <div style="font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+        <span>⚡ Quick Admin Operations</span>
+      </div>
+      <div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">
+        Trigger pipelines on-demand, resolve validation bottlenecks, and inspect execution diagnostics
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="/admin/sources/datasource/" class="infra-ops-btn" style="background: #2563eb;">
+        ⚡ Run Ingestion Manually
+      </a>
+      <a href="/admin/ingestion/dataqualityissue/?status__exact=PENDING" class="infra-ops-btn" style="background: #ea580c;">
+        🔍 Review Quality Issues
+      </a>
+      <a href="/admin/ingestion/ingestionrun/?status__exact=FAILED" class="infra-ops-btn" style="background: #dc2626;">
+        ⚠️ Inspect Failed Ingestions
+      </a>
+    </div>
+  </div>
+
+  <!-- Responsive Tables & Diagnostics Grid -->
+  <div class="infra-grid-2col">
+    <!-- Recent Ingestion Runs Table (Full Scrollable Wrapper) -->
+    <div class="infra-panel">
+      <div class="infra-panel-header">
+        <span class="infra-panel-title">Recent Ingestion Runs</span>
+        <a href="/admin/ingestion/ingestionrun/" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600;">
+          All Runs &rarr;
+        </a>
+      </div>
+      <div class="infra-table-responsive">
+        <table class="infra-table">
+          <thead>
+            <tr>
+              <th style="width: 65px;">Run</th>
+              <th>Source Name</th>
+              <th style="width: 85px; text-align: center;">Status</th>
+              <th style="width: 80px; text-align: right;">Inserted</th>
+              <th style="width: 80px; text-align: right;">Updated</th>
+              <th style="width: 80px; text-align: right;">Rejected</th>
+              <th style="width: 110px; text-align: right;">Started</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recent_runs %}
+            <tr>
+              <td style="font-family: monospace; font-weight: 700; white-space: nowrap;">
+                <a href="/admin/ingestion/ingestionrun/{{ r.id }}/change/" style="color: #2563eb; text-decoration: none;">#{{ r.id }}</a>
+              </td>
+              <td style="font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span title="{{ r.source.name }}">{{ r.source.name }}</span>
+              </td>
+              <td style="text-align: center; white-space: nowrap;">
+                {% if r.status == "SUCCESS" %}
+                  <span class="infra-badge infra-badge-success">SUCCESS</span>
+                {% elif r.status == "FAILED" %}
+                  <span class="infra-badge infra-badge-failed">FAILED</span>
+                {% elif r.status == "RUNNING" %}
+                  <span class="infra-badge infra-badge-running">RUNNING</span>
+                {% else %}
+                  <span class="infra-badge infra-badge-warning">{{ r.status }}</span>
+                {% endif %}
+              </td>
+              <td style="text-align: right; color: #16a34a; font-weight: 700; font-family: monospace; white-space: nowrap;">{{ r.records_inserted }}</td>
+              <td style="text-align: right; color: #2563eb; font-weight: 700; font-family: monospace; white-space: nowrap;">{{ r.records_updated }}</td>
+              <td style="text-align: right; color: {% if r.records_rejected %}#dc2626{% else %}#94a3b8{% endif %}; font-weight: 700; font-family: monospace; white-space: nowrap;">
+                {{ r.records_rejected }}
+              </td>
+              <td style="color: #64748b; font-size: 11px; text-align: right; white-space: nowrap;">
+                {{ r.started_at|date:"d M, H:i" }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="padding: 24px; text-align: center; color: #94a3b8;">
+                No ingestion runs recorded yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Side Panels: Quality Review & System Audit Logs -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Quality Issues Box -->
+      <div class="infra-panel">
+        <div class="infra-panel-header">
+          <span class="infra-panel-title">Data Quality Review Queue</span>
+          <a href="/admin/ingestion/dataqualityissue/?status__exact=PENDING" style="font-size: 11px; color: #ea580c; text-decoration: none; font-weight: 600;">
+            Pending Queue &rarr;
+          </a>
+        </div>
+        {% if recent_quality_issues %}
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for q in recent_quality_issues %}
+            <div style="padding: 10px; background: var(--darkened-bg, #fffbeb); border: 1px solid var(--border-color, #fef3c7); border-left: 3px solid #f59e0b; border-radius: 6px; font-size: 11px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: #b45309;">
+                  <a href="/admin/ingestion/dataqualityissue/{{ q.id }}/change/">#{{ q.id }} · {{ q.raw_record_ref|default:"Unidentified Record" }}</a>
+                </strong>
+                <span class="infra-badge infra-badge-warning">{{ q.status }}</span>
+              </div>
+              <div style="color: var(--body-fg, #78350f); line-height: 1.4;">
+                {{ q.problem_description|truncatechars:90 }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="padding: 20px; text-align: center; color: #16a34a; font-size: 12px; font-weight: 600; background: var(--darkened-bg, #f0fdf4); border-radius: 6px;">
+            ✓ All records validated — No pending quality issues!
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent System Audit Logs -->
+      <div class="infra-panel">
+        <div class="infra-panel-header">
+          <span class="infra-panel-title">System Audit Logs</span>
+          <a href="/admin/admin/logentry/" style="font-size: 11px; color: #2563eb; text-decoration: none; font-weight: 600;">
+            Full Audit Trail &rarr;
+          </a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          {% for log in recent_logs %}
+          <div style="font-size: 11px; display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-color, #f1f5f9);">
+            <div style="max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <strong style="color: var(--body-fg, #334155);">{{ log.user.username }}</strong>:
+              <span style="color: #64748b;">{{ log.object_repr }}</span>
+            </div>
+            <span style="color: #94a3b8; font-size: 10px; white-space: nowrap;">{{ log.action_time|date:"d M, H:i" }}</span>
+          </div>
+          {% empty %}
+          <div style="font-size: 11px; color: #94a3b8; padding: 12px; text-align: center;">No administrative actions logged yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standard Model Management Header -->
+  <div class="app-list-section-title">
+    All System Models &amp; Registers
+  </div>
+
+  <div class="app-list-container">
+    {{ block.super }}
+  </div>
+
+</div>
+{% endblock %}

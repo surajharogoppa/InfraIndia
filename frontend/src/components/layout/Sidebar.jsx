@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, BarChart3, Map,
-  Database, Shield, GitCompare, Info
+  Database, GitCompare, Info
 } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -20,7 +20,6 @@ const NAV = [
     section: 'System',
     items: [
       { to: '/sources', icon: Database, label: 'Data Sources' },
-      { to: '/admin', icon: Shield, label: 'Admin' },
     ]
   },
 ];

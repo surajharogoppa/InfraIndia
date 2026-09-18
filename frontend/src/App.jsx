@@ -8,7 +8,6 @@ import Analytics from './pages/Analytics';
 import MapExplorer from './pages/MapExplorer';
 import Compare from './pages/Compare';
 import DataSources from './pages/DataSources';
-import Admin from './pages/Admin';
 import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/common/ThemeToggle';
 import { Menu } from 'lucide-react';
@@ -50,7 +49,6 @@ export default function App() {
             <Route path="/map" element={<MapExplorer />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/sources" element={<DataSources />} />
-            <Route path="/admin" element={<Admin />} />
           </Routes>
         </div>
       </div>

@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | InfraIndia Admin{% endblock %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 22px;">🏛</span>
+    <div>
+      <h1 id="site-name" style="margin: 0; line-height: 1.2;">
+        <a href="{% url 'admin:index' %}" style="color: #ffffff; text-decoration: none; font-weight: 700; font-size: 18px;">
+          InfraIndia <span style="font-size: 12px; font-weight: 400; opacity: 0.85; padding-left: 6px;">Admin Dashboard & Control Center</span>
+        </a>
+      </h1>
+      <div style="font-size: 11px; color: #93c5fd; letter-spacing: 0.04em;">Official MoSPI Infrastructure Intelligence System</div>
+    </div>
+  </div>
+  <div style="margin-right: 20px;">
+    <a href="http://localhost:5173/" target="_blank" style="background: rgba(255,255,255,0.15); color: #ffffff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
+      ↗ Open Frontend Platform
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* Global full width across admin */
+  html, body {
+    max-width: 100% !important;
+  }
+  #container {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #header {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 24px !important;
+  }
+  /* Fix changelist table responsiveness */
+  #changelist .results {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #changelist table {
+    width: 100% !important;
+  }
+  #changelist table th,
+  #changelist table td {
+    white-space: nowrap !important;
+  }
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
