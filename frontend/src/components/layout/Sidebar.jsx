@@ -34,9 +34,9 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`sidebar${open ? ' open' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🏗️</div>
+          <div className="sidebar-logo-icon">🏛</div>
           <div>
-            <div className="sidebar-logo-text">GovProject</div>
+            <div className="sidebar-logo-text">InfraIndia</div>
             <div className="sidebar-logo-sub">Intelligence Platform</div>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Sidebar({ open, onClose }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Info size={12} />
-              <strong>GovProject</strong>
+              <strong>InfraIndia</strong>
             </div>
             <ThemeToggle showLabel={false} />
           </div>
