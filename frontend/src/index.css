@@ -896,6 +896,65 @@ tbody tr:hover { background: var(--bg-hover); }
   border-color: hsl(42 90% 45% / 0.3);
 }
 
+/* ── Project Details Source Banner ───────────────────────── */
+.project-source-banner {
+  margin-top: var(--gap-sm);
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+.project-source-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.project-source-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.project-source-item svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.project-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.78rem;
+  margin-left: auto;
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+
+.project-source-link:hover {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+}
+
 /* ── Map Slice & Dice Toolbar ────────────────────────────── */
 .map-toolbar {
   background: var(--bg-card);

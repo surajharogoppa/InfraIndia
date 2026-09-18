@@ -116,56 +116,32 @@ export default function ProjectDetails() {
         </div>
 
         {/* Source info panel */}
-        <div style={{
-          marginTop: 'var(--gap-sm)',
-          padding: '10px 14px',
-          background: 'linear-gradient(135deg, hsl(220 80% 10% / 0.6), hsl(260 70% 8% / 0.6))',
-          border: '1px solid hsl(220 60% 28% / 0.5)',
-          borderRadius: 'var(--radius)',
-          fontSize: '0.74rem',
-          color: 'var(--text-muted)',
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Database size={12} style={{ color: 'hsl(220 90% 65%)', flexShrink: 0 }} />
+        <div className="project-source-banner">
+          <div className="project-source-item">
+            <Database size={13} />
             <span>
-              <strong style={{ color: 'var(--text-secondary)' }}>Source:</strong>{' '}
+              <strong>Source:</strong>{' '}
               {project.source_name || 'MoSPI Flash Report (PAIMANA)'}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Building2 size={12} style={{ flexShrink: 0 }} />
+          <div className="project-source-item">
+            <Building2 size={13} />
             <span>Ministry of Statistics &amp; Programme Implementation</span>
           </div>
           {project.updated_at && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <RefreshCw size={11} style={{ color: 'hsl(160 70% 50%)', flexShrink: 0 }} />
-              <span>Last synced: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(project.updated_at)}</strong></span>
+            <div className="project-source-item">
+              <RefreshCw size={12} style={{ color: 'var(--green)' }} />
+              <span>Last synced: <strong>{formatDate(project.updated_at)}</strong></span>
             </div>
           )}
-          {project.source_url && (
-            <a
-              href={project.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'hsl(220 90% 65%)', marginLeft: 'auto', textDecoration: 'none' }}
-            >
-              <ExternalLink size={11} /> View Source
-            </a>
-          )}
-          {!project.source_url && (
-            <a
-              href="https://mospi.gov.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'hsl(220 90% 65%)', marginLeft: 'auto', textDecoration: 'none' }}
-            >
-              <ExternalLink size={11} /> mospi.gov.in
-            </a>
-          )}
+          <a
+            href={project.source_url || 'https://mospi.gov.in'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="project-source-link"
+          >
+            <ExternalLink size={12} /> View Source
+          </a>
         </div>
       </div>
 
