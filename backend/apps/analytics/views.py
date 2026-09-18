@@ -47,9 +47,19 @@ class StateAnalyticsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        qs = Project.objects.filter(state__isnull=False)
+        sector = request.query_params.get("sector")
+        if sector:
+            if sector.isdigit():
+                qs = qs.filter(sector_id=int(sector))
+            else:
+                qs = qs.filter(sector__name__iexact=sector)
+        status = request.query_params.get("status")
+        if status:
+            qs = qs.filter(platform_status=status)
+
         rows = (
-            Project.objects
-            .filter(state__isnull=False)
+            qs
             .values("state__id", "state__name", "state__code")
             .annotate(
                 project_count=Count("id"),

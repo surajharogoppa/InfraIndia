@@ -1,0 +1,10 @@
+{
+  "include": ["backend"],
+  "extraPaths": ["backend", "backend/apps", "backend/services", "backend/config"],
+  "executionEnvironments": [
+    {
+      "root": "backend",
+      "extraPaths": ["backend", "backend/apps", "backend/services", "backend/config"]
+    }
+  ]
+}

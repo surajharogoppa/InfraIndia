@@ -115,9 +115,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"SUCCESS: Seeded {options['count']} projects successfully."))
 
     def _clear_data(self):
+        # pyrefly: ignore [missing-import]
         from apps.projects.models import Project, ProjectSnapshot, ProjectChange
+        # pyrefly: ignore [missing-import]
         from apps.organizations.models import Ministry, Department, Organization, Sector
+        # pyrefly: ignore [missing-import]
         from apps.locations.models import State, District
+        # pyrefly: ignore [missing-import]
         from apps.sources.models import DataSource
         ProjectChange.objects.all().delete()
         ProjectSnapshot.objects.all().delete()
@@ -131,6 +135,7 @@ class Command(BaseCommand):
         DataSource.objects.all().delete()
 
     def _get_or_create_source(self):
+        # pyrefly: ignore [missing-import]
         from apps.sources.models import DataSource
         source, _ = DataSource.objects.get_or_create(
             name="Demo Data Source",
@@ -146,6 +151,7 @@ class Command(BaseCommand):
         return source
 
     def _create_states(self):
+        # pyrefly: ignore [missing-import]
         from apps.locations.models import State, District
         states = []
         districts_map = {
@@ -168,6 +174,7 @@ class Command(BaseCommand):
         return states
 
     def _create_ministries(self):
+        # pyrefly: ignore [missing-import]
         from apps.organizations.models import Ministry, Department, Organization
         ministries = []
         for name, short in MINISTRIES:
@@ -178,11 +185,14 @@ class Command(BaseCommand):
         return ministries
 
     def _create_sectors(self):
+        # pyrefly: ignore [missing-import]
         from apps.organizations.models import Sector
         return [Sector.objects.get_or_create(name=s)[0] for s in SECTORS]
 
     def _create_projects(self, count, source, states, ministries, sectors):
+        # pyrefly: ignore [missing-import]
         from apps.projects.models import Project, ProjectSnapshot, ProjectChange
+        # pyrefly: ignore [missing-import]
         from apps.locations.models import District
 
         today = date.today()

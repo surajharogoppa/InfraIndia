@@ -1,43 +1,338 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import { analyticsApi, projectsApi } from '../services/api';
-import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
-import { formatCrore, formatPercent, progressClass } from '../utils/format';
-import { MapPin, Info } from 'lucide-react';
+import { analyticsApi, projectsApi, refApi } from '../services/api';
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import { formatCrore, formatPercent } from '../utils/format';
+import { useTheme } from '../context/ThemeContext';
+import {
+  MapPin, Info, ArrowRight, SlidersHorizontal,
+  Palette, BarChart3, IndianRupee, Activity, TrendingUp,
+  Search, X, ZoomIn, ZoomOut, RotateCcw, Move
+} from 'lucide-react';
+import indiaGeo from '../assets/india_states.json';
 
-// India TopoJSON — using a CDN-hosted file
-const INDIA_GEO = 'https://raw.githubusercontent.com/geohacker/india/master/state/india_telengana.geojson';
+function normalizeStateName(name) {
+  if (!name) return '';
+  const clean = name.trim().toLowerCase().replace(/&/g, 'and');
+  if (clean.includes('kashmir')) return 'jammu and kashmir';
+  if (clean.includes('ladakh')) return 'ladakh';
+  if (clean.includes('delhi')) return 'delhi';
+  if (clean.includes('andaman')) return 'andaman and nicobar';
+  if (clean.includes('dadra') || clean.includes('daman')) return 'dadra and nagar haveli and daman and diu';
+  if (clean.includes('odisha') || clean.includes('orissa')) return 'odisha';
+  if (clean.includes('puducherry') || clean.includes('pondicherry')) return 'puducherry';
+  if (clean.includes('uttarakhand') || clean.includes('uttaranchal')) return 'uttarakhand';
+  return clean;
+}
+
+// Distinct Vibrant Colors for All 37 Indian States & UTs (Atlas Palette)
+const STATE_COLORS = {
+  // Northern Region
+  'jammu and kashmir': { color: '#3b82f6', light: '#2563eb', dark: '#60a5fa' },
+  'ladakh': { color: '#8b5cf6', light: '#7c3aed', dark: '#a78bfa' },
+  'himachal pradesh': { color: '#10b981', light: '#059669', dark: '#34d399' },
+  'punjab': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
+  'haryana': { color: '#ec4899', light: '#db2777', dark: '#f472b6' },
+  'uttarakhand': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
+  'delhi': { color: '#ef4444', light: '#dc2626', dark: '#f87171' },
+  'rajasthan': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
+  'uttar pradesh': { color: '#6366f1', light: '#4f46e5', dark: '#818cf8' },
+  'chandigarh': { color: '#14b8a6', light: '#0d9488', dark: '#2dd4bf' },
+
+  // Central Region
+  'madhya pradesh': { color: '#0284c7', light: '#0369a1', dark: '#38bdf8' },
+  'chhattisgarh': { color: '#9333ea', light: '#7e22ce', dark: '#c084fc' },
+
+  // Western Region
+  'gujarat': { color: '#eab308', light: '#ca8a04', dark: '#facc15' },
+  'maharashtra': { color: '#8b5cf6', light: '#7c3aed', dark: '#a78bfa' },
+  'goa': { color: '#d946ef', light: '#c026d3', dark: '#e879f9' },
+  'dadra and nagar haveli and daman and diu': { color: '#f43f5e', light: '#e11d48', dark: '#fb7185' },
+
+  // Eastern Region
+  'bihar': { color: '#10b981', light: '#059669', dark: '#34d399' },
+  'jharkhand': { color: '#f43f5e', light: '#e11d48', dark: '#fb7185' },
+  'odisha': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
+  'west bengal': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
+  'andaman and nicobar': { color: '#0284c7', light: '#0369a1', dark: '#38bdf8' },
+
+  // Southern Region
+  'andhra pradesh': { color: '#14b8a6', light: '#0d9488', dark: '#2dd4bf' },
+  'telangana': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
+  'karnataka': { color: '#16a34a', light: '#15803d', dark: '#4ade80' },
+  'tamil nadu': { color: '#2563eb', light: '#1d4ed8', dark: '#60a5fa' },
+  'kerala': { color: '#059669', light: '#047857', dark: '#10b981' },
+  'puducherry': { color: '#a855f7', light: '#9333ea', dark: '#c084fc' },
+  'lakshadweep': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
+
+  // North-Eastern Region
+  'sikkim': { color: '#84cc16', light: '#65a30d', dark: '#a3e635' },
+  'assam': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
+  'arunachal pradesh': { color: '#6366f1', light: '#4f46e5', dark: '#818cf8' },
+  'nagaland': { color: '#d946ef', light: '#c026d3', dark: '#e879f9' },
+  'manipur': { color: '#0ea5e9', light: '#0284c7', dark: '#38bdf8' },
+  'mizoram': { color: '#10b981', light: '#059669', dark: '#34d399' },
+  'tripura': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
+  'meghalaya': { color: '#ec4899', light: '#db2777', dark: '#f472b6' },
+};
+
+// Indian Geopolitical Zones
+const ZONES = {
+  north: {
+    name: 'North Zone',
+    colorDark: 'hsl(215 90% 55%)',
+    colorLight: 'hsl(215 85% 60%)',
+    states: ['jammu and kashmir', 'ladakh', 'himachal pradesh', 'punjab', 'haryana', 'delhi', 'chandigarh', 'rajasthan', 'uttarakhand', 'uttar pradesh']
+  },
+  west: {
+    name: 'West Zone',
+    colorDark: 'hsl(28 95% 55%)',
+    colorLight: 'hsl(28 90% 58%)',
+    states: ['gujarat', 'maharashtra', 'goa', 'dadra and nagar haveli and daman and diu']
+  },
+  south: {
+    name: 'South Zone',
+    colorDark: 'hsl(145 75% 45%)',
+    colorLight: 'hsl(145 70% 48%)',
+    states: ['karnataka', 'kerala', 'tamil nadu', 'andhra pradesh', 'telangana', 'puducherry', 'lakshadweep']
+  },
+  east: {
+    name: 'East Zone',
+    colorDark: 'hsl(270 80% 60%)',
+    colorLight: 'hsl(270 75% 62%)',
+    states: ['bihar', 'jharkhand', 'odisha', 'west bengal', 'andaman and nicobar']
+  },
+  central: {
+    name: 'Central Zone',
+    colorDark: 'hsl(340 85% 58%)',
+    colorLight: 'hsl(340 80% 60%)',
+    states: ['madhya pradesh', 'chhattisgarh']
+  },
+  northeast: {
+    name: 'Northeast Zone',
+    colorDark: 'hsl(175 85% 45%)',
+    colorLight: 'hsl(175 80% 45%)',
+    states: ['assam', 'arunachal pradesh', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'sikkim', 'tripura']
+  }
+};
+
+function getStateZone(stateName) {
+  const norm = normalizeStateName(stateName);
+  for (const [key, zone] of Object.entries(ZONES)) {
+    if (zone.states.includes(norm)) return { key, ...zone };
+  }
+  return null;
+}
+
+// Multi-color spectrum interpolation (Violet -> Blue -> Teal -> Green -> Amber -> Ruby)
+function getSpectrumColor(t, isDark) {
+  const clamped = Math.min(Math.max(t, 0), 1);
+  if (clamped < 0.2) {
+    const local = clamped / 0.2;
+    return `hsl(${250 - local * 30} 85% ${isDark ? 50 + local * 5 : 55 - local * 5}%)`;
+  } else if (clamped < 0.4) {
+    const local = (clamped - 0.2) / 0.2;
+    return `hsl(${220 - local * 45} 90% ${isDark ? 52 : 50}%)`;
+  } else if (clamped < 0.6) {
+    const local = (clamped - 0.4) / 0.2;
+    return `hsl(${175 - local * 35} 80% ${isDark ? 48 : 45}%)`;
+  } else if (clamped < 0.8) {
+    const local = (clamped - 0.6) / 0.2;
+    return `hsl(${140 - local * 95} 90% ${isDark ? 50 : 48}%)`;
+  } else {
+    const local = (clamped - 0.8) / 0.2;
+    return `hsl(${45 - local * 38} 95% ${isDark ? 55 : 50}%)`;
+  }
+}
+
+// Progress traffic-light color
+function getProgressColor(progress, isDark) {
+  if (progress == null || progress === 0) return isDark ? 'hsl(222 16% 22%)' : 'hsl(215 16% 88%)';
+  if (progress < 35) return isDark ? 'hsl(0 75% 55%)' : 'hsl(0 75% 50%)';
+  if (progress < 55) return isDark ? 'hsl(28 90% 55%)' : 'hsl(28 90% 50%)';
+  if (progress < 75) return isDark ? 'hsl(45 95% 52%)' : 'hsl(42 95% 45%)';
+  return isDark ? 'hsl(142 75% 48%)' : 'hsl(142 75% 40%)';
+}
 
 export default function MapExplorer() {
   const navigate = useNavigate();
-  const { data: states } = useApi(() => analyticsApi.states());
+  const { isDark } = useTheme();
+
+  // Slicer States (Slice & Dice)
+  const [selectedMetric, setSelectedMetric] = useState('project_count');
+  const [selectedPalette, setSelectedPalette] = useState('colorful'); // 'colorful' | 'zonal' | 'spectrum' | 'progress' | 'monochrome'
+  const [selectedSector, setSelectedSector] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+
+  // Zoom and Pan States
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const panStartRef = useRef({ x: 0, y: 0 });
+  const mapContainerRef = useRef(null);
+
+  // Data fetching
+  const { data: sectorsData } = useApi(() => refApi.sectors());
+  const { data: statesData } = useApi(
+    () => analyticsApi.states({ sector: selectedSector, status: selectedStatus }),
+    [selectedSector, selectedStatus]
+  );
+
+  const sectorList = useMemo(() => {
+    if (Array.isArray(sectorsData)) return sectorsData;
+    return sectorsData?.results || [];
+  }, [sectorsData]);
+
+  const stateList = useMemo(() => {
+    if (Array.isArray(statesData)) return statesData;
+    return statesData?.results || [];
+  }, [statesData]);
+
+  // Selected State Drilldown
   const [selectedState, setSelectedState] = useState(null);
   const [stateProjects, setStateProjects] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
+  const [projectSearch, setProjectSearch] = useState('');
   const [tooltip, setTooltip] = useState(null);
 
-  useEffect(() => { document.title = 'Map Explorer — GovProject Intelligence'; }, []);
+  useEffect(() => {
+    document.title = 'Map Explorer — GovProject Intelligence';
+  }, []);
 
-  // Build lookup of state name → analytics
-  const stateMap = {};
-  (states || []).forEach(s => { stateMap[s.state_name?.toLowerCase()] = s; });
+  // Lookup of normalized state name -> analytics
+  const stateMap = useMemo(() => {
+    const map = {};
+    stateList.forEach(s => {
+      const key = normalizeStateName(s.state_name);
+      map[key] = s;
+    });
+    return map;
+  }, [stateList]);
 
-  function getStateColor(stateName) {
-    const s = stateMap[stateName?.toLowerCase()];
-    if (!s) return 'hsl(222 16% 18%)';
-    const count = s.project_count || 0;
-    const max = Math.max(...Object.values(stateMap).map(x => x.project_count || 0));
-    const intensity = count / max;
-    return `hsl(220 90% ${30 + intensity * 35}%)`;
+  // Max values for selected metric scaling
+  const maxValues = useMemo(() => {
+    let maxCount = 1;
+    let maxCost = 1;
+    let maxSpend = 1;
+    stateList.forEach(s => {
+      if (s.project_count > maxCount) maxCount = s.project_count;
+      if (s.total_cost_crore > maxCost) maxCost = s.total_cost_crore;
+      if (s.total_expenditure_crore > maxSpend) maxSpend = s.total_expenditure_crore;
+    });
+    return { project_count: maxCount, total_cost_crore: maxCost, total_expenditure_crore: maxSpend };
+  }, [stateList]);
+
+  function getStateData(geoName) {
+    const key = normalizeStateName(geoName);
+    return stateMap[key] || null;
   }
 
-  async function handleStateClick(stateName) {
-    setSelectedState(stateName);
+  function getStateColor(geoName) {
+    const norm = normalizeStateName(geoName);
+    const s = stateMap[norm];
+
+    // 1. Colorful Multi-State Palette (Default vibrant atlas)
+    if (selectedPalette === 'colorful') {
+      const entry = STATE_COLORS[norm];
+      if (entry) {
+        return isDark ? entry.dark : entry.light;
+      }
+      return isDark ? '#60a5fa' : '#3b82f6';
+    }
+
+    // 2. Zonal Regions Palette
+    if (selectedPalette === 'zonal') {
+      const zone = getStateZone(geoName);
+      if (zone) {
+        return isDark ? zone.colorDark : zone.colorLight;
+      }
+      return isDark ? 'hsl(220 50% 50%)' : 'hsl(220 60% 60%)';
+    }
+
+    // 3. Progress Status Palette
+    if (selectedPalette === 'progress' || selectedMetric === 'avg_progress') {
+      return getProgressColor(s?.avg_progress, isDark);
+    }
+
+    if (!s || !s.project_count) {
+      return isDark ? 'hsl(222 16% 18%)' : 'hsl(215 20% 92%)';
+    }
+
+    // 4. Metric Scaling (Spectrum or Monochrome)
+    let metricVal = s.project_count;
+    let maxVal = maxValues.project_count;
+    if (selectedMetric === 'total_cost_crore') {
+      metricVal = s.total_cost_crore;
+      maxVal = maxValues.total_cost_crore;
+    } else if (selectedMetric === 'total_expenditure_crore') {
+      metricVal = s.total_expenditure_crore;
+      maxVal = maxValues.total_expenditure_crore;
+    }
+
+    const ratio = Math.min(Math.max((metricVal || 0) / (maxVal || 1), 0.05), 1);
+
+    if (selectedPalette === 'spectrum') {
+      return getSpectrumColor(ratio, isDark);
+    }
+
+    // Monochrome Sapphire
+    if (isDark) {
+      return `hsl(218 90% ${28 + ratio * 36}%)`;
+    } else {
+      return `hsl(218 85% ${82 - ratio * 38}%)`;
+    }
+  }
+
+  // Zoom & Pan Handlers
+  const handleZoomIn = () => setZoom(z => Math.min(Number((z * 1.3).toFixed(2)), 4));
+  const handleZoomOut = () => setZoom(z => Math.max(Number((z / 1.3).toFixed(2)), 0.8));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e) => {
+    // Only start pan on primary mouse click
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    panStartRef.current = { ...pan };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: panStartRef.current.x + dx,
+      y: panStartRef.current.y + dy
+    });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 1.15 : 0.85;
+    setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.8), 4));
+  };
+
+  async function handleStateClick(geoName) {
+    // Ignore click if user was actively dragging
+    if (isDragging) return;
+    const s = getStateData(geoName);
+    const displayName = s ? s.state_name : geoName;
+    setSelectedState(displayName);
     setLoadingProjects(true);
+    setProjectSearch('');
     try {
-      const res = await projectsApi.list({ state: stateName, page_size: 10 });
-      setStateProjects(res.data.results || res.data);
+      const params = { state: displayName, page_size: 20 };
+      if (selectedSector) params.sector = selectedSector;
+      if (selectedStatus) params.status = selectedStatus;
+      const res = await projectsApi.list(params);
+      setStateProjects(res.data.results || res.data || []);
     } catch {
       setStateProjects([]);
     } finally {
@@ -45,162 +340,565 @@ export default function MapExplorer() {
     }
   }
 
-  const selectedStateData = selectedState ? stateMap[selectedState?.toLowerCase()] : null;
+  const selectedStateData = selectedState ? getStateData(selectedState) : null;
+
+  // Filtered projects within state
+  const filteredProjects = useMemo(() => {
+    if (!projectSearch.trim()) return stateProjects;
+    const q = projectSearch.toLowerCase();
+    return stateProjects.filter(p =>
+      p.name?.toLowerCase().includes(q) ||
+      p.sector_name?.toLowerCase().includes(q) ||
+      p.implementing_agency?.toLowerCase().includes(q)
+    );
+  }, [stateProjects, projectSearch]);
+
+  // Sector breakdown of selected state projects (Dicing)
+  const stateSectorSummary = useMemo(() => {
+    const counts = {};
+    stateProjects.forEach(p => {
+      const sec = p.sector_name || 'Other';
+      counts[sec] = (counts[sec] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [stateProjects]);
 
   return (
     <div className="page-body">
+      {/* Header */}
       <div className="section-header mb-lg">
         <div>
-          <div className="section-title">Map Explorer</div>
+          <div className="section-title">Official Infrastructure Map &amp; Analytics</div>
           <div className="section-subtitle">
-            Click a state to explore projects. Colour intensity = project count.
+            Interactive GIS visualizer with zoomable controls, colorful themes, and slice-and-dice filtering across India's 37 States &amp; UTs.
           </div>
         </div>
         <div className="platform-derived-note">
-          <Info size={12} /> Map visualization — not an official government map
+          <Info size={12} /> Survey of India Demarcation · MoSPI Data
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: selectedState ? '1.5fr 1fr' : '1fr', gap: 'var(--gap-lg)' }}>
-        {/* Map */}
-        <div className="map-wrap" style={{ position: 'relative' }}>
+      {/* Slice & Dice Toolbar */}
+      <div className="map-toolbar">
+        {/* Metric Slicer */}
+        <div className="map-toolbar-group">
+          <span className="map-toolbar-label"><SlidersHorizontal size={13} style={{ display: 'inline', marginRight: 4 }} />Metric:</span>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedMetric === 'project_count' ? ' active' : ''}`}
+            onClick={() => setSelectedMetric('project_count')}
+          >
+            <BarChart3 size={13} /> Projects
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedMetric === 'total_cost_crore' ? ' active' : ''}`}
+            onClick={() => setSelectedMetric('total_cost_crore')}
+          >
+            <IndianRupee size={13} /> Cost
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedMetric === 'total_expenditure_crore' ? ' active' : ''}`}
+            onClick={() => setSelectedMetric('total_expenditure_crore')}
+          >
+            <TrendingUp size={13} /> Spend
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedMetric === 'avg_progress' ? ' active' : ''}`}
+            onClick={() => setSelectedMetric('avg_progress')}
+          >
+            <Activity size={13} /> Progress
+          </button>
+        </div>
+
+        {/* Color Palette Selector */}
+        <div className="map-toolbar-group">
+          <span className="map-toolbar-label"><Palette size={13} style={{ display: 'inline', marginRight: 4 }} />Palette:</span>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedPalette === 'colorful' ? ' active' : ''}`}
+            onClick={() => setSelectedPalette('colorful')}
+            title="Vivid Multi-Color State Atlas"
+          >
+            🎨 Colorful
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedPalette === 'zonal' ? ' active' : ''}`}
+            onClick={() => setSelectedPalette('zonal')}
+            title="Geographic Zones (North, West, South, East, Central, Northeast)"
+          >
+            🗺️ Zonal
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedPalette === 'spectrum' ? ' active' : ''}`}
+            onClick={() => setSelectedPalette('spectrum')}
+            title="Vibrant Multi-Spectrum Gradient"
+          >
+            🌈 Heatmap
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedPalette === 'progress' ? ' active' : ''}`}
+            onClick={() => setSelectedPalette('progress')}
+            title="Traffic-Light Progress Status"
+          >
+            🚦 Status
+          </button>
+          <button
+            type="button"
+            className={`map-chip-btn${selectedPalette === 'monochrome' ? ' active' : ''}`}
+            onClick={() => setSelectedPalette('monochrome')}
+            title="Classic Sapphire Theme"
+          >
+            💎 Classic
+          </button>
+        </div>
+
+        {/* Sector & Status Slicers */}
+        <div className="map-toolbar-group" style={{ marginLeft: 'auto' }}>
+          <select
+            className="select-input"
+            value={selectedSector}
+            onChange={e => setSelectedSector(e.target.value)}
+            style={{ padding: '4px 28px 4px 10px', fontSize: '0.8rem' }}
+          >
+            <option value="">All Sectors</option>
+            {sectorList.map(s => (
+              <option key={s.id || s.sector_id} value={s.id || s.sector_id}>
+                {s.name || s.sector_name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="select-input"
+            value={selectedStatus}
+            onChange={e => setSelectedStatus(e.target.value)}
+            style={{ padding: '4px 28px 4px 10px', fontSize: '0.8rem' }}
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="UNKNOWN">Unknown</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Main Grid: Map & Dice Panel */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedState ? '1.45fr 1fr' : '1fr',
+        gap: 'var(--gap-lg)',
+        alignItems: 'start'
+      }}>
+        {/* Map Container with Zoom Controls */}
+        <div
+          className="map-wrap"
+          ref={mapContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+          style={{
+            minHeight: 600,
+            position: 'relative',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            userSelect: 'none'
+          }}
+        >
+          {/* Zoom Controls Floating Panel */}
+          <div style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: 6,
+            boxShadow: 'var(--shadow)',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-icon btn-sm"
+              onClick={handleZoomIn}
+              title="Zoom In (+)"
+              aria-label="Zoom in"
+            >
+              <ZoomIn size={16} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-icon btn-sm"
+              onClick={handleZoomOut}
+              title="Zoom Out (-)"
+              aria-label="Zoom out"
+            >
+              <ZoomOut size={16} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-icon btn-sm"
+              onClick={handleResetZoom}
+              title="Reset View"
+              aria-label="Reset zoom and position"
+            >
+              <RotateCcw size={15} />
+            </button>
+            <div style={{
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              textAlign: 'center',
+              color: 'var(--text-muted)',
+              borderTop: '1px solid var(--border)',
+              paddingTop: 4
+            }}>
+              {Math.round(zoom * 100)}%
+            </div>
+          </div>
+
           <ComposableMap
             projection="geoMercator"
-            projectionConfig={{ center: [82, 22], scale: 900 }}
-            style={{ width: '100%', height: 520 }}
+            projectionConfig={{
+              center: [82.5, 22.0],
+              scale: 820
+            }}
+            width={800}
+            height={600}
+            style={{ width: '100%', height: 600 }}
           >
-            <Geographies geography={INDIA_GEO}>
-              {({ geographies }) =>
-                geographies.map(geo => {
-                  const name = geo.properties?.NAME_1 || geo.properties?.state || '';
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      onClick={() => handleStateClick(name)}
-                      onMouseEnter={() => setTooltip(name)}
-                      onMouseLeave={() => setTooltip(null)}
-                      style={{
-                        default: {
-                          fill: getStateColor(name),
-                          stroke: 'hsl(222 18% 24%)',
-                          strokeWidth: 0.5,
+            <g
+              transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}
+              style={{
+                transformOrigin: '400px 300px',
+                transition: isDragging ? 'none' : 'transform 180ms cubic-bezier(0.2, 0, 0, 1)'
+              }}
+            >
+              <Geographies geography={indiaGeo}>
+                {({ geographies }) =>
+                  geographies.map(geo => {
+                    const geoName = geo.properties?.ST_NM || geo.properties?.NAME_1 || geo.properties?.state || '';
+                    const data = getStateData(geoName);
+                    const isSelected = selectedState && normalizeStateName(selectedState) === normalizeStateName(geoName);
+
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onClick={() => handleStateClick(geoName)}
+                        onMouseEnter={() => setTooltip({ name: geoName, data })}
+                        onMouseLeave={() => setTooltip(null)}
+                        fill={isSelected ? 'var(--accent)' : getStateColor(geoName)}
+                        stroke={isDark ? 'hsl(222 22% 14%)' : '#ffffff'}
+                        strokeWidth={isSelected ? 2.5 : 0.85}
+                        className="map-state-path"
+                        style={{
                           outline: 'none',
-                          cursor: 'pointer',
-                        },
-                        hover: {
-                          fill: 'hsl(220 90% 65%)',
-                          stroke: 'var(--accent)',
-                          strokeWidth: 1,
-                          outline: 'none',
-                        },
-                        pressed: {
-                          fill: 'var(--accent)',
-                          outline: 'none',
-                        }
-                      }}
-                    />
-                  );
-                })
-              }
-            </Geographies>
+                          cursor: 'pointer'
+                        }}
+                      />
+                    );
+                  })
+                }
+              </Geographies>
+            </g>
           </ComposableMap>
+
+          {/* Floating Hover Tooltip */}
           {tooltip && (
             <div style={{
-              position: 'absolute', top: 12, left: 12,
-              background: 'var(--bg-card)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)', padding: '6px 12px',
-              fontSize: '0.82rem', fontWeight: 600, pointerEvents: 'none'
+              position: 'absolute',
+              top: 14,
+              left: 14,
+              zIndex: 10,
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: '8px 14px',
+              fontSize: '0.84rem',
+              boxShadow: 'var(--shadow)',
+              pointerEvents: 'none',
+              transition: 'all 120ms ease'
             }}>
-              {tooltip}
-              {stateMap[tooltip?.toLowerCase()] && (
-                <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 8 }}>
-                  {stateMap[tooltip.toLowerCase()].project_count} projects
-                </span>
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <MapPin size={13} style={{ color: 'var(--accent)' }} />
+                {tooltip.data?.state_name || tooltip.name}
+              </div>
+              {tooltip.data ? (
+                <div style={{ display: 'flex', gap: 10, marginTop: 4, fontSize: '0.78rem' }}>
+                  <span style={{ color: 'var(--accent-light)', fontWeight: 700 }}>
+                    {tooltip.data.project_count?.toLocaleString()} projects
+                  </span>
+                  <span style={{ color: 'var(--text-muted)' }}>·</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {formatCrore(tooltip.data.total_cost_crore)}
+                  </span>
+                  <span style={{ color: 'var(--text-muted)' }}>·</span>
+                  <span style={{ color: 'var(--green)', fontWeight: 600 }}>
+                    {formatPercent(tooltip.data.avg_progress)}
+                  </span>
+                </div>
+              ) : (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 2 }}>
+                  No standalone projects tracked under current filters
+                </div>
               )}
             </div>
           )}
-          {/* Legend */}
+
+          {/* Map Legend based on active palette */}
           <div style={{
-            position: 'absolute', bottom: 12, left: 12,
-            background: 'var(--bg-card)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '8px 12px', fontSize: '0.72rem', color: 'var(--text-muted)'
+            position: 'absolute',
+            bottom: 14,
+            left: 14,
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: '8px 14px',
+            fontSize: '0.74rem',
+            color: 'var(--text-muted)',
+            boxShadow: 'var(--shadow)',
+            maxWidth: 360
           }}>
-            <div style={{ marginBottom: 4 }}>Project count intensity</div>
-            <div style={{ display: 'flex', gap: 2 }}>
-              {[0.1, 0.3, 0.5, 0.7, 0.9].map(i => (
-                <div key={i} style={{
-                  width: 20, height: 12, borderRadius: 2,
-                  background: `hsl(220 90% ${30 + i * 35}%)`
-                }} />
-              ))}
-              <span style={{ marginLeft: 4 }}>High</span>
-            </div>
+            {selectedPalette === 'colorful' ? (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 2, color: 'var(--text-primary)' }}>
+                  🎨 Vivid State Atlas Palette
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                  Distinct vibrant coloring for each Indian State &amp; UT. Click any state to drill down.
+                </div>
+              </div>
+            ) : selectedPalette === 'zonal' ? (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                  🗺️ Geographic Zones of India
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px 12px' }}>
+                  {Object.values(ZONES).map(z => (
+                    <div key={z.name} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: 2, background: isDark ? z.colorDark : z.colorLight }} />
+                      <span style={{ fontSize: '0.7rem' }}>{z.name.replace(' Zone', '')}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : selectedPalette === 'progress' || selectedMetric === 'avg_progress' ? (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                  🚦 Physical Progress Gauge
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: 'hsl(0 75% 55%)', fontWeight: 600 }}>● &lt;35%</span>
+                  <span style={{ color: 'hsl(28 90% 55%)', fontWeight: 600 }}>● 35–55%</span>
+                  <span style={{ color: 'hsl(45 95% 52%)', fontWeight: 600 }}>● 55–75%</span>
+                  <span style={{ color: 'hsl(142 75% 48%)', fontWeight: 600 }}>● &ge;75%</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                  {selectedMetric === 'project_count' ? 'Project Count' : selectedMetric === 'total_cost_crore' ? 'Total Cost (₹ Cr)' : 'Cumulative Spend (₹ Cr)'} Intensity
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span>Low</span>
+                  {[0.1, 0.3, 0.5, 0.7, 0.9].map(t => (
+                    <div
+                      key={t}
+                      style={{
+                        width: 20,
+                        height: 12,
+                        borderRadius: 2,
+                        background: selectedPalette === 'spectrum'
+                          ? getSpectrumColor(t, isDark)
+                          : isDark ? `hsl(218 90% ${28 + t * 36}%)` : `hsl(218 85% ${82 - t * 38}%)`
+                      }}
+                    />
+                  ))}
+                  <span>High</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* State Panel */}
+        {/* Selected State Drilldown & Dicing Panel */}
         {selectedState && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
+            {/* Summary Card */}
             <div className="card">
-              <div className="card-title"><MapPin size={16} /> {selectedState}</div>
-              {selectedStateData && (
-                <div className="meta-grid">
-                  <div className="meta-item">
-                    <div className="meta-label">Projects</div>
-                    <div className="meta-value" style={{ fontSize: '1.3rem', fontWeight: 800 }}>
-                      {selectedStateData.project_count}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div className="card-title" style={{ marginBottom: 2 }}>
+                    <MapPin size={18} style={{ color: 'var(--accent)' }} /> {selectedState}
+                  </div>
+                  {getStateZone(selectedState) && (
+                    <span className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)', fontSize: '0.68rem' }}>
+                      {getStateZone(selectedState).name}
+                    </span>
+                  )}
+                </div>
+                <button
+                  className="btn btn-ghost btn-icon btn-sm"
+                  onClick={() => setSelectedState(null)}
+                  title="Close panel"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              {selectedStateData ? (
+                <>
+                  <div className="meta-grid" style={{ marginTop: 'var(--gap)' }}>
+                    <div className="meta-item">
+                      <div className="meta-label">Total Projects</div>
+                      <div className="meta-value" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-light)' }}>
+                        {selectedStateData.project_count?.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="meta-item">
+                      <div className="meta-label">Avg Physical Progress</div>
+                      <div className="meta-value" style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--green)' }}>
+                        {formatPercent(selectedStateData.avg_progress)}
+                      </div>
+                    </div>
+                    <div className="meta-item" style={{ gridColumn: '1 / -1' }}>
+                      <div className="meta-label">Total Sanctioned / Revised Cost</div>
+                      <div className="meta-value" style={{ fontWeight: 700 }}>
+                        {formatCrore(selectedStateData.total_cost_crore)}
+                      </div>
+                    </div>
+                    <div className="meta-item" style={{ gridColumn: '1 / -1' }}>
+                      <div className="meta-label">Cumulative Expenditure to Date</div>
+                      <div className="meta-value" style={{ fontWeight: 700 }}>
+                        {formatCrore(selectedStateData.total_expenditure_crore)}
+                      </div>
                     </div>
                   </div>
-                  <div className="meta-item">
-                    <div className="meta-label">Avg Progress</div>
-                    <div className="meta-value">{formatPercent(selectedStateData.avg_progress)}</div>
-                  </div>
-                  <div className="meta-item" style={{ gridColumn: '1 / -1' }}>
-                    <div className="meta-label">Total Cost</div>
-                    <div className="meta-value">{formatCrore(selectedStateData.total_cost_crore)}</div>
-                  </div>
-                  <div className="meta-item" style={{ gridColumn: '1 / -1' }}>
-                    <div className="meta-label">Total Expenditure</div>
-                    <div className="meta-value">{formatCrore(selectedStateData.total_expenditure_crore)}</div>
-                  </div>
+
+                  {/* Dice by Sector Chips */}
+                  {stateSectorSummary.length > 0 && (
+                    <div style={{ marginTop: 'var(--gap)', borderTop: '1px solid var(--border)', paddingTop: 'var(--gap-sm)' }}>
+                      <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>
+                        Sectors Active in {selectedState}:
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {stateSectorSummary.slice(0, 6).map(([sec, count]) => (
+                          <span
+                            key={sec}
+                            className="badge badge-sector"
+                            style={{ cursor: 'pointer', fontSize: '0.72rem' }}
+                            onClick={() => setProjectSearch(sec)}
+                            title={`Filter projects by ${sec}`}
+                          >
+                            {sec}: <strong>{count}</strong>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ marginTop: 'var(--gap)', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                  No standalone projects recorded exclusively under {selectedState} matching current filters.
                 </div>
               )}
             </div>
 
-            <div className="table-container" style={{ flex: 1 }}>
+            {/* State Projects Directory */}
+            <div className="table-container" style={{ flex: 1, minHeight: 350 }}>
               <div className="table-header">
-                <div className="table-title">Recent Projects</div>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => navigate(`/projects?state=${selectedState}`)}
-                >
-                  View all
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 'var(--gap-sm)' }}>
+                  <div className="table-title" style={{ fontSize: '0.88rem' }}>
+                    Projects in {selectedState} ({filteredProjects.length})
+                  </div>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => navigate(`/projects?state=${encodeURIComponent(selectedState)}${selectedSector ? `&sector=${selectedSector}` : ''}`)}
+                    style={{ fontSize: '0.75rem', padding: '3px 8px' }}
+                  >
+                    View in Explorer <ArrowRight size={12} style={{ marginLeft: 3 }} />
+                  </button>
+                </div>
+
+                {/* Search within state projects */}
+                <div style={{ width: '100%', marginTop: 6 }}>
+                  <div className="search-input-wrap">
+                    <Search className="search-input-icon" size={13} />
+                    <input
+                      type="text"
+                      className="search-input"
+                      style={{ padding: '0.35rem 0.65rem 0.35rem 1.85rem', fontSize: '0.78rem' }}
+                      placeholder="Search projects in state..."
+                      value={projectSearch}
+                      onChange={e => setProjectSearch(e.target.value)}
+                    />
+                    {projectSearch && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-icon btn-sm"
+                        onClick={() => setProjectSearch('')}
+                        style={{ position: 'absolute', right: 6, padding: 2 }}
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
+
               {loadingProjects ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} style={{ padding: 'var(--gap)' }}>
-                    <div className="skeleton skeleton-text" style={{ width: '90%' }} />
-                    <div className="skeleton skeleton-text" style={{ width: '60%', height: '0.7em' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '85%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '50%', height: '0.7em' }} />
                   </div>
                 ))
-              ) : stateProjects.map(p => (
-                <div
-                  key={p.id}
-                  style={{ padding: '10px var(--gap)', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                  onClick={() => navigate(`/projects/${p.id}`)}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-                  onMouseLeave={e => e.currentTarget.style.background = ''}
-                >
-                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 2 }}>{p.name}</div>
-                  <div style={{ display: 'flex', gap: 'var(--gap-sm)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                    {p.sector_name && <span>{p.sector_name}</span>}
-                    {p.current_cost_crore && <span>· {formatCrore(p.current_cost_crore)}</span>}
-                    {p.current_progress != null && <span>· {p.current_progress}%</span>}
-                  </div>
+              ) : filteredProjects.length > 0 ? (
+                <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+                  {filteredProjects.map(p => (
+                    <div
+                      key={p.id}
+                      style={{
+                        padding: '10px var(--gap)',
+                        borderBottom: '1px solid var(--border)',
+                        cursor: 'pointer',
+                        transition: 'background var(--transition)'
+                      }}
+                      onClick={() => navigate(`/projects/${p.id}`)}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = ''}
+                    >
+                      <div style={{ fontWeight: 600, fontSize: '0.84rem', marginBottom: 2, lineHeight: 1.3 }}>
+                        {p.name}
+                      </div>
+                      <div style={{ display: 'flex', gap: 'var(--gap-sm)', fontSize: '0.72rem', color: 'var(--text-muted)', flexWrap: 'wrap', alignItems: 'center' }}>
+                        {p.sector_name && <span className="badge badge-sector">{p.sector_name}</span>}
+                        {p.current_cost_crore && <span>{formatCrore(p.current_cost_crore)}</span>}
+                        {p.current_progress != null && (
+                          <span style={{ color: getProgressColor(p.current_progress, isDark), fontWeight: 700 }}>
+                            · {p.current_progress}%
+                          </span>
+                        )}
+                        {p.implementing_agency && <span>· {p.implementing_agency}</span>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div style={{ padding: 'var(--gap-xl)', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
+                  No projects match your filter.
+                </div>
+              )}
             </div>
           </div>
         )}

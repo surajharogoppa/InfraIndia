@@ -54,3 +54,37 @@ class DataQualityIssue(models.Model):
 
     def __str__(self):
         return f"QualityIssue {self.id} [{self.status}]: {self.problem_description[:60]}"
+
+
+class RawIngestionRecord(models.Model):
+    """
+    Immutable raw record captured directly from source before normalization.
+    Enables debugging when source formats change.
+    One record per row/project in the source file.
+    """
+    ingestion_run = models.ForeignKey(
+        IngestionRun, on_delete=models.CASCADE, related_name="raw_records"
+    )
+    # External identifier from source (may be project name hash if no ID available)
+    external_record_id = models.CharField(max_length=255, blank=True, db_index=True)
+    # Original parsed row as received from source (before any normalization)
+    raw_payload = models.JSONField(help_text="Original source row dict, pre-normalization")
+    # SHA-256 hash of raw_payload for deduplication across runs
+    content_hash = models.CharField(max_length=64, db_index=True)
+    # Source file name for traceability
+    source_file = models.CharField(max_length=500, blank=True)
+    # Processing outcome
+    was_accepted = models.BooleanField(default=False)
+    rejection_reason = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["content_hash"]),
+            models.Index(fields=["ingestion_run", "external_record_id"]),
+        ]
+
+    def __str__(self):
+        return f"RawRecord {self.id} [{self.external_record_id}] run={self.ingestion_run_id}"

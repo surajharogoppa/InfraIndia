@@ -15,6 +15,7 @@ class DataSourceViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=["post"], url_path="trigger")
     def trigger_ingestion(self, request, pk=None):
         """Manually trigger ingestion for a source."""
+        # pyrefly: ignore [missing-import]
         from apps.ingestion.tasks import run_ingestion
         source = self.get_object()
         run_ingestion.delay(source.id)

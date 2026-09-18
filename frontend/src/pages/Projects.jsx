@@ -302,7 +302,16 @@ export default function Projects() {
               <ChevronLeft size={14} />
             </button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = Math.max(1, Math.min(page - 2 + i, totalPages - 4 + i));
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (page <= 3) {
+                pageNum = i + 1;
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = page - 2 + i;
+              }
               return (
                 <button
                   key={pageNum}

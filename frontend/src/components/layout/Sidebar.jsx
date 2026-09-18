@@ -3,6 +3,7 @@ import {
   LayoutDashboard, FolderKanban, BarChart3, Map,
   Database, Shield, GitCompare, Info
 } from 'lucide-react';
+import ThemeToggle from '../common/ThemeToggle';
 
 const NAV = [
   {
@@ -65,11 +66,16 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Footer */}
         <div className="sidebar-footer">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <Info size={12} />
-            <strong>Independent Platform</strong>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Info size={12} />
+              <strong>GovProject</strong>
+            </div>
+            <ThemeToggle showLabel={false} />
           </div>
-          Data sourced from publicly available official government sources. Not an official government service.
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+            Data sourced from official MoSPI flash reports. Independent platform.
+          </div>
         </div>
       </aside>
     </>

@@ -76,6 +76,80 @@
   --transition: 200ms ease;
 }
 
+/* ── Light Mode Overrides ────────────────────────────────── */
+[data-theme="light"] {
+  /* Brand */
+  --accent:       hsl(220 90% 52%);
+  --accent-light: hsl(220 90% 45%);
+  --accent-dark:  hsl(220 90% 38%);
+  --accent-glow:  hsl(220 90% 52% / 0.16);
+
+  /* Backgrounds */
+  --bg-base:    hsl(215 28% 97%);
+  --bg-surface: hsl(0 0% 100%);
+  --bg-card:    hsl(0 0% 100%);
+  --bg-hover:   hsl(215 22% 93%);
+  --bg-input:   hsl(215 25% 96%);
+
+  /* Borders */
+  --border:       hsl(215 20% 86%);
+  --border-light: hsl(215 20% 90%);
+
+  /* Text */
+  --text-primary:   hsl(222 47% 11%);
+  --text-secondary: hsl(215 25% 32%);
+  --text-muted:     hsl(215 16% 48%);
+
+  /* Status overrides for contrast on light */
+  --green:  hsl(142 70% 35%);
+  --yellow: hsl(38 95% 42%);
+  --red:    hsl(0 72% 48%);
+  --blue:   hsl(210 90% 48%);
+  --purple: hsl(262 75% 52%);
+  --orange: hsl(25 90% 48%);
+  --teal:   hsl(174 75% 36%);
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px hsl(220 20% 20% / 0.08);
+  --shadow:     0 4px 16px hsl(220 20% 20% / 0.08);
+  --shadow-lg:  0 8px 32px hsl(220 20% 20% / 0.12);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+}
+
+[data-theme="light"] a:hover {
+  color: var(--accent-dark);
+}
+
+[data-theme="light"] thead th {
+  background: hsl(215 25% 95%);
+}
+
+[data-theme="light"] .disclaimer-banner {
+  background: hsl(42 95% 52% / 0.12);
+  border-color: hsl(42 90% 45% / 0.35);
+  color: hsl(32 95% 25%);
+}
+
+[data-theme="light"] .badge-sector {
+  background: hsl(215 20% 92%);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .badge-unknown {
+  background: hsl(215 16% 88%);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .table-container,
+[data-theme="light"] .card,
+[data-theme="light"] .filter-bar,
+[data-theme="light"] .summary-card,
+[data-theme="light"] .map-wrap {
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── Base ────────────────────────────────────────────────── */
 html { font-size: 15px; }
 
@@ -86,6 +160,7 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--transition), color var(--transition);
 }
 
 a { color: var(--accent-light); text-decoration: none; transition: color var(--transition); }
@@ -730,12 +805,164 @@ tbody tr:hover { background: var(--bg-hover); }
   padding: 2px 8px;
 }
 
-/* ── Map ─────────────────────────────────────────────────── */
+/* ── Data Freshness Banner ───────────────────────────────── */
+.data-freshness-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem 1.25rem;
+  margin-bottom: var(--gap-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-lg);
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+.freshness-items-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.freshness-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.freshness-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: var(--bg-hover);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.freshness-item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.freshness-item-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.freshness-item-value {
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.freshness-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+@media (max-width: 900px) {
+  .freshness-divider { display: none; }
+}
+
+.freshness-tag-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--yellow);
+  background: hsl(42 95% 58% / 0.1);
+  border: 1px solid hsl(42 95% 58% / 0.25);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-weight: 500;
+}
+
+[data-theme="light"] .freshness-tag-notice {
+  color: hsl(35 95% 30%);
+  background: hsl(42 95% 50% / 0.12);
+  border-color: hsl(42 90% 45% / 0.3);
+}
+
+/* ── Map Slice & Dice Toolbar ────────────────────────────── */
+.map-toolbar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem var(--gap);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.map-toolbar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 2px;
+}
+
+.map-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.map-chip-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.map-chip-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ── Map Container ───────────────────────────────────────── */
 .map-wrap {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  position: relative;
 }
 
 /* ── Loading / Skeleton ──────────────────────────────────── */
@@ -841,3 +1068,20 @@ tbody tr:hover { background: var(--bg-hover); }
 .font-bold { font-weight: 700; }
 .w-full { width: 100%; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Interactive Map SVG ──────────────────────────────────── */
+.map-state-path {
+  cursor: pointer;
+  outline: none;
+  transition: fill 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              filter 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.map-state-path:hover {
+  filter: brightness(1.28) saturate(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  stroke: #ffffff !important;
+  stroke-width: 2px !important;
+}
+[data-theme="light"] .map-state-path:hover {
+  stroke: #0f172a !important;
+}

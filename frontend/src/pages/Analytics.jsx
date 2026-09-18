@@ -11,10 +11,15 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '8px 12px', fontSize: '0.8rem'
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      padding: '8px 12px',
+      fontSize: '0.8rem',
+      color: 'var(--text-primary)',
+      boxShadow: 'var(--shadow)',
     }}>
-      <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>{label}</div>
+      <div style={{ color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || 'var(--text-primary)' }}>
           {p.name}: <strong>{typeof p.value === 'number' ? p.value.toLocaleString('en-IN') : p.value}</strong>
@@ -41,13 +46,14 @@ export default function Analytics() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
         <div className="chart-card">
           <div className="chart-card-header">
-            <div className="chart-title">Projects by State</div>
+            <div className="chart-title">Top 15 States by Project Count</div>
+            <div className="chart-subtitle">Number of ongoing infrastructure projects per State/UT</div>
           </div>
-          <ResponsiveContainer width="100%" height={380}>
-            <BarChart data={top} layout="vertical" margin={{ left: 110 }}>
+          <ResponsiveContainer width="100%" height={440}>
+            <BarChart data={top} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="state_name" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(220 16% 18%)' }} />
+              <YAxis type="category" dataKey="state_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -82,15 +88,38 @@ export default function Analytics() {
   }
 
   function SectorTab() {
+    const topSectors = (sectors || []).slice(0, 6);
+    const otherCount = (sectors || []).slice(6).reduce((acc, s) => acc + (s.project_count || 0), 0);
+    const pieData = [
+      ...topSectors.map((s, idx) => ({ name: s.sector_name, value: s.project_count, fill: sectorColor(idx) })),
+      ...(otherCount > 0 ? [{ name: 'Other Sectors', value: otherCount, fill: 'hsl(220 12% 50%)' }] : [])
+    ];
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
         <div className="charts-grid">
           <div className="chart-card">
-            <div className="chart-card-header"><div className="chart-title">Projects by Sector</div></div>
-            <ResponsiveContainer width="100%" height={300}>
+            <div className="chart-card-header">
+              <div>
+                <div className="chart-title">Projects by Sector Share</div>
+                <div className="chart-subtitle">Top sectors vs others</div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
-                <Pie data={sectors || []} dataKey="project_count" nameKey="sector_name" cx="50%" cy="50%" outerRadius={100} paddingAngle={3}>
-                  {(sectors || []).map((_, i) => <Cell key={i} fill={sectorColor(i)} />)}
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={3}
+                >
+                  {pieData.map(entry => (
+                    <Cell key={entry.name} fill={entry.fill} />
+                  ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend formatter={v => <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>{v}</span>} />
@@ -98,12 +127,17 @@ export default function Analytics() {
             </ResponsiveContainer>
           </div>
           <div className="chart-card">
-            <div className="chart-card-header"><div className="chart-title">Total Cost by Sector (₹ Cr)</div></div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 90 }}>
+            <div className="chart-card-header">
+              <div>
+                <div className="chart-title">Total Cost by Sector (₹ Cr)</div>
+                <div className="chart-subtitle">Cost across top 8 sectors</div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
                 <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="sector_name" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(220 16% 18%)' }} />
+                <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
                 <Bar dataKey="total_cost_crore" name="Cost (Cr)" radius={[0, 4, 4, 0]}>
                   {(sectors || []).slice(0, 8).map((_, i) => <Cell key={i} fill={sectorColor(i)} />)}
                 </Bar>
@@ -121,7 +155,7 @@ export default function Analytics() {
               {(sectors || []).map(s => (
                 <tr key={s.sector_id}>
                   <td style={{ fontWeight: 600 }}>{s.sector_name}</td>
-                  <td>{s.project_count}</td>
+                  <td>{s.project_count?.toLocaleString()}</td>
                   <td>{formatCrore(s.total_cost_crore)}</td>
                   <td>{formatCrore(s.total_expenditure_crore)}</td>
                   <td>{formatPercent(s.avg_progress)}</td>
@@ -138,12 +172,17 @@ export default function Analytics() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
         <div className="chart-card">
-          <div className="chart-card-header"><div className="chart-title">Projects by Ministry</div></div>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 200 }}>
+          <div className="chart-card-header">
+            <div>
+              <div className="chart-title">Projects by Ministry (Top 10)</div>
+              <div className="chart-subtitle">Count of projects overseen per Union Ministry</div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={360}>
+            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} width={190} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(220 16% 18%)' }} />
+              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -158,7 +197,7 @@ export default function Analytics() {
               {(ministries || []).map(m => (
                 <tr key={m.ministry_id}>
                   <td style={{ fontWeight: 600 }}>{m.ministry_name}</td>
-                  <td>{m.project_count}</td>
+                  <td>{m.project_count?.toLocaleString()}</td>
                   <td>{formatCrore(m.total_cost_crore)}</td>
                   <td>{formatCrore(m.total_expenditure_crore)}</td>
                   <td>{formatPercent(m.avg_progress)}</td>
@@ -188,12 +227,15 @@ export default function Analytics() {
           ))}
         </div>
         <div className="chart-card">
-          <div className="chart-card-header"><div className="chart-title">Cost Distribution</div></div>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={costs?.distribution || []}>
-              <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+          <div className="chart-card-header">
+            <div className="chart-title">Cost Distribution</div>
+            <div className="chart-subtitle">Distribution of central sector projects across cost brackets</div>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 10, top: 10 }}>
+              <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} height={35} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(220 16% 18%)' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="count" name="Projects" fill="hsl(174 65% 48%)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

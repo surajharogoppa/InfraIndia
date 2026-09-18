@@ -12,7 +12,8 @@ import {
 } from 'recharts';
 import {
   ArrowLeft, MapPin, Building2, Calendar, TrendingUp,
-  IndianRupee, Info, AlertTriangle, GitCommitHorizontal
+  IndianRupee, Info, AlertTriangle, GitCommitHorizontal,
+  Database, ExternalLink, RefreshCw
 } from 'lucide-react';
 
 function SummaryCard({ label, value, sub, highlight }) {
@@ -114,11 +115,57 @@ export default function ProjectDetails() {
           )}
         </div>
 
-        {/* Source attribution */}
-        <div style={{ marginTop: 'var(--gap-sm)', padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'inline-flex', gap: 12 }}>
-          {project.source_name && <span>Source: <strong style={{ color: 'var(--text-secondary)' }}>{project.source_name}</strong></span>}
-          {project.source_updated_date && <span>Source Updated: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(project.source_updated_date)}</strong></span>}
-          {project.updated_at && <span>Platform Ingested: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(project.updated_at)}</strong></span>}
+        {/* Source info panel */}
+        <div style={{
+          marginTop: 'var(--gap-sm)',
+          padding: '10px 14px',
+          background: 'linear-gradient(135deg, hsl(220 80% 10% / 0.6), hsl(260 70% 8% / 0.6))',
+          border: '1px solid hsl(220 60% 28% / 0.5)',
+          borderRadius: 'var(--radius)',
+          fontSize: '0.74rem',
+          color: 'var(--text-muted)',
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Database size={12} style={{ color: 'hsl(220 90% 65%)', flexShrink: 0 }} />
+            <span>
+              <strong style={{ color: 'var(--text-secondary)' }}>Source:</strong>{' '}
+              {project.source_name || 'MoSPI Flash Report (PAIMANA)'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Building2 size={12} style={{ flexShrink: 0 }} />
+            <span>Ministry of Statistics &amp; Programme Implementation</span>
+          </div>
+          {project.updated_at && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <RefreshCw size={11} style={{ color: 'hsl(160 70% 50%)', flexShrink: 0 }} />
+              <span>Last synced: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(project.updated_at)}</strong></span>
+            </div>
+          )}
+          {project.source_url && (
+            <a
+              href={project.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'hsl(220 90% 65%)', marginLeft: 'auto', textDecoration: 'none' }}
+            >
+              <ExternalLink size={11} /> View Source
+            </a>
+          )}
+          {!project.source_url && (
+            <a
+              href="https://mospi.gov.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'hsl(220 90% 65%)', marginLeft: 'auto', textDecoration: 'none' }}
+            >
+              <ExternalLink size={11} /> mospi.gov.in
+            </a>
+          )}
         </div>
       </div>
 
@@ -159,7 +206,9 @@ export default function ProjectDetails() {
                   <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip
                     formatter={(v) => [`${v}%`, 'Progress']}
-                    contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', fontSize: '0.8rem' }}
+                    contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', fontSize: '0.8rem', color: 'var(--text-primary)', boxShadow: 'var(--shadow)' }}
+                    itemStyle={{ color: 'var(--text-primary)' }}
+                    labelStyle={{ color: 'var(--text-secondary)' }}
                   />
                   <Line
                     type="monotone"

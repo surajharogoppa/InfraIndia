@@ -19,7 +19,7 @@ export const projectsApi = {
 // ── Analytics ────────────────────────────────────────────────
 export const analyticsApi = {
   overview: () => api.get('/analytics/overview/'),
-  states: () => api.get('/analytics/states/'),
+  states: (params) => api.get('/analytics/states/', { params }),
   sectors: () => api.get('/analytics/sectors/'),
   ministries: () => api.get('/analytics/ministries/'),
   costs: () => api.get('/analytics/costs/'),
