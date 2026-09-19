@@ -58,7 +58,13 @@ class SampleCSVConnector(BaseProjectSource):
     def fetch(self) -> str:
         """Read the CSV file from disk."""
         logger.info(f"Fetching CSV from {self.file_path}")
-        return self.file_path.read_text(encoding="utf-8-sig")
+        try:
+            return self.file_path.read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            try:
+                return self.file_path.read_text(encoding="latin-1")
+            except Exception:
+                return self.file_path.read_text(encoding="utf-8", errors="replace")
 
     def parse(self, raw_data: str) -> Iterator[dict]:
         """Parse CSV into raw row dicts using source column names."""

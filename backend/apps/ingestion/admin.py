@@ -55,6 +55,48 @@ class IngestionRunAdmin(admin.ModelAdmin):
     actions = ["rerun_selected_ingestions"]
     inlines = [DataQualityIssueInline, RawIngestionRecordInline]
 
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:run_id>/progress/",
+                self.admin_site.admin_view(self.live_progress_view),
+                name="ingestion_ingestionrun_progress",
+            ),
+            path(
+                "<int:run_id>/status-json/",
+                self.admin_site.admin_view(self.status_json_view),
+                name="ingestion_ingestionrun_status_json",
+            ),
+        ]
+        return custom_urls + urls
+
+    def live_progress_view(self, request, run_id):
+        from django.shortcuts import get_object_or_404, render
+        run = get_object_or_404(IngestionRun, id=run_id)
+        context = {
+            **self.admin_site.each_context(request),
+            "run": run,
+            "title": f"Ingestion Run #{run.id} Live Pipeline",
+        }
+        return render(request, "admin/ingestion/progress.html", context)
+
+    def status_json_view(self, request, run_id):
+        from django.http import JsonResponse
+        from django.shortcuts import get_object_or_404
+        run = get_object_or_404(IngestionRun, id=run_id)
+        return JsonResponse({
+            "id": run.id,
+            "status": run.status,
+            "records_found": run.records_found,
+            "records_inserted": run.records_inserted,
+            "records_updated": run.records_updated,
+            "records_rejected": run.records_rejected,
+            "message": run.error_message,
+            "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+        })
+
     fieldsets = (
         ("Execution Status", {
             "fields": ("source", "status", "started_at", "completed_at", "duration_display")
@@ -64,7 +106,7 @@ class IngestionRunAdmin(admin.ModelAdmin):
         }),
         ("Error & Failure Inspection", {
             "fields": ("error_inspection",),
-            "classes": ("collapse",) if not IngestionRun.objects.filter(status="FAILED").exists() else ()
+            "classes": ("collapse",)
         }),
     )
 

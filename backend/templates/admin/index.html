@@ -538,7 +538,7 @@
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-      <a href="/admin/sources/datasource/" class="infra-ops-btn" style="background: #2563eb;">
+      <a href="{% url 'admin:sources_datasource_run_ingestion' %}" onclick="return confirm('Fetch latest Flash Report document from the internet and run live ingestion?');" class="infra-ops-btn" style="background: #2563eb;">
         ⚡ Run Ingestion Manually
       </a>
       <a href="/admin/ingestion/dataqualityissue/?status__exact=PENDING" class="infra-ops-btn" style="background: #ea580c;">

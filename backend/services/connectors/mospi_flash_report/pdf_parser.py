@@ -255,11 +255,11 @@ def _parse_table_6(pdf) -> list[dict]:
 
     # Locate starting page of Table 6
     start_page_idx = None
-    search_start = min(50, len(pdf.pages))
-    search_end = min(65, len(pdf.pages))
+    search_start = min(35, len(pdf.pages))
+    search_end = min(90, len(pdf.pages))
     for p_idx in range(search_start, search_end):
-        text = pdf.pages[p_idx].extract_text() or ""
-        if "all ongoing projects" in text.lower() or "table 6" in text.lower():
+        text = (pdf.pages[p_idx].extract_text() or "").lower()
+        if "table 6" in text or "table-6" in text or "all ongoing projects" in text or "list of ongoing projects" in text:
             start_page_idx = p_idx
             break
 

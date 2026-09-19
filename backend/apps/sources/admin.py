@@ -111,12 +111,83 @@ class DataSourceAdmin(admin.ModelAdmin):
     last_sync_display.short_description = "Last Sync"
 
     def trigger_button(self, obj):
-        url = reverse("admin:sources_datasource_change", args=[obj.id])
+        inspect_url = reverse("admin:sources_datasource_change", args=[obj.id])
+        run_url = reverse("admin:sources_datasource_run_ingestion_single", args=[obj.id])
         return format_html(
-            '<a class="button" href="{}" style="padding: 3px 8px; font-size: 11px; background: #2563eb; color: #fff; border-radius: 4px; text-decoration: none;">⚙ Inspect / Edit</a>',
-            url
+            '<div style="display: flex; gap: 6px; align-items: center;">'
+            '<a class="button" href="{}" style="padding: 4px 8px; font-size: 11px; background: #2563eb; color: #fff; border-radius: 4px; text-decoration: none; font-weight: 600;">⚙ Inspect</a>'
+            '<a class="button" href="{}" style="padding: 4px 8px; font-size: 11px; background: #059669; color: #fff; border-radius: 4px; text-decoration: none; font-weight: 600;" title="Fetch from internet & run sync">⚡ Run Ingestion</a>'
+            '</div>',
+            inspect_url,
+            run_url,
         )
-    trigger_button.short_description = "Controls"
+    trigger_button.short_description = "Actions"
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "run-ingestion/",
+                self.admin_site.admin_view(self.run_manual_ingestion_view),
+                name="sources_datasource_run_ingestion",
+            ),
+            path(
+                "<int:source_id>/run-ingestion/",
+                self.admin_site.admin_view(self.run_manual_ingestion_view),
+                name="sources_datasource_run_ingestion_single",
+            ),
+        ]
+        return custom_urls + urls
+
+    def run_manual_ingestion_view(self, request, source_id=None):
+        import threading
+        import logging
+        from django.shortcuts import redirect
+        from django.urls import reverse
+        from apps.ingestion.services import sync_mospi_flash_report
+        from apps.ingestion.models import IngestionRun
+
+        target_source = None
+        if source_id:
+            try:
+                target_source = DataSource.objects.get(id=source_id)
+            except DataSource.DoesNotExist:
+                self.message_user(request, f"DataSource #{source_id} not found.", messages.ERROR)
+                return redirect("admin:sources_datasource_changelist")
+
+        # Check if an ingestion is already running
+        running_run = IngestionRun.objects.filter(status=IngestionRun.Status.RUNNING).first()
+        if running_run:
+            self.message_user(
+                request,
+                f"Ingestion Run #{running_run.id} is already in progress. Displaying live pipeline progress.",
+                messages.INFO,
+            )
+            return redirect(reverse("admin:ingestion_ingestionrun_progress", args=[running_run.id]))
+
+        if target_source is None:
+            target_source = DataSource.objects.filter(name__icontains="paimana").first() or DataSource.objects.first()
+
+        # Create IngestionRun record immediately
+        new_run = IngestionRun.objects.create(
+            source=target_source,
+            status=IngestionRun.Status.RUNNING,
+            error_message="Initializing pipeline and checking remote MoSPI server for latest publication asset...",
+        )
+
+        # Launch background worker thread to execute without blocking the HTTP request
+        def _background_worker():
+            try:
+                sync_mospi_flash_report(source=target_source, auto_download=True, run=new_run)
+            except Exception as exc:
+                logging.getLogger(__name__).error(f"Background ingestion failed: {exc}", exc_info=True)
+
+        worker_thread = threading.Thread(target=_background_worker, daemon=True)
+        worker_thread.start()
+
+        # Immediately navigate user to the live progress dashboard!
+        return redirect(reverse("admin:ingestion_ingestionrun_progress", args=[new_run.id]))
 
     @admin.action(description="✓ Enable selected data sources")
     def enable_selected_sources(self, request, queryset):
@@ -130,22 +201,16 @@ class DataSourceAdmin(admin.ModelAdmin):
 
     @admin.action(description="⚡ Trigger Manual Ingestion for selected sources")
     def trigger_ingestion_for_sources(self, request, queryset):
-        from apps.ingestion.tasks import run_ingestion
-        triggered = 0
+        from apps.ingestion.services import sync_mospi_flash_report
+        success_count = 0
         for source in queryset:
             try:
-                run_ingestion.delay(source.id)
-                triggered += 1
-            except Exception:
-                # Fallback to direct synchronous execution if Celery broker is unavailable
-                try:
-                    run_ingestion(source.id)
-                    triggered += 1
-                except Exception as e:
-                    self.message_user(request, f"Failed to run ingestion for {source.name}: {str(e)}", messages.ERROR)
-        if triggered > 0:
-            self.message_user(
-                request,
-                f"Ingestion triggered for {triggered} source(s). Inspect progress in Ingestion Runs.",
-                messages.SUCCESS,
-            )
+                res = sync_mospi_flash_report(source=source, auto_download=True)
+                success_count += 1
+                self.message_user(
+                    request,
+                    f"✓ Ingestion completed for {source.name}: {res['records_found']} records ({res['inserted']} new, {res['updated']} updated). Run #{res['run'].id}.",
+                    messages.SUCCESS,
+                )
+            except Exception as e:
+                self.message_user(request, f"Failed to run ingestion for {source.name}: {str(e)}", messages.ERROR)

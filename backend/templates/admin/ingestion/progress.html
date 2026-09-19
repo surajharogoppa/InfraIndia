@@ -1,0 +1,358 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Ingestion Run #{{ run.id }} Live Pipeline | InfraIndia Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .ingestion-progress-container {
+    max-width: 960px;
+    margin: 30px auto;
+    background: var(--body-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    padding: 32px 36px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  .ingestion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+
+  .ingestion-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--body-fg, #0f172a);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ingestion-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .live-badge {
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .live-badge-running {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    animation: pulse 1.8s infinite;
+  }
+
+  .live-badge-success {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+
+  .live-badge-failed {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.82; transform: scale(1.02); }
+  }
+
+  /* Live Progress Message Card */
+  .progress-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+  }
+
+  .progress-status-text {
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Metric Counter Grid */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .metric-box {
+    background: var(--darkened-bg, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-val {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--body-fg, #1e293b);
+    margin-top: 4px;
+  }
+
+  /* Pipeline Stage Steps */
+  .pipeline-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px 0;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--darkened-bg, #f8fafc);
+    border: 1px solid var(--border-color, #f1f5f9);
+    color: #64748b;
+  }
+
+  .pipeline-step.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+  }
+
+  .pipeline-step.completed {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+  }
+
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 120ms ease;
+  }
+
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; color: #fff; }
+  .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-success { background: #16a34a; color: #fff; }
+  .btn-success:hover { background: #15803d; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ingestion-progress-container">
+  <div class="ingestion-header">
+    <div>
+      <div class="ingestion-title">
+        <span>🔄 MoSPI PAIMANA Ingestion Pipeline</span>
+      </div>
+      <div class="ingestion-subtitle">
+        Run #{{ run.id }} &middot; Source: <strong>{{ run.source.name }}</strong> &middot; Started: {{ run.started_at|date:"d M Y, H:i:s" }}
+      </div>
+    </div>
+    <div id="status-badge-container">
+      {% if run.status == "RUNNING" %}
+        <span class="live-badge live-badge-running" id="badge-elem">
+          <span class="spinner" style="width: 10px; height: 10px; border-color: rgba(29, 78, 216, 0.3); border-top-color: #1d4ed8;"></span>
+          RUNNING
+        </span>
+      {% elif run.status == "SUCCESS" %}
+        <span class="live-badge live-badge-success" id="badge-elem">✓ SUCCESS</span>
+      {% elif run.status == "FAILED" %}
+        <span class="live-badge live-badge-failed" id="badge-elem">✕ FAILED</span>
+      {% else %}
+        <span class="live-badge" style="background: #fef3c7; color: #b45309;">{{ run.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Live Progress Message -->
+  <div class="progress-card">
+    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75; margin-bottom: 6px;">
+      Current Pipeline Stage
+    </div>
+    <div class="progress-status-text">
+      <span class="spinner" id="active-spinner" style="{% if run.status != 'RUNNING' %}display: none;{% endif %}"></span>
+      <span id="live-message">{{ run.error_message|default:"Processing pipeline in background..." }}</span>
+    </div>
+  </div>
+
+  <!-- Real-Time Metrics -->
+  <div class="metric-grid">
+    <div class="metric-box">
+      <div class="metric-label">Records Found</div>
+      <div class="metric-val" id="metric-found">{{ run.records_found }}</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">New Projects Inserted</div>
+      <div class="metric-val" style="color: #16a34a;" id="metric-inserted">{{ run.records_inserted }}</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Projects Updated</div>
+      <div class="metric-val" style="color: #2563eb;" id="metric-updated">{{ run.records_updated }}</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Validation Alerts</div>
+      <div class="metric-val" style="color: #ea580c;" id="metric-rejected">{{ run.records_rejected }}</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Stages -->
+  <div style="font-size: 13px; font-weight: 700; color: var(--body-fg, #1e293b); margin-bottom: 12px;">
+    Execution Workflow
+  </div>
+  <ul class="pipeline-steps">
+    <li class="pipeline-step {% if run.records_found > 0 or run.status != 'RUNNING' %}completed{% else %}active{% endif %}" id="step-1">
+      <span>📡</span>
+      <span>1. Discover &amp; fetch latest Flash Report asset from mospi.gov.in</span>
+    </li>
+    <li class="pipeline-step {% if run.records_found > 0 and run.status == 'RUNNING' %}active{% elif run.records_found > 0 %}completed{% endif %}" id="step-2">
+      <span>📑</span>
+      <span>2. Extract 1,775+ central sector project records from Table 6</span>
+    </li>
+    <li class="pipeline-step {% if run.records_inserted > 0 or run.records_updated > 0 %}completed{% elif run.records_found > 0 %}active{% endif %}" id="step-3">
+      <span>🗄️</span>
+      <span>3. Upsert database records, snapshots, and detect cost &amp; schedule changes</span>
+    </li>
+    <li class="pipeline-step {% if run.status == 'SUCCESS' %}completed{% endif %}" id="step-4">
+      <span>✅</span>
+      <span>4. Ingestion audit trail finalized and registry synchronized</span>
+    </li>
+  </ul>
+
+  <!-- Action Links -->
+  <div class="action-buttons">
+    <a href="{% url 'admin:index' %}" class="btn-action btn-secondary">
+      &larr; Admin Dashboard
+    </a>
+    <a href="{% url 'admin:ingestion_ingestionrun_change' run.id %}" class="btn-action btn-secondary">
+      📜 Run Audit Record
+    </a>
+    <a href="/admin/projects/project/" class="btn-action btn-primary" id="btn-browse" style="{% if run.status == 'RUNNING' %}opacity: 0.65; pointer-events: none;{% endif %}">
+      🏗️ Browse All Projects &rarr;
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var runId = {{ run.id }};
+  var pollUrl = "/admin/ingestion/ingestionrun/" + runId + "/status-json/";
+  var isRunning = {% if run.status == 'RUNNING' %}true{% else %}false{% endif %};
+
+  if (!isRunning) return;
+
+  var interval = setInterval(function() {
+    fetch(pollUrl)
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data) return;
+
+        // Update counts
+        document.getElementById('metric-found').innerText = data.records_found || 0;
+        document.getElementById('metric-inserted').innerText = data.records_inserted || 0;
+        document.getElementById('metric-updated').innerText = data.records_updated || 0;
+        document.getElementById('metric-rejected').innerText = data.records_rejected || 0;
+
+        if (data.message) {
+          document.getElementById('live-message').innerText = data.message;
+        }
+
+        // Check if finished
+        if (data.status !== 'RUNNING') {
+          clearInterval(interval);
+          var badgeContainer = document.getElementById('status-badge-container');
+          var spinner = document.getElementById('active-spinner');
+          if (spinner) spinner.style.display = 'none';
+
+          if (data.status === 'SUCCESS' || data.status === 'PARTIAL_SUCCESS') {
+            badgeContainer.innerHTML = '<span class="live-badge live-badge-success">✓ COMPLETED</span>';
+            document.getElementById('live-message').innerText = '✓ Ingestion finished successfully! ' +
+              data.records_found + ' records processed (' + data.records_inserted + ' inserted, ' + data.records_updated + ' updated).';
+            document.getElementById('step-1').className = 'pipeline-step completed';
+            document.getElementById('step-2').className = 'pipeline-step completed';
+            document.getElementById('step-3').className = 'pipeline-step completed';
+            document.getElementById('step-4').className = 'pipeline-step completed';
+          } else {
+            badgeContainer.innerHTML = '<span class="live-badge live-badge-failed">✕ FAILED</span>';
+          }
+
+          var browseBtn = document.getElementById('btn-browse');
+          if (browseBtn) {
+            browseBtn.style.opacity = '1';
+            browseBtn.style.pointerEvents = 'auto';
+            browseBtn.className = 'btn-action btn-success';
+          }
+        }
+      })
+      .catch(function(err) {
+        console.error("Progress poll error:", err);
+      });
+  }, 2500);
+})();
+</script>
+{% endblock %}

@@ -88,6 +88,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
     list_filter = ["platform_status", "sector", "state", "ministry"]
     search_fields = ["name", "external_project_id", "contractor_name", "description"]
+    list_per_page = 50
     readonly_fields = [
         "created_at",
         "updated_at",

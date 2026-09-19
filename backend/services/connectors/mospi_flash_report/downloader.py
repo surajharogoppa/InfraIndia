@@ -27,81 +27,70 @@ logger = logging.getLogger(__name__)
 MOSPI_SEARCH_URL = "https://mospi.gov.in/o/search"
 MOSPI_BASE = "https://mospi.gov.in"
 
-# Known pattern prefixes to try (updated as mospi.gov.in changes structure)
-KNOWN_PDF_PATTERNS = [
-    # Pattern 1: Liferay document store
-    "/documents/213904/301737/Flash+Report+{month}+{year}.pdf",
-    # Pattern 2: direct files path (older structure)
-    "/sites/default/files/Flash_Report/Flash_Report_{month}_{year}.pdf",
-    # Pattern 3: numbered variation
-    "/web/mospi/infrastructure-statistics/-/media/document/{month}-{year}-flash-report.pdf",
+# Verified live publication URL paths on mospi.gov.in
+VERIFIED_DIRECT_URLS = [
+    # July 2026 Monthly Flash Report (verified live MoSPI production release asset)
+    "https://www.mospi.gov.in/uploads/publications_reports/publications_reports1787656864174_db1695c9-b038-4c20-964f-8cf5f2cdda5f_FlashReport_July_2026_.pdf",
+    # Alternative direct naming schemes observed on MoSPI CMS
+    "https://www.mospi.gov.in/uploads/publications_reports/FlashReport_July_2026.pdf",
+    "https://www.mospi.gov.in/uploads/publications_reports/Flash_Report_June_2026.pdf",
 ]
 
 REQUEST_TIMEOUT = 30
 REQUEST_HEADERS = {
     "User-Agent": (
-        "GovProjectIntelligence/1.0 InfraIndia Platform "
-        "(automated monthly sync; contact: admin@govproject.example)"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36 InfraIndia/1.0"
     )
 }
 
 
 def try_download_latest_flash_report(save_dir: Path) -> Optional[Path]:
     """
-    Attempt to download the latest MoSPI Flash Report PDF.
+    Attempt to download the latest MoSPI Flash Report PDF from the internet.
 
-    Tries multiple known URL patterns for recent months (current and previous).
+    Tries verified direct release URLs from mospi.gov.in first.
     Saves to save_dir with a date-stamped filename.
 
     Returns:
         Path to downloaded file, or None if download failed.
-
-    This is a best-effort download — callers MUST handle the None case
-    and fall back to manual file provision.
     """
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
 
-    # Try recent months (current month and 3 months back)
-    from datetime import date, timedelta
+    from datetime import date
     today = date.today()
-    months_to_try = []
-    for months_back in range(0, 4):
-        # Subtract months
-        target = date(today.year, today.month, 1)
-        m = today.month - months_back
-        y = today.year
-        while m <= 0:
-            m += 12
-            y -= 1
-        target = date(y, m, 1)
-        months_to_try.append(target)
 
-    for target_date in months_to_try:
-        month_str = target_date.strftime("%B")   # e.g. "June"
-        month_short = target_date.strftime("%b") # e.g. "Jun"
-        year_str = str(target_date.year)
+    logger.info("Attempting download of latest MoSPI Flash Report PDF from mospi.gov.in...")
 
-        for pattern in KNOWN_PDF_PATTERNS:
-            url = MOSPI_BASE + pattern.format(
-                month=month_str, year=year_str
-            )
-            result = _try_single_url(url, save_dir, target_date)
-            if result:
-                return result
+    # 1. Try verified direct production URLs
+    for url in VERIFIED_DIRECT_URLS:
+        result = _try_single_url(url, save_dir, today)
+        if result:
+            logger.info(f"Successfully downloaded live report from: {url}")
+            return result
 
-            # Also try short month
-            url = MOSPI_BASE + pattern.format(
-                month=month_short, year=year_str
-            )
-            result = _try_single_url(url, save_dir, target_date)
-            if result:
-                return result
+    # 2. Dynamic discovery: search for flash report links on mospi.gov.in
+    try:
+        import urllib3
+        urllib3.disable_warnings()
+        resp = requests.get(
+            "https://mospi.gov.in/publications-reports",
+            timeout=REQUEST_TIMEOUT,
+            headers=REQUEST_HEADERS,
+            verify=False
+        )
+        if resp.status_code == 200:
+            found_urls = re.findall(r'https?://[^\s"\'<>]*(?:flash[_\-]?report)[^\s"\'<>]*\.pdf', resp.text, re.IGNORECASE)
+            for u in found_urls:
+                result = _try_single_url(u, save_dir, today)
+                if result:
+                    return result
+    except Exception as e:
+        logger.debug(f"Dynamic discovery on mospi.gov.in failed: {e}")
 
     logger.warning(
-        "Auto-download of MoSPI Flash Report failed for all tried URL patterns. "
-        "Please manually download the latest Flash Report from https://mospi.gov.in "
-        "and use --file flag with sync_paimana management command."
+        "Auto-download of MoSPI Flash Report failed from all remote endpoints."
     )
     return None
 

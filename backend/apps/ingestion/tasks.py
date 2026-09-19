@@ -298,7 +298,8 @@ def _get_or_create_ministry(name: str | None):
         return None
     # pyrefly: ignore [missing-import]
     from apps.organizations.models import Ministry
-    obj, _ = Ministry.objects.get_or_create(name=name.strip(), defaults={"short_name": ""})
+    clean_name = " ".join(name.strip().split())
+    obj, _ = Ministry.objects.get_or_create(name=clean_name, defaults={"short_name": ""})
     return obj
 
 
@@ -307,7 +308,8 @@ def _get_or_create_department(name: str | None, ministry):
         return None
     # pyrefly: ignore [missing-import]
     from apps.organizations.models import Department
-    obj, _ = Department.objects.get_or_create(name=name.strip(), defaults={"ministry": ministry})
+    clean_name = " ".join(name.strip().split())
+    obj, _ = Department.objects.get_or_create(name=clean_name, defaults={"ministry": ministry})
     return obj
 
 
@@ -316,7 +318,8 @@ def _get_or_create_organization(name: str | None, department):
         return None
     # pyrefly: ignore [missing-import]
     from apps.organizations.models import Organization
-    obj, _ = Organization.objects.get_or_create(name=name.strip(), defaults={"department": department})
+    clean_name = " ".join(name.strip().split())
+    obj, _ = Organization.objects.get_or_create(name=clean_name, defaults={"department": department})
     return obj
 
 
@@ -325,7 +328,8 @@ def _get_or_create_sector(name: str | None):
         return None
     # pyrefly: ignore [missing-import]
     from apps.organizations.models import Sector
-    obj, _ = Sector.objects.get_or_create(name=name.strip(), defaults={"description": ""})
+    clean_name = " ".join(name.strip().split())
+    obj, _ = Sector.objects.get_or_create(name=clean_name, defaults={"description": ""})
     return obj
 
 
@@ -334,11 +338,26 @@ def _get_or_create_state(name: str | None):
         return None
     # pyrefly: ignore [missing-import]
     from apps.locations.models import State
-    obj, _ = State.objects.get_or_create(
-        name=name.strip(),
-        defaults={"code": name.strip()[:10].upper()}
+
+    clean_name = " ".join(name.strip().split())
+    state = State.objects.filter(name__iexact=clean_name).first()
+    if state:
+        return state
+
+    # Generate unique state code up to 10 characters
+    base_code = "".join(c for c in clean_name.upper() if c.isalnum())[:8] or "ST"
+    code = base_code[:10]
+    counter = 1
+    while State.objects.filter(code=code).exists():
+        suffix = f"{counter:02d}"
+        code = f"{base_code[:10 - len(suffix)]}{suffix}"
+        counter += 1
+
+    state, _ = State.objects.get_or_create(
+        name=clean_name,
+        defaults={"code": code}
     )
-    return obj
+    return state
 
 
 def _find_or_create_project(normalized, source, ministry, sector, state):
