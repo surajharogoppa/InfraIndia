@@ -4,9 +4,10 @@ import { analyticsApi, refApi } from '../services/api';
 import { formatCrore, formatNumber, formatPercent, sectorColor } from '../utils/format';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid
+  PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid, LabelList
 } from 'recharts';
 import { FolderKanban, IndianRupee, TrendingUp, Activity, CheckCircle, HelpCircle, AlertCircle, Database, RefreshCw, Clock } from 'lucide-react';
+import ExportButton from '../components/ExportButton';
 
 function KPICard({ icon: Icon, label, value, sub, color, bgColor }) {
   return (
@@ -210,12 +211,13 @@ export default function Dashboard() {
       {/* Charts Row 1 */}
       <div className="charts-grid mb-lg">
         {/* Projects by Sector */}
-        <div className="chart-card">
-          <div className="chart-card-header">
+        <div className="chart-card" id="dashboard-sector-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="chart-title">Projects by Sector</div>
               <div className="chart-subtitle">Count and total cost</div>
             </div>
+            <ExportButton targetId="dashboard-sector-chart" fileName="dashboard_sector_projects" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topSectors} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
@@ -223,6 +225,7 @@ export default function Dashboard() {
               <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
                 {topSectors.map((_, i) => (
                   <Cell key={i} fill={sectorColor(i)} />
                 ))}
@@ -232,14 +235,15 @@ export default function Dashboard() {
         </div>
 
         {/* Progress Distribution */}
-        <div className="chart-card">
-          <div className="chart-card-header">
+        <div className="chart-card" id="dashboard-progress-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="chart-title">Progress Distribution</div>
               <div className="chart-subtitle">
                 <span className="platform-derived-note">Platform-derived indicator</span>
               </div>
             </div>
+            <ExportButton targetId="dashboard-progress-chart" fileName="dashboard_progress" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -251,6 +255,7 @@ export default function Dashboard() {
                 outerRadius={105}
                 paddingAngle={3}
                 dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
                 {validProgress.map(entry => (
                   <Cell key={entry.name} fill={entry.fill} />
@@ -260,6 +265,7 @@ export default function Dashboard() {
               <Legend
                 formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>{value}</span>}
               />
+
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -268,49 +274,56 @@ export default function Dashboard() {
       {/* Charts Row 2 */}
       <div className="charts-grid mb-lg">
         {/* Projects by State */}
-        <div className="chart-card">
-          <div className="chart-card-header">
+        <div className="chart-card" id="dashboard-state-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="chart-title">Top States by Project Count</div>
               <div className="chart-subtitle">Number of projects per state</div>
             </div>
+            <ExportButton targetId="dashboard-state-chart" fileName="dashboard_top_states" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topStates} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="state_name" width={130} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
-              <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Cost Distribution */}
-        <div className="chart-card">
-          <div className="chart-card-header">
+        <div className="chart-card" id="dashboard-cost-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="chart-title">Cost Distribution</div>
               <div className="chart-subtitle">Projects by cost range</div>
             </div>
+            <ExportButton targetId="dashboard-cost-chart" fileName="dashboard_cost_distribution" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 10, top: 10 }}>
               <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} height={35} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
-              <Bar dataKey="count" name="Projects" fill="hsl(262 80% 65%)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" name="Projects" fill="hsl(262 80% 65%)" radius={[4, 4, 0, 0]}>
+                <LabelList dataKey="count" position="top" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Projects by Completion Year */}
-      <div className="chart-card">
-        <div className="chart-card-header">
+      <div className="chart-card" id="dashboard-year-chart">
+        <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div className="chart-title">Projects by Reported Completion Year</div>
             <div className="chart-subtitle">Based on current/revised completion date field from official MoSPI data</div>
           </div>
+          <ExportButton targetId="dashboard-year-chart" fileName="dashboard_completion_years" />
         </div>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={validYears} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
@@ -326,7 +339,9 @@ export default function Dashboard() {
               strokeWidth={2.5}
               dot={{ fill: 'var(--accent)', r: 4 }}
               activeDot={{ r: 6 }}
-            />
+            >
+              <LabelList dataKey="project_count" position="top" fill="var(--text-secondary)" fontSize={11} />
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       </div>

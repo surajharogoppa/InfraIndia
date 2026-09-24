@@ -8,8 +8,9 @@ import {
   changeTypeLabel
 } from '../utils/format';
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList
 } from 'recharts';
+import ExportButton from '../components/ExportButton';
 import {
   ArrowLeft, MapPin, Building2, Calendar, TrendingUp,
   IndianRupee, Info, AlertTriangle, GitCommitHorizontal,
@@ -173,8 +174,11 @@ export default function ProjectDetails() {
 
           {/* Progress Chart */}
           {progressData.length > 1 && (
-            <div className="card">
-              <div className="card-title"><TrendingUp size={16} /> Historical Progress</div>
+            <div className="card" id="project-details-progress">
+              <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div><TrendingUp size={16} /> Historical Progress</div>
+                <ExportButton targetId="project-details-progress" fileName={`project_${id}_progress`} />
+              </div>
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={progressData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -192,7 +196,9 @@ export default function ProjectDetails() {
                     stroke="var(--accent)"
                     strokeWidth={2}
                     dot={{ fill: 'var(--accent)', r: 4 }}
-                  />
+                  >
+                    <LabelList dataKey="progress" position="top" fill="var(--text-secondary)" fontSize={11} formatter={(v) => `${v}%`} />
+                  </Line>
                 </LineChart>
               </ResponsiveContainer>
               <div className="platform-derived-note mt-sm">

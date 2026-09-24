@@ -3,6 +3,7 @@ import {
   LayoutDashboard, FolderKanban, BarChart3, Map,
   Database, GitCompare, Info
 } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
 
 const NAV = [
@@ -24,20 +25,44 @@ const NAV = [
   },
 ];
 
-export default function Sidebar({ open, onClose }) {
+export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) {
   return (
     <>
       {/* Overlay for mobile */}
       {open && <div className="sidebar-overlay" onClick={onClose} />}
 
-      <aside className={`sidebar${open ? ' open' : ''}`}>
+      <aside className={`sidebar${open ? ' open' : ''}${collapsed ? ' collapsed' : ''}`}>
         {/* Logo */}
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" style={{ position: 'relative' }}>
           <div className="sidebar-logo-icon">🏛</div>
           <div>
             <div className="sidebar-logo-text">InfraIndia</div>
             <div className="sidebar-logo-sub">Intelligence Platform</div>
           </div>
+          {/* Desktop Toggle inside Sidebar */}
+          <button
+            className="btn btn-ghost btn-icon sidebar-desktop-toggle"
+            onClick={onToggleCollapse}
+            title="Toggle Sidebar"
+            style={{
+              position: 'absolute',
+              right: '-16px',
+              top: '20px',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+          </button>
         </div>
 
         {/* Navigation */}
@@ -54,9 +79,10 @@ export default function Sidebar({ open, onClose }) {
                   end={to === '/'}
                   className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
                   onClick={onClose}
+                  title={collapsed ? label : undefined}
                 >
                   <Icon className="nav-link-icon" size={18} />
-                  {label}
+                  <span className="nav-link-label">{label}</span>
                 </NavLink>
               ))}
             </div>

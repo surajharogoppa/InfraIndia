@@ -4,8 +4,9 @@ import { analyticsApi } from '../services/api';
 import { formatCrore, formatPercent, sectorColor } from '../utils/format';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  Cell, PieChart, Pie, Legend
+  Cell, PieChart, Pie, Legend, LabelList
 } from 'recharts';
+import ExportButton from '../components/ExportButton';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -44,17 +45,22 @@ export default function Analytics() {
     const top = (states || []).slice(0, 15);
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
-        <div className="chart-card">
-          <div className="chart-card-header">
-            <div className="chart-title">Top 15 States by Project Count</div>
-            <div className="chart-subtitle">Number of ongoing infrastructure projects per State/UT</div>
+        <div className="chart-card" id="analytics-state-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div className="chart-title">Top 15 States by Project Count</div>
+              <div className="chart-subtitle">Number of ongoing infrastructure projects per State/UT</div>
+            </div>
+            <ExportButton targetId="analytics-state-chart" fileName="analytics_top_states" />
           </div>
           <ResponsiveContainer width="100%" height={440}>
             <BarChart data={top} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="state_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
-              <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -98,12 +104,13 @@ export default function Analytics() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
         <div className="charts-grid">
-          <div className="chart-card">
-            <div className="chart-card-header">
+          <div className="chart-card" id="analytics-sector-pie">
+            <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="chart-title">Projects by Sector Share</div>
                 <div className="chart-subtitle">Top sectors vs others</div>
               </div>
+              <ExportButton targetId="analytics-sector-pie" fileName="analytics_sector_share" />
             </div>
             <ResponsiveContainer width="100%" height={320}>
               <PieChart>
@@ -126,12 +133,13 @@ export default function Analytics() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="chart-card">
-            <div className="chart-card-header">
+          <div className="chart-card" id="analytics-sector-bar">
+            <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="chart-title">Total Cost by Sector (₹ Cr)</div>
                 <div className="chart-subtitle">Cost across top 8 sectors</div>
               </div>
+              <ExportButton targetId="analytics-sector-bar" fileName="analytics_sector_cost" />
             </div>
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
@@ -139,6 +147,7 @@ export default function Analytics() {
                 <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
                 <Bar dataKey="total_cost_crore" name="Cost (Cr)" radius={[0, 4, 4, 0]}>
+                  <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={11} formatter={(v) => typeof v === 'number' ? v.toLocaleString('en-IN') : v} />
                   {(sectors || []).slice(0, 8).map((_, i) => <Cell key={i} fill={sectorColor(i)} />)}
                 </Bar>
               </BarChart>
@@ -171,19 +180,22 @@ export default function Analytics() {
   function MinistriesTab() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
-        <div className="chart-card">
-          <div className="chart-card-header">
+        <div className="chart-card" id="analytics-ministry-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="chart-title">Projects by Ministry (Top 10)</div>
               <div className="chart-subtitle">Count of projects overseen per Union Ministry</div>
             </div>
+            <ExportButton targetId="analytics-ministry-chart" fileName="analytics_top_ministries" />
           </div>
           <ResponsiveContainer width="100%" height={360}>
             <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
-              <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -226,17 +238,22 @@ export default function Analytics() {
             </div>
           ))}
         </div>
-        <div className="chart-card">
-          <div className="chart-card-header">
-            <div className="chart-title">Cost Distribution</div>
-            <div className="chart-subtitle">Distribution of central sector projects across cost brackets</div>
+        <div className="chart-card" id="analytics-costs-chart">
+          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div className="chart-title">Cost Distribution</div>
+              <div className="chart-subtitle">Distribution of central sector projects across cost brackets</div>
+            </div>
+            <ExportButton targetId="analytics-costs-chart" fileName="analytics_cost_distribution" />
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 10, top: 10 }}>
               <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} height={35} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
-              <Bar dataKey="count" name="Projects" fill="hsl(174 65% 48%)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" name="Projects" fill="hsl(174 65% 48%)" radius={[4, 4, 0, 0]}>
+                <LabelList dataKey="count" position="top" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

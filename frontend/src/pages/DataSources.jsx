@@ -85,59 +85,6 @@ export default function DataSources() {
         </table>
       </div>
 
-      {/* Ingestion Runs */}
-      <div className="section-header">
-        <div className="section-title" style={{ fontSize: '0.95rem' }}>Recent Ingestion Runs</div>
-      </div>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Run ID</th>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Started</th>
-              <th>Completed</th>
-              <th>Found</th>
-              <th>Inserted</th>
-              <th>Updated</th>
-              <th>Rejected</th>
-              <th>Error</th>
-            </tr>
-          </thead>
-          <tbody>
-            {runs.length === 0 ? (
-              <tr>
-                <td colSpan={10}>
-                  <div className="empty-state">
-                    <div className="empty-icon">🔄</div>
-                    <div className="empty-title">No ingestion runs yet</div>
-                  </div>
-                </td>
-              </tr>
-            ) : runs.map(r => (
-              <tr key={r.id}>
-                <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>#{r.id}</td>
-                <td style={{ fontWeight: 600, fontSize: '0.82rem' }}>{r.source_name}</td>
-                <td>
-                  <span style={{ display: 'flex', alignItems: 'center', fontSize: '0.78rem' }}>
-                    <StatusDot status={r.status} />{r.status}
-                  </span>
-                </td>
-                <td style={{ fontSize: '0.78rem' }}>{formatDate(r.started_at)}</td>
-                <td style={{ fontSize: '0.78rem' }}>{r.completed_at ? formatDate(r.completed_at) : <Clock size={12} />}</td>
-                <td>{r.records_found}</td>
-                <td style={{ color: 'var(--green)' }}>{r.records_inserted}</td>
-                <td style={{ color: 'var(--blue)' }}>{r.records_updated}</td>
-                <td style={{ color: r.records_rejected > 0 ? 'var(--red)' : 'var(--text-muted)' }}>{r.records_rejected}</td>
-                <td style={{ fontSize: '0.72rem', color: 'var(--red)', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {r.error_message || '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

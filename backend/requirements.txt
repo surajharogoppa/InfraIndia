@@ -11,3 +11,5 @@ python-dotenv>=1.0
 Pillow>=10.0
 pdfplumber>=0.11
 requests>=2.31
+gunicorn>=21.2
+whitenoise>=6.5

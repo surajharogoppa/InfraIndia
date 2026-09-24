@@ -11,24 +11,32 @@ import DataSources from './pages/DataSources';
 import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/common/ThemeToggle';
 import { Menu } from 'lucide-react';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <ThemeProvider>
       <BrowserRouter>
         <div className="app-shell">
-          <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <Sidebar 
+            open={sidebarOpen} 
+            collapsed={sidebarCollapsed} 
+            onClose={() => setSidebarOpen(false)} 
+            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          />
 
-          <div className="main-content">
+          <div className={`main-content${sidebarCollapsed ? ' collapsed' : ''}`}>
             {/* Header */}
-            <header className="page-header">
+            <header className="page-header" style={{ padding: '0 var(--gap-lg)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-sm)' }}>
+                {/* Mobile Menu Toggle */}
                 <button
                   className="btn btn-ghost btn-icon"
                   onClick={() => setSidebarOpen(true)}
-                  style={{ display: 'none' }}
                   id="sidebar-toggle"
                 >
                   <Menu size={18} />
@@ -36,8 +44,12 @@ export default function App() {
                 <span className="page-title" id="page-title-slot" />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-sm)' }}>
-                <ThemeToggle showLabel={true} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-xl)' }}>
+                <nav style={{ display: 'flex', gap: 'var(--gap-lg)', alignItems: 'center' }}>
+                  <a href="/about" onClick={(e) => { e.preventDefault(); window.history.pushState(null, '', '/about'); window.dispatchEvent(new Event('popstate')); }} className="header-nav-link" style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>About</a>
+                  <a href="/contact" onClick={(e) => { e.preventDefault(); window.history.pushState(null, '', '/contact'); window.dispatchEvent(new Event('popstate')); }} className="header-nav-link" style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Contact</a>
+                </nav>
+                <ThemeToggle showLabel={false} />
               </div>
             </header>
 
@@ -49,6 +61,8 @@ export default function App() {
             <Route path="/map" element={<MapExplorer />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/sources" element={<DataSources />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
       </div>
