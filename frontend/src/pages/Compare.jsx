@@ -1,18 +1,36 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { projectsApi } from '../services/api';
 import { formatCroreExact, formatPercent, formatDateShort, statusBadgeClass, statusLabel } from '../utils/format';
 import { Search, X, GitCompare } from 'lucide-react';
+import { Card, CardHeader } from '../components/ui/Card';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 export default function Compare() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selected, setSelected] = useState([]);
   const [results, setResults] = useState(null);
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [comparing, setComparing] = useState(false);
 
-  useEffect(() => { document.title = 'Compare Projects — GovProject Intelligence'; }, []);
+  useEffect(() => { document.title = 'Compare Projects — InfraIndia'; }, []);
+
+  // Pre-load project if id passed in URL
+  useEffect(() => {
+    const preId = searchParams.get('id');
+    if (preId) {
+      projectsApi.detail(preId).then(res => {
+        if (res.data) {
+          setSelected(prev => {
+            if (prev.find(p => p.id === res.data.id)) return prev;
+            return [...prev, res.data];
+          });
+        }
+      }).catch(console.error);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!search) { setSearchResults([]); return; }
@@ -68,6 +86,7 @@ export default function Compare() {
 
   return (
     <div className="page-body">
+      <Breadcrumbs />
       <div className="section-header mb-lg">
         <div>
           <div className="section-title">Compare Projects</div>
@@ -76,8 +95,8 @@ export default function Compare() {
       </div>
 
       {/* Project Selector */}
-      <div className="card mb-lg">
-        <div className="card-title"><GitCompare size={16} /> Select Projects</div>
+      <Card style={{ padding: 'var(--gap-lg)', marginBottom: 'var(--gap-lg)' }}>
+        <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GitCompare size={16} /> Select Projects</span>} />
 
         {/* Selected chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--gap-sm)', marginBottom: 'var(--gap-sm)' }}>
@@ -145,7 +164,7 @@ export default function Compare() {
           <GitCompare size={14} />
           {comparing ? 'Comparing...' : 'Compare Selected Projects'}
         </button>
-      </div>
+      </Card>
 
       {/* Comparison Table */}
       {results && (

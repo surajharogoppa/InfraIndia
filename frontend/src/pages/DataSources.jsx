@@ -3,6 +3,7 @@ import { useApi } from '../hooks/useApi';
 import { refApi } from '../services/api';
 import { formatDate } from '../utils/format';
 import { Database, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 function StatusDot({ status }) {
   const colors = {
@@ -23,13 +24,14 @@ export default function DataSources() {
   const { data: sources } = useApi(() => refApi.sources());
   const { data: runsData } = useApi(() => refApi.ingestionRuns({ page_size: 20 }));
 
-  useEffect(() => { document.title = 'Data Sources — GovProject Intelligence'; }, []);
+  useEffect(() => { document.title = 'Data Sources — InfraIndia'; }, []);
 
   const runs = runsData?.results || runsData || [];
   const sourceList = sources?.results || sources || [];
 
   return (
     <div className="page-body">
+      <Breadcrumbs />
       <div className="section-header mb-lg">
         <div>
           <div className="section-title">Data Sources</div>

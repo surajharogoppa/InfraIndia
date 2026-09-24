@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { projectsApi } from '../services/api';
 import {
-  formatCrore, formatCroreExact, formatDate, formatDateShort,
-  formatPercent, statusBadgeClass, statusLabel, progressClass,
+  formatCroreExact, formatDate, formatDateShort,
+  statusBadgeClass, statusLabel, progressClass,
   changeTypeLabel
 } from '../utils/format';
 import {
@@ -14,18 +14,12 @@ import ExportButton from '../components/ExportButton';
 import {
   ArrowLeft, MapPin, Building2, Calendar, TrendingUp,
   IndianRupee, Info, AlertTriangle, GitCommitHorizontal,
-  Database, ExternalLink, RefreshCw
+  Database, ExternalLink, RefreshCw, GitCompare
 } from 'lucide-react';
 
-function SummaryCard({ label, value, sub, highlight }) {
-  return (
-    <div className="summary-card" style={highlight ? { borderColor: 'var(--accent)', background: 'hsl(220 90% 60% / 0.05)' } : {}}>
-      <div className="summary-card-label">{label}</div>
-      <div className="summary-card-value">{value || '—'}</div>
-      {sub && <div className="summary-card-sub">{sub}</div>}
-    </div>
-  );
-}
+import { Card, CardHeader } from '../components/ui/Card';
+import StatCard from '../components/ui/StatCard';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 function PlatformDerivedTag() {
   return (
@@ -44,7 +38,7 @@ export default function ProjectDetails() {
   const { data: changes } = useApi(() => projectsApi.changes(id), [id]);
 
   useEffect(() => {
-    if (project) document.title = `${project.name} — GovProject Intelligence`;
+    if (project) document.title = `${project.name} — InfraIndia`;
   }, [project]);
 
   if (loading) {
@@ -79,6 +73,7 @@ export default function ProjectDetails() {
 
   return (
     <div className="page-body">
+      <Breadcrumbs extra={project?.name} />
       {/* Back */}
       <button className="btn btn-ghost btn-sm mb" onClick={() => navigate(-1)}>
         <ArrowLeft size={14} /> Back
@@ -90,9 +85,18 @@ export default function ProjectDetails() {
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, flex: 1 }}>
             {project.name}
           </h1>
-          <span className={`badge ${statusBadgeClass(project.platform_status)}`} style={{ fontSize: '0.8rem', padding: '4px 12px' }}>
-            {statusLabel(project.platform_status)}
-          </span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className={`badge ${statusBadgeClass(project.platform_status)}`} style={{ fontSize: '0.8rem', padding: '4px 12px' }}>
+              {statusLabel(project.platform_status)}
+            </span>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => navigate(`/compare?id=${project.id}`)}
+              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <GitCompare size={14} /> Compare
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--gap)' }}>
@@ -146,25 +150,51 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="summary-cards">
-        <SummaryCard label="Original Cost" value={formatCroreExact(project.original_cost_crore)} />
-        <SummaryCard label="Current / Revised Cost" value={formatCroreExact(project.current_cost_crore)} highlight />
-        <SummaryCard label="Expenditure" value={formatCroreExact(project.current_expenditure_crore)} sub={project.platform_expenditure_ratio != null ? <><PlatformDerivedTag /> {project.platform_expenditure_ratio}% of cost</> : null} />
-        <SummaryCard
-          label="Physical Progress"
-          value={project.current_progress != null ? `${project.current_progress}%` : '—'}
-          sub="As reported by source"
+      {/* Primary KPI Cards */}
+      <div className="kpi-grid mb-lg">
+        <StatCard 
+          title="Original Cost" 
+          value={formatCroreExact(project.original_cost_crore)} 
+          color="hsl(220 12% 65%)"
+          bgColor="var(--bg-card)"
         />
-        <SummaryCard label="Original Start" value={formatDateShort(project.original_start_date)} />
-        <SummaryCard label="Original Completion" value={formatDateShort(project.original_completion_date)} />
-        <SummaryCard label="Current Completion" value={formatDateShort(project.current_completion_date)} highlight={hasDelay} />
-        <SummaryCard
-          label="Schedule Difference"
+        <StatCard 
+          title="Current Cost" 
+          value={formatCroreExact(project.current_cost_crore)} 
+          color="hsl(42 95% 58%)"
+          bgColor="var(--bg-card)"
+          trend={costChange}
+          trendLabel={<><PlatformDerivedTag /> cost change</>}
+        />
+        <StatCard 
+          title="Expenditure" 
+          value={formatCroreExact(project.current_expenditure_crore)} 
+          sub={project.platform_expenditure_ratio != null ? <><PlatformDerivedTag /> {project.platform_expenditure_ratio}% of current cost</> : null} 
+          color="hsl(174 65% 48%)"
+          bgColor="var(--bg-card)"
+        />
+        <StatCard
+          title="Physical Progress"
+          value={project.current_progress != null ? `${project.current_progress}%` : '—'}
+          description="As reported by source"
+          color="hsl(262 80% 65%)"
+          bgColor="var(--bg-card)"
+        />
+      </div>
+      
+      {/* Schedule Cards */}
+      <div className="kpi-grid mb-lg" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+        <StatCard title="Original Start" value={formatDateShort(project.original_start_date)} bgColor="var(--bg-card)" color="transparent" />
+        <StatCard title="Original Completion" value={formatDateShort(project.original_completion_date)} bgColor="var(--bg-card)" color="transparent" />
+        <StatCard title="Current Completion" value={formatDateShort(project.current_completion_date)} bgColor="var(--bg-card)" color={hasDelay ? "var(--red)" : "transparent"} />
+        <StatCard
+          title="Schedule Difference"
           value={project.platform_schedule_delay_months != null
             ? `${project.platform_schedule_delay_months > 0 ? '+' : ''}${project.platform_schedule_delay_months} months`
             : '—'}
-          sub={<PlatformDerivedTag />}
+          description={<PlatformDerivedTag />}
+          bgColor="var(--bg-card)"
+          color="transparent"
         />
       </div>
 
@@ -174,43 +204,44 @@ export default function ProjectDetails() {
 
           {/* Progress Chart */}
           {progressData.length > 1 && (
-            <div className="card" id="project-details-progress">
-              <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div><TrendingUp size={16} /> Historical Progress</div>
-                <ExportButton targetId="project-details-progress" fileName={`project_${id}_progress`} />
-              </div>
+            <Card id="project-details-progress" style={{ padding: 'var(--gap)' }}>
+              <CardHeader 
+                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> Historical Progress</span>}
+                action={<ExportButton targetId="project-details-progress" fileName={`project_${id}_progress`} />}
+              />
               <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={progressData}>
+                <LineChart data={progressData} margin={{ top: 16, right: 24, left: 0, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} width={35} tickFormatter={(v) => `${v}%`} />
                   <Tooltip
                     formatter={(v) => [`${v}%`, 'Progress']}
                     contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', fontSize: '0.8rem', color: 'var(--text-primary)', boxShadow: 'var(--shadow)' }}
                     itemStyle={{ color: 'var(--text-primary)' }}
-                    labelStyle={{ color: 'var(--text-secondary)' }}
+                    labelStyle={{ color: 'var(--text-secondary)', fontWeight: 600 }}
                   />
                   <Line
                     type="monotone"
                     dataKey="progress"
                     stroke="var(--accent)"
                     strokeWidth={2}
-                    dot={{ fill: 'var(--accent)', r: 4 }}
+                    dot={{ fill: 'var(--accent)', r: 3.5 }}
+                    activeDot={{ r: 5 }}
                   >
-                    <LabelList dataKey="progress" position="top" fill="var(--text-secondary)" fontSize={11} formatter={(v) => `${v}%`} />
+                    <LabelList dataKey="progress" position="top" fill="var(--text-secondary)" fontSize={10} formatter={(v) => `${v}%`} />
                   </Line>
                 </LineChart>
               </ResponsiveContainer>
               <div className="platform-derived-note mt-sm">
                 <Info size={10} /> Based on platform snapshots — reflects source-reported values at ingestion dates
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Cost Change */}
           {costChange != null && (
-            <div className="card">
-              <div className="card-title"><IndianRupee size={16} /> Cost Change</div>
+            <Card style={{ padding: 'var(--gap)' }}>
+              <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><IndianRupee size={16} /> Cost Change</span>} />
               <div style={{ display: 'flex', gap: 'var(--gap-lg)', flexWrap: 'wrap', marginBottom: 'var(--gap-sm)' }}>
                 <div>
                   <div className="meta-label">Original Cost</div>
@@ -235,13 +266,13 @@ export default function ProjectDetails() {
                 <span style={{ color: 'var(--text-muted)' }}>·</span>
                 <PlatformDerivedTag />
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Schedule Change */}
           {project.platform_schedule_delay_months != null && (
-            <div className="card">
-              <div className="card-title"><Calendar size={16} /> Schedule</div>
+            <Card style={{ padding: 'var(--gap)' }}>
+              <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Schedule Change</span>} />
               <div style={{ display: 'flex', gap: 'var(--gap-lg)', flexWrap: 'wrap', marginBottom: 'var(--gap-sm)' }}>
                 <div>
                   <div className="meta-label">Original Completion</div>
@@ -267,12 +298,12 @@ export default function ProjectDetails() {
                   <PlatformDerivedTag />
                 </div>
               )}
-            </div>
+            </Card>
           )}
 
           {/* Change History */}
-          <div className="card">
-            <div className="card-title"><GitCommitHorizontal size={16} /> Change History</div>
+          <Card style={{ padding: 'var(--gap)' }}>
+            <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><GitCommitHorizontal size={16} /> Change History</span>} />
             {(!changes || changes.length === 0) ? (
               <div className="empty-state" style={{ padding: 'var(--gap)' }}>
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No changes detected yet</div>
@@ -300,15 +331,15 @@ export default function ProjectDetails() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         {/* Right sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
 
           {/* Progress Card */}
-          <div className="card">
-            <div className="card-title">Physical Progress</div>
+          <Card style={{ padding: 'var(--gap)' }}>
+            <CardHeader title="Physical Progress" />
             {project.current_progress != null ? (
               <>
                 <div style={{ fontSize: '2.5rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>
@@ -325,11 +356,11 @@ export default function ProjectDetails() {
             ) : (
               <div className="text-muted">Not reported</div>
             )}
-          </div>
+          </Card>
 
           {/* Project Info */}
-          <div className="card">
-            <div className="card-title"><Building2 size={16} /> Organization</div>
+          <Card style={{ padding: 'var(--gap)' }}>
+            <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Building2 size={16} /> Organization</span>} />
             <div className="meta-grid">
               {project.ministry_name && (
                 <div className="meta-item" style={{ gridColumn: '1 / -1' }}>
@@ -362,11 +393,11 @@ export default function ProjectDetails() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* Timeline */}
-          <div className="card">
-            <div className="card-title"><Calendar size={16} /> Timeline</div>
+          <Card style={{ padding: 'var(--gap)' }}>
+            <CardHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> Timeline</span>} />
             <div className="timeline">
               {project.original_start_date && (
                 <div className="timeline-item done">
@@ -390,7 +421,7 @@ export default function ProjectDetails() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

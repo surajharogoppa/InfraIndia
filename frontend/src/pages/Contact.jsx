@@ -1,20 +1,23 @@
 import { useEffect } from 'react';
 import { Mail, Code, MessageCircle } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 export default function Contact() {
   useEffect(() => {
-    document.title = 'Contact — GovProject Intelligence';
+    document.title = 'Contact — InfraIndia';
   }, []);
 
   return (
     <div className="page-body">
+      <Breadcrumbs />
       <div className="section-header mb-lg">
         <div>
           <div className="section-title">Contact Us</div>
           <div className="section-subtitle">Get in touch with the team behind InfraIndia</div>
         </div>
       </div>
-      <div className="card" style={{ maxWidth: '600px', padding: '2rem' }}>
+      <Card style={{ maxWidth: '600px', padding: '2rem' }}>
         <p style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
           Have questions, suggestions, or want to report a data anomaly? We'd love to hear from you.
         </p>
@@ -50,7 +53,7 @@ export default function Contact() {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

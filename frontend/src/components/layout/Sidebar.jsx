@@ -1,9 +1,9 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, BarChart3, Map,
-  Database, GitCompare, Info
+  Database, GitCompare, Info, Sparkles, X, Menu
 } from 'lucide-react';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
 
 const NAV = [
@@ -15,6 +15,7 @@ const NAV = [
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
       { to: '/map', icon: Map, label: 'Map Explorer' },
       { to: '/compare', icon: GitCompare, label: 'Compare Projects' },
+      { to: '/ai', icon: Sparkles, label: 'AI Assistant' },
     ]
   },
   {
@@ -26,47 +27,51 @@ const NAV = [
 ];
 
 export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) {
+  // Prevent body scrolling on mobile when sidebar is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   return (
     <>
       {/* Overlay for mobile */}
       {open && <div className="sidebar-overlay" onClick={onClose} />}
 
       <aside className={`sidebar${open ? ' open' : ''}${collapsed ? ' collapsed' : ''}`}>
-        {/* Logo */}
-        <div className="sidebar-logo" style={{ position: 'relative' }}>
-          <div className="sidebar-logo-icon">🏛</div>
-          <div>
-            <div className="sidebar-logo-text">InfraIndia</div>
-            <div className="sidebar-logo-sub">Intelligence Platform</div>
-          </div>
-          {/* Desktop Toggle inside Sidebar */}
+        {/* Top Header with Hamburger Toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: collapsed ? 'center' : 'space-between',
+          padding: collapsed ? '12px 0' : '10px 14px',
+          borderBottom: '1px solid var(--border)',
+          minHeight: '44px'
+        }}>
+          {!collapsed && (
+            <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+              Menu
+            </span>
+          )}
           <button
-            className="btn btn-ghost btn-icon sidebar-desktop-toggle"
-            onClick={onToggleCollapse}
-            title="Toggle Sidebar"
-            style={{
-              position: 'absolute',
-              right: '-16px',
-              top: '20px',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 10,
-              boxShadow: 'var(--shadow-sm)',
-            }}
+            className="btn btn-ghost btn-icon btn-sm"
+            onClick={open ? onClose : onToggleCollapse}
+            title={open ? "Close Menu" : (collapsed ? "Expand Sidebar" : "Collapse Sidebar")}
+            aria-label="Toggle navigation menu"
+            style={{ color: 'var(--text-secondary)' }}
           >
-            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            {open ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" style={{ paddingTop: 'var(--gap-xs)' }}>
           {NAV.map(({ section, items }) => (
             <div key={section}>
               <div className="sidebar-section">

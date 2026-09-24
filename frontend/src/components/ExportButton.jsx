@@ -24,8 +24,24 @@ export default function ExportButton({ targetId, fileName }) {
       zoomGroup.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
+    // Force 3:4 ratio on the export wrapper if it's the map
+    const isMap = targetId === 'full-map-export-wrapper';
+    let originalWidth = element.style.width;
+    let originalHeight = element.style.height;
+    let mapSvg = element.querySelector('#map-container-export');
+    let originalSvgHeight = '';
+    
+    if (isMap) {
+      element.style.width = '900px';
+      element.style.height = '1200px'; // 3:4 ratio
+      if (mapSvg) {
+        originalSvgHeight = mapSvg.style.height;
+        mapSvg.style.height = '1000px'; // fill most of the 1200px
+      }
+    }
+
     // Wait for a tick to allow the DOM to update the layout
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 200));
     
     try {
       const blob = await toBlob(element, { filter, pixelRatio: 2, backgroundColor: '#ffffff' });
@@ -41,6 +57,11 @@ export default function ExportButton({ targetId, fileName }) {
       console.error('Failed to export chart:', err);
     } finally {
       element.style.background = originalBg;
+      if (isMap) {
+        element.style.width = originalWidth;
+        element.style.height = originalHeight;
+        if (mapSvg) mapSvg.style.height = originalSvgHeight;
+      }
       if (zoomGroup) {
         zoomGroup.style.transition = originalTransition;
         zoomGroup.style.transform = originalTransform;
@@ -70,8 +91,24 @@ export default function ExportButton({ targetId, fileName }) {
       zoomGroup.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
+    // Force 3:4 ratio on the export wrapper if it's the map
+    const isMap = targetId === 'full-map-export-wrapper';
+    let originalWidth = element.style.width;
+    let originalHeight = element.style.height;
+    let mapSvg = element.querySelector('#map-container-export');
+    let originalSvgHeight = '';
+    
+    if (isMap) {
+      element.style.width = '900px';
+      element.style.height = '1200px'; // 3:4 ratio
+      if (mapSvg) {
+        originalSvgHeight = mapSvg.style.height;
+        mapSvg.style.height = '1000px'; // fill most of the 1200px
+      }
+    }
+
     // Wait for a tick to allow the DOM to update the layout
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 200));
     
     try {
       const blob = await toBlob(element, { filter, pixelRatio: 2, backgroundColor: '#ffffff' });
@@ -105,6 +142,11 @@ export default function ExportButton({ targetId, fileName }) {
       alert("Failed to share chart. It may be due to browser security restrictions or unsupported chart elements.");
     } finally {
       element.style.background = originalBg;
+      if (isMap) {
+        element.style.width = originalWidth;
+        element.style.height = originalHeight;
+        if (mapSvg) mapSvg.style.height = originalSvgHeight;
+      }
       if (zoomGroup) {
         zoomGroup.style.transition = originalTransition;
         zoomGroup.style.transform = originalTransform;

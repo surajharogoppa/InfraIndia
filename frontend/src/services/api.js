@@ -39,4 +39,14 @@ export const refApi = {
   triggerIngestion: (sourceId) => api.post(`/sources/${sourceId}/trigger/`),
 };
 
+// ── Aliases & Semantic Services (Section 42) ─────────────────
+export const projectService = projectsApi;
+export const analyticsService = analyticsApi;
+export const sourceService = refApi;
+
+export const aiService = {
+  query: async (params) => projectsApi.list(params),
+  overview: async () => analyticsApi.overview(),
+};
+
 export default api;

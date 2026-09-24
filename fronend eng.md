@@ -1,2682 +1,1677 @@
-# Government Project Intelligence Platform --- PRD
+# Frontend Engineering Task
 
-## 1. Project Overview
+## InfraIndia — Government Project Intelligence Platform
 
-**Working Name:** GovProject Intelligence
+You are a senior frontend engineer and UI/UX engineer.
 
-**Product Type:** Government project data aggregation, tracking,
-analytics, and AI platform.
+I have already built the backend and core functionality for **InfraIndia**, a Government Project Intelligence Platform. Your job is to take the existing frontend codebase and turn it into a **production-quality, professional, responsive data-intelligence SaaS application**.
 
-**Primary Country:** India
+The primary focus of this task is:
 
-**Primary Goal:**
+* Frontend engineering
+* UI/UX improvement
+* Layout architecture
+* Mobile compatibility
+* Responsive design
+* Reusable components
+* Data visualization
+* Accessibility
+* Loading/error/empty states
+* Consistent design system
+* Professional dashboard experience
 
-Build a web platform that collects publicly available government project
-information from official sources, normalizes it into a common data
-model, tracks project updates over time, and provides search,
-comparison, analytics, maps, historical change detection, and
-AI-assisted insights.
+Do **NOT** rebuild the backend unless absolutely necessary.
 
-The platform is **not an official government service**. It is an
-independent technology platform built using publicly available and
-permitted data sources.
+---
 
-------------------------------------------------------------------------
+# 1. FIRST: INSPECT THE EXISTING PROJECT
 
-# 2. Product Vision
+Before changing anything:
 
-Government project information is often distributed across government
-portals, dashboards, spreadsheets, reports, and documents.
+1. Inspect the complete frontend folder structure.
+2. Identify:
 
-The platform should make this information easier to answer:
+   * React version
+   * Vite configuration
+   * Tailwind configuration
+   * Routing
+   * API service layer
+   * Existing components
+   * Existing pages
+   * Existing charts
+   * Existing map implementation
+   * Existing state management
+   * Existing responsive behavior
+3. Identify what is already working.
+4. Do NOT unnecessarily replace working functionality.
+5. Reuse existing components wherever practical.
+6. Identify duplicated UI patterns and refactor them into reusable components.
+7. Identify broken layouts, overflow issues, inconsistent spacing, and desktop-only assumptions.
 
--   What government projects exist?
--   Where are they located?
--   Which ministry/department owns them?
--   What is their project cost?
--   How much has been spent?
--   What is the reported physical progress?
--   What is the original completion date?
--   What is the current/revised completion date?
--   Has the project cost changed?
--   Has the schedule changed?
--   What changed since the previous update?
--   Which projects belong to a particular state, district, sector, or
-    ministry?
+Before implementing major changes, understand the current architecture.
 
-The core product principle is:
+---
 
-> **Turn fragmented public government project data into searchable,
-> comparable, historical, and understandable project intelligence.**
+# 2. PRIMARY DESIGN GOAL
 
-------------------------------------------------------------------------
+**InfraIndia** should look like a modern **government data intelligence / enterprise analytics SaaS platform**.
 
-# 3. Target Users
+It should NOT look like:
 
-## 3.1 Citizens
+* A generic admin template
+* A basic CRUD dashboard
+* A Bootstrap-style website
+* A simple government portal
+* A visually overloaded analytics dashboard
 
-Users who want to understand government projects in their state,
-district, or city.
+The visual direction should be:
 
-Example questions:
+> Clean + Professional + Data-rich + Trustworthy + Modern + Minimal + Enterprise
 
--   What infrastructure projects are happening in Karnataka?
--   What projects are happening near Bengaluru?
--   What is the reported cost of a project?
--   What is its current reported progress?
+Use strong visual hierarchy and whitespace.
 
-## 3.2 Journalists and Researchers
+---
 
-Users who need structured historical project information.
+# 3. DESIGN LANGUAGE
 
-Example questions:
+Create a consistent design system.
 
--   Which projects have revised costs?
--   Which projects have revised completion dates?
--   How has project expenditure changed?
--   What changed between two reporting periods?
-
-## 3.3 Business and Contractors
-
-Users interested in government infrastructure activity.
-
-Example questions:
-
--   What projects are being developed in Karnataka?
--   Which sectors have many active projects?
--   What is the approximate project-value distribution?
-
-## 3.4 Data / Policy Analysts
-
-Users who want aggregated statistics.
-
-Example questions:
-
--   Compare project counts across states.
--   Compare project values across sectors.
--   Analyze expenditure versus reported progress.
-
-## 3.5 System Administrators
-
-Users responsible for:
-
--   Data sources
--   Data ingestion
--   Data quality
--   Failed jobs
--   Project records
--   System configuration
--   User administration
-
-------------------------------------------------------------------------
-
-# 4. Product Goals
-
-## Primary Goals
-
-### G1 --- Centralize Public Project Information
-
-Collect government project information from reliable, official, publicly
-accessible, and permitted sources.
-
-### G2 --- Normalize Government Data
-
-Convert different source formats into a common internal data model.
-
-### G3 --- Track Project Progress
-
-Track available fields such as:
-
--   Physical progress
--   Financial expenditure
--   Project cost
--   Revised cost
--   Start date
--   Completion date
--   Revised completion date
--   Source-reported status
-
-### G4 --- Track Historical Changes
-
-Store historical observations instead of simply overwriting old values.
-
-Detect:
-
--   Cost changes
--   Progress changes
--   Expenditure changes
--   Completion-date changes
--   Status changes
-
-### G5 --- Provide Analytics
-
-Allow analysis by:
-
--   State
--   District
--   Ministry
--   Department
--   Organization
--   Sector
--   Project value
--   Progress
--   Year
-
-### G6 --- Provide Visual Exploration
+## General Style
 
 Use:
 
--   KPI cards
--   Charts
--   Tables
--   Timelines
--   Maps
--   Comparison views
+* Clean cards
+* Subtle borders
+* Moderate border radius
+* Consistent spacing
+* Professional typography
+* Subtle shadows
+* Clear hierarchy
+* Minimal visual noise
+* Consistent iconography
 
-### G7 --- Add AI Capabilities
+Avoid:
 
-Later versions should support:
+* Excessive gradients
+* Excessive shadows
+* Huge rounded containers
+* Excessive animations
+* Random colors
+* Inconsistent border radius
+* Inconsistent spacing
+* Too many decorative elements
 
--   Natural-language project search
--   AI project summaries
--   Document extraction
--   Semantic search
--   Similar-project discovery
--   AI-assisted analytics
+---
 
-------------------------------------------------------------------------
+# 4. APPLICATION SHELL
 
-# 5. Non-Goals
+Create a consistent application shell.
 
-The system must NOT:
+Desktop:
 
--   Claim to be an official government service.
--   Replace official government portals.
--   Present platform calculations as official government
-    classifications.
--   Make unsupported allegations about corruption or wrongdoing.
--   Automatically accuse contractors or government departments.
--   Predict project success or failure.
--   Provide confidential/private government information.
--   Scrape restricted information.
--   Ignore source terms, robots rules, access restrictions, or
-    applicable data-use conditions.
--   Guarantee complete coverage of every government project in India.
-
-Every important project fact should have source information and an
-update date whenever available.
-
-------------------------------------------------------------------------
-
-# 6. Core Product Concept
-
-The main entity is:
-
-`Government Project`
-
-Each project contains:
-
-``` text
-Project
-├── Basic Information
-├── Organization
-├── Ministry
-├── Department
-├── Sector
-├── Location
-├── Financial Information
-├── Timeline
-├── Physical Progress
-├── Financial Progress
-├── Source Status
-├── Contractor / Implementing Agency
-├── Documents
-├── Historical Snapshots
-├── Change Events
-└── Source Information
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                         TOP HEADER                           │
+├───────────────┬──────────────────────────────────────────────┤
+│               │                                              │
+│   SIDEBAR     │               MAIN CONTENT                   │
+│               │                                              │
+│ Dashboard     │                                              │
+│ Projects      │                                              │
+│ Map           │                                              │
+│ Analytics     │                                              │
+│ Compare       │                                              │
+│ Sources       │                                              │
+│ AI Assistant  │                                              │
+│               │                                              │
+└───────────────┴──────────────────────────────────────────────┘
 ```
 
-------------------------------------------------------------------------
+The sidebar should contain:
 
-# 7. Core User Journey
+* Dashboard
+* Projects
+* Map Explorer
+* Analytics
+* Compare
+* Data Sources
+* AI Assistant
 
-``` text
-Landing Page
-    ↓
-Dashboard
-    ↓
-Search / Filter Projects
-    ↓
-Project Explorer
-    ↓
-Project Details
-    ↓
-Historical Changes
-    ↓
-Compare Projects
-    ↓
-Analytics
-    ↓
-AI Assistant
+Optional bottom items:
+
+* Settings
+* User profile
+
+---
+
+# 5. SIDEBAR
+
+Build a professional collapsible sidebar.
+
+Desktop:
+
+* Expanded state
+* Collapsed state
+* Smooth width transition
+* Icons always visible
+* Tooltips in collapsed state
+* Active route indicator
+
+Suggested widths:
+
+```text
+Expanded: 240–260px
+Collapsed: 68–76px
 ```
 
-------------------------------------------------------------------------
+Do not make the sidebar unnecessarily wide.
 
-# 8. Main Application Modules
+The main content must automatically adjust to the sidebar width.
 
-The application should contain:
+---
 
-1.  Dashboard
-2.  Project Explorer
-3.  Project Details
-4.  Project Comparison
-5.  Map Explorer
-6.  Change Tracking
-7.  Analytics
-8.  Documents
-9.  Data Sources
-10. AI Assistant
-11. Admin Dashboard
+# 6. MOBILE SIDEBAR
 
-------------------------------------------------------------------------
+On mobile:
 
-# 9. Dashboard
-
-## Objective
-
-Provide a high-level overview of government projects.
-
-## KPI Cards
-
-Display:
-
--   Total Projects
--   Total Project Cost
--   Total Expenditure
--   Average Reported Physical Progress
--   Active Projects
--   Completed Projects
--   Platform-derived Schedule Indicators
-
-Important:
-
-`Delayed`, `On Track`, etc. must not be presented as official government
-statuses unless the source explicitly provides those statuses.
-
-If the platform calculates an indicator, label it clearly as:
-
-`Platform-derived indicator`
-
-------------------------------------------------------------------------
-
-# 10. Dashboard Charts
-
-## 10.1 Projects by Sector
-
-Example categories:
-
--   Roads
--   Railways
--   Power
--   Water
--   Urban Development
--   Healthcare
--   Education
--   Other
-
-## 10.2 Projects by State
+Do NOT keep the desktop sidebar permanently visible.
 
 Use:
 
--   Bar chart
--   Map
--   Table
-
-## 10.3 Progress Distribution
-
-Example visualization:
-
-``` text
-0–25%
-25–50%
-50–75%
-75–100%
-Completed
-Unknown
+```text
+Mobile Header
+     ↓
+Menu button
+     ↓
+Slide-over navigation
 ```
 
-## 10.4 Project Cost Distribution
+The sidebar should become an off-canvas drawer.
 
-Example ranges:
+Requirements:
 
-``` text
-< ₹10 Cr
-₹10–100 Cr
-₹100–500 Cr
-₹500–1,000 Cr
-> ₹1,000 Cr
+* Hamburger/menu button
+* Overlay
+* Slide-in animation
+* Close button
+* Clicking navigation item closes drawer
+* Clicking overlay closes drawer
+* No horizontal overflow
+* Body should not scroll behind drawer
+
+---
+
+# 7. GLOBAL HEADER
+
+Create a clean application header.
+
+Desktop:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Page Title / Breadcrumb              Search   Notifications │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 10.5 Projects by Year
+Mobile:
 
-Depending on available source fields:
+```text
+┌────────────────────────────────────┐
+│ ☰   InfraIndia       🔍   Profile │
+└────────────────────────────────────┘
+```
 
--   Approval year
--   Start year
--   Completion year
+Header should remain usable at all viewport sizes.
 
-Do not mix different date meanings into one metric.
+---
 
-------------------------------------------------------------------------
+# 8. RESPONSIVE DESIGN REQUIREMENTS
 
-# 11. Project Explorer
+The application MUST be fully responsive.
 
-Users should be able to search and filter projects.
+Test at minimum:
 
-## Search Fields
+```text
+320px
+375px
+390px
+414px
+640px
+768px
+1024px
+1280px
+1440px
+1920px
+```
 
-Search by:
+Do not only make the application responsive by reducing widths.
 
--   Project name
--   Project ID
--   Ministry
--   Department
--   Organization
--   Contractor
--   State
--   District
--   Sector
+The layout itself must adapt.
 
-## Filters
+---
 
--   State
--   District
--   Ministry
--   Department
--   Organization
--   Sector
--   Source status
--   Project value
--   Progress
--   Start year
--   Completion year
--   Last updated date
+# 9. MOBILE-FIRST PRINCIPLE
 
-------------------------------------------------------------------------
+For every page ask:
 
-# 12. Project Listing
+> "How should this information behave on a 375px screen?"
 
-Example:
+Then progressively enhance for tablet and desktop.
 
-  Project     State         Sector            Cost   Progress Completion
-  ----------- ------------- ---------- ----------- ---------- ------------
-  Project A   Karnataka     Roads          ₹450 Cr        62% 2027
-  Project B   Maharashtra   Railways     ₹1,200 Cr        81% 2026
-  Project C   Telangana     Water          ₹280 Cr        35% 2028
+Never assume:
 
-Features:
+```text
+width >= 1024px
+```
 
--   Pagination
--   Sorting
--   Filtering
--   Search
--   Save project
--   Open project details
--   Compare selection
+---
 
-------------------------------------------------------------------------
+# 10. MOBILE DASHBOARD
 
-# 13. Project Detail Page
+Desktop dashboard may have:
 
-This is the most important product page.
+```text
+4 KPI cards in one row
+```
+
+Mobile:
+
+```text
+┌───────────────┐
+│ Total Projects│
+│ 12,482        │
+└───────────────┘
+
+┌───────────────┐
+│ Total Cost    │
+│ ₹XX Lakh Cr   │
+└───────────────┘
+```
+
+Use:
+
+```text
+1 column
+```
+
+or:
+
+```text
+2 columns
+```
+
+depending on viewport width and content.
+
+Never allow KPI text to overflow.
+
+---
+
+# 11. DASHBOARD PAGE
+
+Create a polished InfraIndia dashboard with:
 
 ## Header
 
-Display:
+```text
+Government Project Intelligence
 
--   Project name
--   Project ID
--   Ministry
--   Department
--   Organization
--   State
--   District
--   Source
--   Source last-updated date
--   Platform ingestion date
+Monitor public infrastructure projects,
+costs, progress and historical changes.
 
-## Summary Cards
-
-Display:
-
-``` text
-Original Cost
-Current / Revised Cost
-Expenditure
-Physical Progress
-
-Original Start Date
-Current Start Date
-Original Completion Date
-Current Completion Date
+[Last updated: ...]
 ```
 
-Only display fields that exist in the source.
+## KPI Row
 
-------------------------------------------------------------------------
+Include:
 
-# 14. Project Timeline
+* Total Projects
+* Total Project Cost
+* Total Expenditure
+* Average Progress
+* Active Projects
+* Completed Projects
 
-Display important available milestones:
+## Main Analytics
 
-``` text
-Approval
-   ↓
-Tender
-   ↓
-Award
-   ↓
-Project Start
-   ↓
-Construction / Execution
-   ↓
-Revised Completion
-   ↓
-Completion
+Suggested layout:
+
+```text
+┌─────────────────────────────┬──────────────────────┐
+│ Projects by State           │ Progress Distribution│
+│                             │                      │
+│          Chart              │       Chart          │
+│                             │                      │
+└─────────────────────────────┴──────────────────────┘
+
+┌─────────────────────────────┬──────────────────────┐
+│ Projects by Sector          │ Project Cost         │
+│                             │                      │
+│          Chart              │       Chart          │
+└─────────────────────────────┴──────────────────────┘
 ```
 
-Not every project will contain every milestone.
+Mobile:
 
-Do not invent missing dates.
+Each chart becomes a full-width card.
 
-------------------------------------------------------------------------
+---
 
-# 15. Physical Progress
+# 12. KPI CARD
 
-Display the latest reported physical progress.
+Create a reusable:
 
-Example:
-
-``` text
-54%
-
-███████████░░░░░░░░░
+```text
+<StatCard />
 ```
 
-Also display historical progress when snapshots exist.
-
-Example chart:
-
-``` text
-Progress %
-100 |
- 80 |                    ●
- 60 |              ●
- 40 |         ●
- 20 |    ●
-  0 |________________________
-      Jan  Apr  Jul  Oct
-```
-
-------------------------------------------------------------------------
-
-# 16. Financial Progress
-
-Display:
-
-``` text
-Original Cost
-Revised / Current Cost
-Reported Expenditure
-```
-
-Calculate:
-
-``` text
-Expenditure Ratio =
-Expenditure / Current Cost × 100
-```
-
-Clearly distinguish:
-
--   Source-reported values
--   Platform-calculated metrics
-
-------------------------------------------------------------------------
-
-# 17. Cost Change Tracking
-
-Example:
-
-``` text
-Original Cost
-₹500 Cr
-    ↓
-Revision 1
-₹550 Cr
-    ↓
-Revision 2
-₹620 Cr
-```
-
-Display:
-
-``` text
-Original Cost: ₹500 Cr
-Current Cost: ₹620 Cr
-
-Absolute Change: ₹120 Cr
-Percentage Change: 24%
-```
-
-The UI must indicate that the percentage is calculated by the platform.
-
-------------------------------------------------------------------------
-
-# 18. Schedule Change Tracking
-
-Example:
-
-``` text
-Original Completion
-December 2025
-
-        ↓
-
-Current Completion
-June 2026
-```
-
-Calculate:
-
-``` text
-Schedule Difference = Current Completion - Original Completion
-```
-
-Display:
-
-``` text
-Original Completion: Dec 2025
-Current Completion: Jun 2026
-Difference: 6 months
-```
-
-Use exact date arithmetic in backend logic rather than approximate
-text-only calculations.
-
-------------------------------------------------------------------------
-
-# 19. Project Change History
-
-Example:
-
-``` text
-15 Sep 2026
-Physical progress changed
-48% → 54%
-
-15 Jul 2026
-Estimated cost changed
-₹550 Cr → ₹620 Cr
-
-10 Apr 2026
-Completion date changed
-Dec 2025 → Jun 2026
-```
-
-Change types:
-
-``` text
-COST_CHANGED
-PROGRESS_CHANGED
-EXPENDITURE_CHANGED
-COMPLETION_DATE_CHANGED
-START_DATE_CHANGED
-STATUS_CHANGED
-OTHER_FIELD_CHANGED
-```
-
-------------------------------------------------------------------------
-
-# 20. Project Comparison
-
-Users can select 2--5 projects.
-
-Comparison table:
-
-  Metric          Project A   Project B   Project C
-  ------------- ----------- ----------- -----------
-  Cost              ₹500 Cr     ₹720 Cr     ₹350 Cr
-  Expenditure       ₹250 Cr     ₹540 Cr     ₹140 Cr
-  Progress              50%         75%         40%
-  Start                2023        2022        2024
-  Completion           2027        2026        2028
-
-The comparison should present underlying data.
-
-Do not create an overall "best project" score.
-
-------------------------------------------------------------------------
-
-# 21. Map Explorer
-
-Create an interactive India map.
-
-Users can:
-
-``` text
-India
- ↓
-State
- ↓
-District
- ↓
-Projects
-```
-
-Project marker can display:
-
--   Project name
--   Sector
--   Cost
--   Progress
--   Source status
-
-Progress colors/categories are platform visualizations and must not be
-presented as official government classifications.
-
-------------------------------------------------------------------------
-
-# 22. Analytics Module
-
-## State Analytics
-
-Metrics:
-
--   Project count
--   Total project cost
--   Total expenditure
--   Average reported progress
--   Projects by sector
--   Projects by status
-
-## Sector Analytics
-
-Metrics:
-
--   Number of projects
--   Total project cost
--   Total expenditure
--   Average reported progress
--   Project-value distribution
-
-## Ministry Analytics
-
-Metrics:
-
--   Project count
--   Total cost
--   Expenditure
--   Average progress
-
-## Cost Analytics
-
-Metrics:
-
--   Average cost
--   Median cost
--   Minimum cost
--   Maximum cost
--   Cost distribution
-
-------------------------------------------------------------------------
-
-# 23. Change Detection Engine
-
-The system must compare the newest project observation against the
-previous observation.
-
-Flow:
-
-``` text
-New Source Data
-    ↓
-Extract
-    ↓
-Normalize
-    ↓
-Validate
-    ↓
-Identify Project
-    ↓
-Load Previous Snapshot
-    ↓
-Compare Fields
-    ↓
-Detect Changes
-    ↓
-Store Snapshot
-    ↓
-Create Change Events
-    ↓
-Update Current Project View
-```
-
-Example:
-
-``` text
-OLD
-
-cost = ₹500 Cr
-progress = 42%
-completion = 2026-12-31
-
-
-NEW
-
-cost = ₹550 Cr
-progress = 48%
-completion = 2027-06-30
-```
-
-Detected:
-
-``` text
-COST_CHANGED
-PROGRESS_CHANGED
-COMPLETION_DATE_CHANGED
-```
-
-------------------------------------------------------------------------
-
-# 24. Historical Snapshot Architecture
-
-Never simply overwrite important source observations.
-
-Store:
-
-``` text
-Project
-    ↓
-Snapshot 1
-Snapshot 2
-Snapshot 3
-Snapshot 4
-```
-
-This allows:
-
--   Historical charts
--   Change detection
--   "What changed?" reports
--   Data auditing
--   Reproducible analytics
-
-Core principle:
-
-> **Never destroy a historical observation unless there is a deliberate
-> data-correction process.**
-
-------------------------------------------------------------------------
-
-# 25. Data Source Strategy
-
-The platform should prioritize:
-
-1.  Official government sources
-2.  Official public datasets
-3.  Official APIs
-4.  Official downloadable CSV/XLSX data
-5.  Official reports/documents
-6.  Permitted public web data where appropriate
-
-A possible initial source is the MoSPI PAIMANA/IPM ecosystem, which
-provides public infrastructure-project monitoring information and
-project-level fields such as project cost, revised cost, expenditure,
-physical progress and completion-related information.
-
-Additional sources should be added only after verifying:
-
--   Public accessibility
--   Data format
--   Update frequency
--   Terms of use
--   Technical access rules
--   Whether automated collection is permitted
-
-------------------------------------------------------------------------
-
-# 26. Data Source Registry
-
-Create a database table:
-
-``` text
-data_sources
-```
-
-Fields:
-
-``` text
-id
-name
-organization
-source_type
-base_url
-access_method
-update_frequency
-is_active
-last_successful_sync
-last_failed_sync
-created_at
-updated_at
-```
-
-Example:
-
-``` text
-PAIMANA
-MoSPI
-XLSX / CSV / Public Dashboard
-Periodic
-Active
-```
-
-------------------------------------------------------------------------
-
-# 27. Data Ingestion Architecture
-
-``` text
-Government Source
-       ↓
-Extractor
-       ↓
-Raw Data Storage
-       ↓
-Validator
-       ↓
-Normalizer
-       ↓
-Deduplicator
-       ↓
-Canonical Project Records
-       ↓
-Historical Snapshot
-       ↓
-Change Detection
-       ↓
-Analytics
-```
-
-------------------------------------------------------------------------
-
-# 28. ETL Pipeline
-
-## Extract
-
-Support:
-
--   CSV
--   XLSX
--   JSON
--   XML
--   PDF
--   Permitted web data
-
-## Transform
-
-Normalize:
-
--   Currency
--   Dates
--   State names
--   District names
--   Organization names
--   Sector names
--   Project identifiers
--   Status values
-
-Example:
-
-``` text
-500 Crore
-₹500 Cr
-500 CR
-₹5000000000
-```
-
-should normalize to:
-
-``` text
-5000000000 INR
-```
-
-Keep original source values for traceability.
-
-------------------------------------------------------------------------
-
-# 29. Data Validation
-
-Validation rules:
-
-``` text
-Project ID must not be null when source provides one.
-
-Project cost >= 0
-
-Expenditure >= 0
-
-Physical progress >= 0
-
-Physical progress <= 100
-
-Dates must use valid date formats.
-
-Known start date should not normally be after completion date.
-```
-
-Do not silently reject unusual but potentially valid records. Route
-uncertain records to a data-quality workflow.
-
-------------------------------------------------------------------------
-
-# 30. Data Quality Queue
-
-Create:
-
-``` text
-Data Quality Queue
-```
-
-Example:
-
-``` text
-Record #1234
-
-Problem:
-Missing project ID
-
-Source:
-Government Dataset A
-
-Status:
-Needs Review
-```
-
-Admin actions:
-
--   Review
--   Correct
--   Accept
--   Reject
--   Mark duplicate
-
-------------------------------------------------------------------------
-
-# 31. Data Provenance
-
-Every important field should be traceable.
-
-Example:
-
-``` text
-Current Project Cost
-₹620 Cr
-
-Source:
-Official Government Source
-
-Source Updated:
-15 Aug 2026
-
-Imported:
-17 Aug 2026
-```
-
-Where possible, store:
-
--   Source URL
--   Source document
--   Source publication date
--   Source update date
--   Ingestion timestamp
--   Raw record identifier
--   Source field name
-
-------------------------------------------------------------------------
-
-# 32. Database Design
-
-Core tables:
-
-``` text
-projects
-ministries
-departments
-organizations
-sectors
-states
-districts
-project_snapshots
-project_changes
-project_documents
-data_sources
-ingestion_runs
-data_quality_issues
-users
-saved_projects
-saved_searches
-alerts
-```
-
-------------------------------------------------------------------------
-
-# 33. Projects Table
-
-Suggested fields:
-
-``` text
-projects
-------------------------------
-id
-external_project_id
-name
+Props:
+
+```text
+title
+value
+subtitle
+icon
+trend
+trendLabel
 description
-
-ministry_id
-department_id
-organization_id
-sector_id
-
-state_id
-district_id
-
-original_cost
-current_cost
-currency
-
-original_start_date
-current_start_date
-
-original_completion_date
-current_completion_date
-
-current_progress
-current_expenditure
-
-source_status
-platform_status
-
-source_id
-
-created_at
-updated_at
+loading
 ```
 
-Important:
+Example:
 
-`source_status` = status reported by the source.
+```text
+Total Projects
+12,482
 
-`platform_status` = optional platform-derived normalized status.
-
-------------------------------------------------------------------------
-
-# 34. Project Snapshots Table
-
-``` text
-project_snapshots
-------------------------------
-id
-project_id
-
-snapshot_date
-
-project_cost
-revised_cost
-expenditure
-physical_progress
-
-start_date
-completion_date
-
-source_status
-
-source_id
-
-raw_record_hash
-
-created_at
+↑ 4.8%
+vs previous period
 ```
 
-------------------------------------------------------------------------
+Do not display a trend unless the backend actually provides enough data to calculate it.
 
-# 35. Project Changes Table
+---
 
-``` text
-project_changes
-------------------------------
-id
-project_id
-snapshot_id
+# 13. PROJECT EXPLORER
 
-change_type
-field_name
+Create a professional project discovery page.
 
-old_value
-new_value
+Header:
 
-change_amount
-change_percentage
+```text
+Projects
 
-detected_at
+Explore government projects across
+ministries, states and sectors.
+
+[ Search projects... ]
 ```
 
-------------------------------------------------------------------------
+Filters:
 
-# 36. Project Documents Table
-
-``` text
-project_documents
-------------------------------
-id
-project_id
-
-document_name
-document_type
-
-source_url
-published_date
-
-document_hash
-
-storage_path
-extracted_text
-
-created_at
-updated_at
+```text
+State
+District
+Ministry
+Department
+Sector
+Status
+Cost
+Progress
+Year
 ```
 
-------------------------------------------------------------------------
+Desktop:
 
-# 37. Ingestion Runs Table
+Filters can appear in a horizontal toolbar or filter sidebar.
 
-``` text
-ingestion_runs
-------------------------------
-id
-source_id
+Mobile:
 
-started_at
-completed_at
+Filters should open in a drawer/modal.
 
-status
+Do NOT create a huge vertical filter form on mobile.
 
-records_found
-records_inserted
-records_updated
-records_rejected
+---
 
-error_message
+# 14. PROJECT TABLE
+
+Desktop should use a professional data table.
+
+Columns:
+
+```text
+Project
+Organization
+Location
+Sector
+Cost
+Progress
+Completion
+Status
 ```
 
-Possible statuses:
+Features:
 
-``` text
-RUNNING
-SUCCESS
-PARTIAL_SUCCESS
-FAILED
+* Sticky table header
+* Horizontal scroll where necessary
+* Row hover
+* Clear column hierarchy
+* Sorting
+* Pagination
+
+Do NOT squeeze 8 columns into a 375px screen.
+
+---
+
+# 15. MOBILE PROJECT LIST
+
+On mobile, transform the table into cards.
+
+Example:
+
+```text
+┌─────────────────────────────────┐
+│ Bengaluru Infrastructure        │
+│ Karnataka · Roads               │
+│                                 │
+│ ₹620 Cr          54%            │
+│ ███████████░░░░                 │
+│                                 │
+│ Completion: Jun 2027            │
+│                                 │
+│ View Project →                  │
+└─────────────────────────────────┘
 ```
 
-------------------------------------------------------------------------
+Use a responsive component strategy rather than simply forcing the desktop table to scroll.
 
-# 38. API Architecture
+---
 
-Use Django REST Framework.
+# 16. PROJECT DETAIL PAGE
 
-## Projects
+This is one of the most important pages.
 
-``` http
-GET /api/projects/
-GET /api/projects/{id}/
-GET /api/projects/{id}/history/
-GET /api/projects/{id}/changes/
-```
+Structure:
 
-## Search
-
-``` http
-GET /api/projects/search?q=metro
-```
-
-## Filters
-
-``` http
-GET /api/projects/?state=karnataka
-GET /api/projects/?sector=roads
-GET /api/projects/?min_cost=1000000000
-GET /api/projects/?progress_min=50
-```
-
-## Analytics
-
-``` http
-GET /api/analytics/overview/
-GET /api/analytics/states/
-GET /api/analytics/sectors/
-GET /api/analytics/ministries/
-GET /api/analytics/costs/
-```
-
-## Comparison
-
-``` http
-POST /api/projects/compare/
-```
-
-------------------------------------------------------------------------
-
-# 39. Frontend Architecture
-
-Recommended structure:
-
-``` text
-src/
-├── components/
-│   ├── common/
-│   ├── dashboard/
-│   ├── projects/
-│   ├── analytics/
-│   ├── maps/
-│   └── ui/
-│
-├── pages/
-│   ├── Dashboard.jsx
-│   ├── Projects.jsx
-│   ├── ProjectDetails.jsx
-│   ├── Compare.jsx
-│   ├── MapExplorer.jsx
-│   ├── Analytics.jsx
-│   └── DataSources.jsx
-│
-├── services/
-│   └── api.js
-│
-├── hooks/
-│
-└── utils/
-```
-
-------------------------------------------------------------------------
-
-# 40. Reusable UI Components
-
-Use reusable components instead of duplicating UI.
-
-Core components:
-
-``` text
-Card
-StatCard
-SectionHeader
-Badge
-Tabs
-DataTable
-SearchInput
-Select
-FilterPills
-DateRangePicker
-ProgressBar
+```text
+Breadcrumb
+↓
+Project Header
+↓
+Summary Cards
+↓
+Progress + Financial Overview
+↓
 Timeline
-EmptyState
-Skeleton
-Modal
+↓
+Cost History
+↓
+Progress History
+↓
+Change History
+↓
+Documents
+↓
+Source Information
 ```
 
-Project-specific components:
+---
 
-``` text
-ProjectCard
-ProjectStatusBadge
-ProjectProgressCard
-ProjectFinancialCard
-ProjectTimeline
-ProjectChangeLog
-ProjectComparisonTable
-SourceBadge
-```
+# 17. PROJECT HEADER
 
-------------------------------------------------------------------------
+Example:
 
-# 41. Backend Architecture
+```text
+← Projects
 
-Recommended:
+Bengaluru Infrastructure Project
 
-``` text
-                    React
-                      │
-                      ↓
-                 Django REST
-                      │
-          ┌───────────┼───────────┐
-          ↓           ↓           ↓
-      PostgreSQL    Redis       Celery
-                                  │
-                                  ↓
-                           Data Pipeline
-                                  │
-                  ┌───────────────┼───────────────┐
-                  ↓               ↓               ↓
-               CSV/XLSX          API        Public Sources
-```
+Karnataka · Roads
+Ministry / Department
 
-Recommended backend packages/services:
-
--   Django
--   Django REST Framework
--   PostgreSQL
--   Celery
--   Redis
--   pandas
--   openpyxl
--   requests/httpx where permitted
--   BeautifulSoup only where permitted and appropriate
--   PDF extraction library for permitted documents
--   pgvector for semantic search later
-
-------------------------------------------------------------------------
-
-# 42. Scheduled Data Updates
-
-Use Celery for background ingestion.
-
-Generic workflow:
-
-``` text
-Scheduled Job
-    ↓
-Check Source
-    ↓
-Download / Retrieve Data
-    ↓
-Validate
-    ↓
-Normalize
-    ↓
-Compare
-    ↓
-Store Snapshot
-    ↓
-Generate Change Events
-    ↓
-Update Analytics
-```
-
-The schedule must respect each source's actual update frequency.
-
-------------------------------------------------------------------------
-
-# 43. Pipeline Monitoring
-
-Admin dashboard:
-
-``` text
-Data Pipeline
-
-Source A
-SUCCESS
-Last Run: ...
-Records: 1,824
-
-Source B
-SUCCESS
-Last Run: ...
-Records: 3,240
-
-Source C
-FAILED
-Last Run: ...
-Error: Source unavailable
+[Follow Project] [Compare]
 ```
 
 Show:
 
--   Last successful run
--   Last failed run
--   Processing time
--   Records found
--   Records inserted
--   Records updated
--   Records rejected
--   Error messages
+* Project name
+* Location
+* Sector
+* Organization
+* Source
+* Last updated date
 
-------------------------------------------------------------------------
+---
 
-# 44. Admin Dashboard
+# 18. PROJECT SUMMARY CARDS
 
-Admin sections:
+Use reusable cards:
 
-``` text
+```text
+Original Cost
+₹500 Cr
+
+Current Cost
+₹620 Cr
+
+Expenditure
+₹310 Cr
+
+Physical Progress
+54%
+```
+
+Mobile:
+
+Cards should stack or use a 2-column grid.
+
+---
+
+# 19. PROGRESS VISUALIZATION
+
+Create a professional progress card.
+
+```text
+Physical Progress
+
+54%
+
+████████████░░░░░░░░
+
+Last updated:
+15 Sep 2026
+```
+
+Use a clear visual distinction between:
+
+* reported value
+* calculated value
+
+---
+
+# 20. FINANCIAL ANALYTICS
+
+Create a reusable financial card.
+
+Display:
+
+```text
+Original Cost
+₹500 Cr
+
+Current Cost
+₹620 Cr
+
+Expenditure
+₹310 Cr
+
+Cost Change
++24%
+
+Expenditure Ratio
+50%
+```
+
+Calculated metrics must be clearly marked if they come from frontend/backend calculations rather than the source.
+
+---
+
+# 21. HISTORICAL CHARTS
+
+Create clean responsive charts.
+
+Charts should:
+
+* Have readable labels
+* Have useful tooltips
+* Adapt to mobile
+* Avoid unnecessary legends
+* Avoid excessive grid lines
+* Handle missing data gracefully
+
+Never render charts with fixed widths/heights that break responsive layouts.
+
+Use responsive containers.
+
+---
+
+# 22. PROJECT TIMELINE
+
+Build a reusable timeline:
+
+```text
+2023
+● Project Approved
+
+2024
+● Project Started
+
+2025
+● Progress Updated
+
+2026
+● Completion Revised
+```
+
+Desktop can use a horizontal timeline if appropriate.
+
+Mobile should become vertical:
+
+```text
+2023 ●
+     │
+     │
+2024 ●
+     │
+     │
+2025 ●
+     │
+     │
+2026 ●
+```
+
+---
+
+# 23. CHANGE HISTORY
+
+Make change events visually understandable.
+
+Example:
+
+```text
+Cost Changed
+
+₹550 Cr
+   ↓
+₹620 Cr
+
++₹70 Cr
++12.7%
+
+15 Jul 2026
+```
+
+Other event types:
+
+* Progress changed
+* Expenditure changed
+* Completion date changed
+* Status changed
+
+Use consistent badges/icons.
+
+---
+
+# 24. MAP EXPLORER
+
+Create a dedicated map page.
+
+Desktop:
+
+```text
+┌──────────────────────────────┬───────────────────────┐
+│                              │                       │
+│          INDIA MAP           │ Project Details       │
+│                              │                       │
+│                              │ Karnataka             │
+│                              │ 327 Projects          │
+│                              │ ₹XX Cr                │
+│                              │                       │
+└──────────────────────────────┴───────────────────────┘
+```
+
+Mobile:
+
+```text
+Map
+↓
+Filters
+↓
+Selected Project / State Details
+```
+
+Do not make the map unusably small on mobile.
+
+---
+
+# 25. ANALYTICS PAGE
+
+Create an analytics workspace.
+
+Possible sections:
+
+```text
 Overview
+States
+Sectors
+Ministries
+Cost Analysis
+Progress Analysis
+Historical Changes
+```
+
+Use tabs or segmented navigation.
+
+Charts should be consistent across the application.
+
+---
+
+# 26. COMPARISON PAGE
+
+Users can select projects and compare them.
+
+Desktop:
+
+```text
+Metric            Project A    Project B    Project C
+------------------------------------------------------
+Cost              ₹500 Cr      ₹620 Cr      ₹350 Cr
+Progress          50%          54%          40%
+Expenditure       ₹250 Cr      ₹310 Cr      ₹140 Cr
+Completion        2027         2028         2026
+```
+
+Mobile:
+
+Turn each project into a stacked comparison section or allow horizontal scrolling.
+
+Do NOT make text unreadably small.
+
+---
+
+# 27. DATA SOURCE PAGE
+
+Create a trustworthy source-information page.
+
+Display:
+
+```text
 Data Sources
-Ingestion Runs
-Projects
-Data Quality
-Documents
-Users
-System Logs
+
+PAIMANA
+MoSPI
+
+Status:
+Healthy
+
+Last Successful Sync:
+15 Sep 2026
+
+Records:
+1,824
+
+Update Frequency:
+Periodic
+
+[View Source]
 ```
 
-Admin should be able to:
+Use clear source attribution throughout the application.
 
--   Enable/disable data source
--   Run ingestion manually
--   Inspect failed ingestion
--   Review data-quality issues
--   View project history
--   Inspect source metadata
+---
 
-------------------------------------------------------------------------
+# 28. AI ASSISTANT PAGE
 
-# 45. AI Assistant --- Phase 2
-
-AI should operate primarily over structured, sourced data.
+Create a modern AI interface.
 
 Example:
 
-User:
-
-> Show projects in Karnataka above ₹500 crore.
-
-AI should convert the request into structured filters:
-
-``` text
-state = Karnataka
-current_cost > 5000000000
+```text
+┌────────────────────────────────────────────┐
+│ InfraIndia Assistant                      │
+│                                            │
+│ Ask questions about project data...        │
+│                                            │
+│ "Show Karnataka road projects above        │
+│ ₹500 crore"                                │
+│                                            │
+│ [ Ask ]                                    │
+└────────────────────────────────────────────┘
 ```
 
-Then query the database.
+Example suggested prompts:
 
-The LLM should not invent project records.
+```text
+Show projects in Karnataka
 
-------------------------------------------------------------------------
+Projects above ₹1,000 crore
 
-# 46. AI Project Summary
+What changed in this project?
+
+Compare road and railway projects
+```
+
+AI responses should present:
+
+* Clear answer
+* Tables where appropriate
+* Source references
+* Relevant project links
+
+---
+
+# 29. LOADING STATES
+
+Every async page/component needs a loading state.
+
+Use skeletons rather than blank screens.
+
+Examples:
+
+```text
+DashboardSkeleton
+ProjectTableSkeleton
+ProjectDetailSkeleton
+ChartSkeleton
+MapSkeleton
+```
+
+Avoid showing:
+
+```text
+Loading...
+```
+
+everywhere.
+
+---
+
+# 30. ERROR STATES
+
+Create reusable error UI.
 
 Example:
 
-``` text
-Project Summary
+```text
+Unable to load projects
 
-The project was originally reported at ₹500 crore.
+Something went wrong while retrieving
+project information.
 
-The currently reported cost is ₹620 crore.
-
-Reported physical progress is 54%.
-
-The reported completion date changed from
-December 2025 to June 2026.
-
-Sources:
-Official Government Source
+[Try Again]
 ```
 
-AI-generated summaries must retain source references.
+Do not expose raw backend stack traces to users.
 
-------------------------------------------------------------------------
+---
 
-# 47. Natural Language Analytics
+# 31. EMPTY STATES
 
-Support queries such as:
+Examples:
 
-``` text
-How many projects are in Karnataka?
+```text
+No projects found
 
-Show projects above ₹1,000 crore.
+Try changing your filters or search query.
 
-Show projects with revised completion dates.
-
-Show projects with reported physical progress above 75%.
-
-Compare road and railway projects.
-
-What changed in this project during 2026?
-
-Show projects updated this month.
+[Clear Filters]
 ```
 
-The AI should translate natural language into safe structured queries.
+Provide a useful action.
 
-------------------------------------------------------------------------
+---
 
-# 48. AI Document Extraction
+# 32. DESIGN TOKENS
 
-Future architecture:
+Create centralized design tokens.
 
-``` text
-Government PDF
-      ↓
-PDF Text Extraction
-      ↓
-Document Chunking
-      ↓
-LLM Extraction
-      ↓
-Structured Fields
-      ↓
-Validation
-      ↓
-Human/Data Quality Review
-      ↓
-Database
+For example:
+
+```text
+spacing
+borderRadius
+fontSize
+fontWeight
+shadows
+colors
 ```
 
-Possible fields:
+Do not scatter arbitrary values throughout components.
 
-``` text
-Project Name
-Project ID
-Cost
-Location
-Organization
-Completion Date
-Contractor
-Scope
-Milestones
-Progress
+Use Tailwind configuration or CSS variables where appropriate.
+
+---
+
+# 33. TYPOGRAPHY
+
+Use a professional modern sans-serif font.
+
+Establish hierarchy:
+
+```text
+Page title
+Section heading
+Card title
+Body
+Secondary text
+Caption
 ```
 
-Every extracted field should retain a reference to its source document.
+Avoid overly large headings that consume most of the mobile viewport.
 
-------------------------------------------------------------------------
+---
 
-# 49. Semantic Search
+# 34. COLORS
 
-Later use:
+Use a restrained professional palette.
 
-``` text
-PostgreSQL + pgvector
+Suggested semantic colors:
+
+```text
+Primary
+Neutral
+Success
+Warning
+Danger
+Info
 ```
+
+Do not assign random colors to charts.
+
+Create a consistent chart color system.
+
+Important:
+
+* Green = positive/success only when semantically appropriate
+* Red = warning/problem only when semantically appropriate
+* Neutral colors for ordinary categories
+
+Do not imply judgment about a government project through arbitrary colors.
+
+---
+
+# 35. ACCESSIBILITY
+
+Implement:
+
+* Semantic HTML
+* Keyboard navigation
+* Focus states
+* Accessible buttons
+* Accessible form labels
+* ARIA only where needed
+* Sufficient color contrast
+* Tooltips that are keyboard accessible
+* Screen-reader-friendly status information
+
+Do not rely on color alone to communicate status.
+
+---
+
+# 36. RESPONSIVE BREAKPOINT STRATEGY
+
+Use a consistent breakpoint strategy.
 
 Example:
 
-User:
+```text
+< 640px
+Mobile
 
-> Find projects similar to metro rail construction.
+640–767px
+Large mobile
 
-System:
+768–1023px
+Tablet
 
-``` text
-Query Embedding
-      ↓
-Vector Search
-      ↓
-Relevant Projects
-      ↓
-Metadata Filtering
-      ↓
-Results
+1024–1279px
+Desktop
+
+1280+
+Large desktop
 ```
 
-Results should include similarity information and source references.
+Do not create dozens of arbitrary breakpoints.
 
-------------------------------------------------------------------------
+---
 
-# 50. Alerts
+# 37. RESPONSIVE RULES
 
-Users can follow projects.
+For every component:
+
+### Cards
+
+Desktop:
+
+```text
+grid columns
+```
+
+Mobile:
+
+```text
+1 column
+```
+
+### Tables
+
+Desktop:
+
+```text
+full table
+```
+
+Mobile:
+
+```text
+card layout or horizontal scrolling
+```
+
+### Sidebar
+
+Desktop:
+
+```text
+persistent
+```
+
+Mobile:
+
+```text
+drawer
+```
+
+### Filters
+
+Desktop:
+
+```text
+toolbar/sidebar
+```
+
+Mobile:
+
+```text
+filter drawer
+```
+
+### Charts
+
+Desktop:
+
+```text
+2-column grid
+```
+
+Mobile:
+
+```text
+1-column stack
+```
+
+---
+
+# 38. HORIZONTAL OVERFLOW
+
+There must be no accidental horizontal page scrolling.
+
+Audit:
+
+```text
+body
+main
+header
+sidebar
+cards
+tables
+charts
+maps
+modals
+```
+
+Use `overflow-x-hidden` only when appropriate.
+
+Do not use it to hide actual layout problems.
+
+---
+
+# 39. MOBILE TOUCH TARGETS
+
+Interactive elements should be comfortable to tap.
+
+Avoid tiny buttons.
+
+Use appropriately sized touch targets for:
+
+* Navigation
+* Buttons
+* Filters
+* Pagination
+* Dropdowns
+* Table actions
+* Map controls
+
+---
+
+# 40. ROUTING
+
+Ensure routes are clean.
+
+Suggested:
+
+```text
+/
+/dashboard
+/projects
+/projects/:id
+/map
+/analytics
+/compare
+/sources
+/ai
+/settings
+```
+
+Handle:
+
+```text
+404
+Invalid project ID
+Missing data
+API error
+```
+
+---
+
+# 41. URL STATE
+
+Where useful, keep filters in the URL.
 
 Example:
 
-``` text
-Follow Project
+```text
+/projects?state=karnataka&sector=roads&minCost=5000000000
 ```
 
-Notify when:
+Benefits:
 
--   Cost changes
--   Completion date changes
--   Progress changes
--   Status changes
--   New project document appears
+* Shareable searches
+* Browser back/forward
+* Refresh persistence
 
-Example notification:
+---
 
-``` text
-Project ABC was updated.
+# 42. API INTEGRATION
 
-Reported cost:
-₹500 Cr → ₹560 Cr
+Use the existing API layer.
+
+Do NOT duplicate API calls inside random components.
+
+Centralize API methods:
+
+```text
+projectService
+analyticsService
+sourceService
+aiService
+```
+
+Handle:
+
+* Loading
+* Success
+* Error
+* Empty
+* Retry
+
+---
+
+# 43. COMPONENT ARCHITECTURE
+
+Create a clear component hierarchy.
+
+Example:
+
+```text
+components/
+├── ui/
+│   ├── Button
+│   ├── Card
+│   ├── Badge
+│   ├── Modal
+│   ├── Skeleton
+│   └── EmptyState
+│
+├── common/
+│   ├── AppShell
+│   ├── Sidebar
+│   ├── GlobalHeader
+│   ├── Breadcrumbs
+│   └── PageHeader
+│
+├── dashboard/
+│   ├── StatCard
+│   ├── ProjectOverviewChart
+│   ├── StateChart
+│   └── SectorChart
+│
+├── projects/
+│   ├── ProjectCard
+│   ├── ProjectTable
+│   ├── ProjectFilters
+│   ├── ProjectHeader
+│   ├── ProjectFinancialCard
+│   ├── ProjectProgressCard
+│   ├── ProjectTimeline
+│   └── ProjectChangeLog
+│
+└── analytics/
+```
+
+Adapt this to the existing codebase instead of blindly replacing its structure.
+
+---
+
+# 44. REUSABILITY RULE
+
+Before creating a new component, ask:
+
+> Is this pattern likely to appear more than once?
+
+If yes, create a reusable component.
+
+Avoid duplicated:
+
+* Cards
+* Buttons
+* Badges
+* Filters
+* Headers
+* Tables
+* Loading states
+* Empty states
+
+---
+
+# 45. STATE MANAGEMENT
+
+Inspect the existing state-management strategy first.
+
+Do not introduce Redux/Zustand/etc. unless the existing architecture actually needs it.
+
+Prefer simple patterns when possible:
+
+* React state
+* Context where appropriate
+* URL state for filters
+* Existing server/API state management
+
+Avoid unnecessary complexity.
+
+---
+
+# 46. PERFORMANCE
+
+Optimize:
+
+* Large project tables
+* Charts
+* Maps
+* Images
+* API calls
+* Re-renders
+
+Use:
+
+* Pagination
+* Memoization where useful
+* Lazy loading
+* Code splitting for large pages
+* Debounced search
+* Cached API responses where appropriate
+
+Do not prematurely optimize every component.
+
+---
+
+# 47. SEARCH UX
+
+Search should support:
+
+* Debouncing
+* Loading state
+* Empty state
+* Clear button
+* Keyboard interaction
+* Recent search state if useful
+
+Example:
+
+```text
+Search projects...
+
+⌕ Bengaluru Metro
+⌕ Karnataka roads
+```
+
+---
+
+# 48. FILTER UX
+
+Desktop:
+
+```text
+State [Karnataka]
+Sector [Roads]
+Cost [₹500 Cr+]
+Progress [50%+]
+
+[Clear all]
+```
+
+Mobile:
+
+```text
+[ Filters (3) ]
+```
+
+Opening filters should show a bottom sheet or drawer.
+
+---
+
+# 49. DATA FRESHNESS
+
+Every page that depends on data should make freshness understandable.
+
+Example:
+
+```text
+Data updated:
+15 Sep 2026
 
 Source:
-Official Government Source
+MoSPI / Official Government Source
 ```
 
-------------------------------------------------------------------------
+Avoid presenting old data as live/current without indicating the date.
 
-# 51. User Accounts
+---
 
-MVP:
+# 50. PROFESSIONAL DETAILS
 
--   Public browsing
--   No account required for core project discovery
+Add small quality improvements:
 
-Later:
+* Breadcrumbs
+* Hover states
+* Focus states
+* Tooltips
+* Copy buttons for IDs
+* Relative dates where useful
+* Exact dates in details
+* Consistent number formatting
+* Currency formatting
+* Percentage formatting
+* Empty-state icons
+* Smooth but restrained transitions
 
-``` text
-Register
-Login
-Saved Projects
-Saved Searches
-Alerts
-Personal Dashboard
+---
+
+# 51. NUMBER FORMATTING
+
+Create reusable formatters.
+
+Examples:
+
+```text
+₹500 Cr
+₹1,240 Cr
+₹2.4 Lakh Cr
+54%
+1,824 projects
 ```
 
-------------------------------------------------------------------------
+Do not duplicate number-formatting logic throughout components.
 
-# 52. Security Requirements
+---
 
-Backend requirements:
+# 52. DATE FORMATTING
 
--   Secure authentication
--   Role-based access
--   Input validation
--   API rate limiting
--   CSRF protection where applicable
--   Secure environment variables
--   Database permissions
--   Secure file handling
--   Audit logs for admin changes
-
-Never expose:
-
-``` text
-Database credentials
-LLM API keys
-Government/private credentials
-Admin secrets
-```
-
-------------------------------------------------------------------------
-
-# 53. Data Quality Principles
-
-Government datasets can contain:
-
--   Missing values
--   Duplicate projects
--   Different spellings
--   Different date formats
--   Changed identifiers
--   Revised costs
--   Inconsistent organization names
-
-Pipeline:
-
-``` text
-Raw Data
-   ↓
-Validation
-   ↓
-Normalization
-   ↓
-Entity Resolution
-   ↓
-Deduplication
-   ↓
-Canonical Data
-```
-
-Always retain original source data where practical and legally
-appropriate.
-
-------------------------------------------------------------------------
-
-# 54. Entity Resolution
-
-Potential examples:
-
-``` text
-Bangalore
-Bengaluru
-Bengaluru Urban
-```
-
-Do not blindly merge records.
-
-Use:
-
--   Source project ID
--   Organization
--   Project name
--   Location
--   Dates
--   Cost
--   Other identifying fields
-
-If confidence is low, send the record to manual review.
-
-------------------------------------------------------------------------
-
-# 55. Project Status Model
-
-Use two separate concepts.
-
-## Source Status
-
-``` text
-source_status
-```
-
-This is exactly what the government source reports.
-
-## Platform Status
-
-``` text
-platform_status
-```
-
-Optional normalized values:
-
-``` text
-PLANNED
-ACTIVE
-COMPLETED
-CLOSED
-UNKNOWN
-```
-
-Never imply that platform status is an official government status.
-
-------------------------------------------------------------------------
-
-# 56. Platform-Derived Indicators
-
-Possible indicators:
-
-``` text
-Cost Change %
-Schedule Difference
-Expenditure Ratio
-Progress Change
-Time Since Last Update
-```
+Use a consistent format.
 
 Example:
 
-``` text
-Cost Change %
-=
-(Current Cost - Original Cost)
-/
-Original Cost
-× 100
+```text
+15 Sep 2026
 ```
 
-All derived indicators must be clearly labeled as platform calculations.
+For detailed information:
 
-------------------------------------------------------------------------
-
-# 57. Performance Requirements
-
-Initial targets:
-
-``` text
-Dashboard load:
-< 3 seconds
-
-Project search:
-< 1 second for common queries
-
-Project details:
-< 2 seconds
-
-Analytics:
-< 3 seconds
+```text
+15 September 2026
 ```
 
-Use:
+Do not display ambiguous dates like:
 
--   Database indexes
--   Pagination
--   Caching
--   Query optimization
--   Pre-aggregated analytics when necessary
-
-------------------------------------------------------------------------
-
-# 58. Mobile Requirements
-
-Support:
-
--   Desktop
--   Tablet
--   Mobile
-
-Mobile project details should use stacked cards.
-
-Tables should:
-
--   Horizontally scroll, or
--   Switch to card/list layouts
-
-Charts should resize responsively.
-
-------------------------------------------------------------------------
-
-# 59. MVP Scope
-
-The MVP should NOT attempt to ingest every government source.
-
-## MVP Features
-
-### Data
-
--   One reliable official government data source
--   Data ingestion
--   Raw record storage
--   Normalization
--   Validation
--   Deduplication
-
-### Database
-
--   Projects
--   Organizations
--   Ministries
--   Departments
--   Sectors
--   Locations
--   Snapshots
--   Changes
--   Sources
-
-### UI
-
--   Dashboard
--   Project Explorer
--   Project Details
--   Search
--   Filters
--   Basic analytics
--   Source information
-
-### Historical
-
--   Project snapshots
--   Change detection
--   Change history
-
-### Admin
-
--   Data source monitoring
--   Ingestion monitoring
--   Data quality queue
-
-------------------------------------------------------------------------
-
-# 60. Phase 2
-
-Add:
-
-``` text
-Interactive India Map
-Project Comparison
-Advanced Analytics
-Documents
-PDF Processing
-Saved Projects
-Saved Searches
-Alerts
-More Government Sources
+```text
+09/10/26
 ```
 
-------------------------------------------------------------------------
+---
 
-# 61. Phase 3 --- AI
+# 53. UI CONSISTENCY AUDIT
 
-Add:
+After implementation, inspect every page and ensure:
 
-``` text
-Natural Language Search
-AI Project Summaries
-Document Extraction
-Semantic Search
-Similar Projects
-AI Analytics Assistant
+* Same sidebar
+* Same header
+* Same card radius
+* Same spacing
+* Same typography
+* Same buttons
+* Same badges
+* Same loading states
+* Same empty states
+* Same responsive behavior
+
+The application should feel like one product, not several independently designed pages.
+
+---
+
+# 54. DO NOT BREAK EXISTING FUNCTIONALITY
+
+Important:
+
+Before modifying a page:
+
+1. Understand what it currently does.
+2. Preserve existing API integrations.
+3. Preserve working routes.
+4. Preserve working business logic.
+5. Preserve existing data structures unless there is a strong reason to change them.
+6. Do not replace backend functionality with mock data.
+7. Do not hardcode values that should come from the API.
+
+---
+
+# 55. DO NOT USE MOCK DATA IF REAL API DATA EXISTS
+
+If the existing backend already returns data:
+
+> Use the real API.
+
+Do not create hardcoded arrays just to make the UI look populated.
+
+If an API field is missing, handle the missing field gracefully.
+
+---
+
+# 56. IMPLEMENTATION PROCESS
+
+Follow this order:
+
+## Step 1
+
+Inspect the entire frontend.
+
+## Step 2
+
+Create an architecture/layout assessment.
+
+Identify:
+
+```text
+Existing
+Broken
+Missing
+Duplicated
+Needs refactor
 ```
 
-------------------------------------------------------------------------
+## Step 3
 
-# 62. Phase 4 --- Multi-Source Expansion
+Implement global application shell.
 
-Expand from central-government infrastructure data to additional
-permitted sources.
+## Step 4
 
-Potential architecture:
+Implement design system and reusable UI components.
 
-``` text
-Central Government
-        +
-State Government
-        +
-Infrastructure Agencies
-        +
-Municipal Sources
-        +
-Other Official Public Datasets
+## Step 5
+
+Fix dashboard.
+
+## Step 6
+
+Fix project explorer.
+
+## Step 7
+
+Fix project details.
+
+## Step 8
+
+Fix analytics.
+
+## Step 9
+
+Fix map.
+
+## Step 10
+
+Fix comparison.
+
+## Step 11
+
+Fix source page.
+
+## Step 12
+
+Fix AI interface.
+
+## Step 13
+
+Perform responsive audit.
+
+## Step 14
+
+Perform accessibility audit.
+
+## Step 15
+
+Perform performance audit.
+
+---
+
+# 57. FINAL RESPONSIVE QA
+
+Before considering the task complete, test:
+
+```text
+320px
+375px
+390px
+414px
+768px
+1024px
+1280px
+1440px
+1920px
 ```
 
-Each source should have its own connector/extractor.
+Check:
 
-------------------------------------------------------------------------
+* Sidebar
+* Header
+* Dashboard
+* KPI cards
+* Charts
+* Tables
+* Filters
+* Project details
+* Timeline
+* Map
+* Comparison
+* Modals
+* Dropdowns
+* AI interface
 
-# 63. Recommended Source Connector Architecture
+There must be:
 
-Create a common interface:
+* No clipped content
+* No overlapping elements
+* No broken charts
+* No accidental horizontal scrolling
+* No unreadable text
+* No buttons outside viewport
+* No fixed-width desktop components on mobile
 
-``` python
-class BaseProjectSource:
-    def fetch(self):
-        raise NotImplementedError
+---
 
-    def parse(self, raw_data):
-        raise NotImplementedError
+# 58. FINAL QUALITY BAR
 
-    def normalize(self, record):
-        raise NotImplementedError
+The final **InfraIndia** application should feel like a serious production SaaS product.
 
-    def validate(self, record):
-        raise NotImplementedError
+A user should be able to open the application and immediately understand:
+
+1. What InfraIndia does.
+2. How many projects are being tracked.
+3. Where projects are located.
+4. What their reported progress is.
+5. What they cost.
+6. How project information changed over time.
+7. Where the data came from.
+
+The UI should communicate:
+
+> **Trustworthy data + clear analytics + professional engineering.**
+
+---
+
+# 59. FINAL INSTRUCTION
+
+Do not simply "make the existing UI prettier."
+
+Perform a proper frontend engineering pass.
+
+You should:
+
+* Inspect
+* Refactor
+* Build reusable components
+* Establish design consistency
+* Improve information hierarchy
+* Improve responsive behavior
+* Improve accessibility
+* Improve loading/error/empty states
+* Optimize performance
+* Preserve existing functionality
+* Use real backend data
+* Remove unnecessary duplication
+* Fix layout bugs
+
+At the end, provide a concise implementation report containing:
+
+```text
+1. Pages updated
+2. Components created
+3. Components refactored
+4. Responsive improvements
+5. Accessibility improvements
+6. Performance improvements
+7. API integration changes
+8. Remaining issues
+9. Recommended next frontend improvements
 ```
 
-Example:
+Do not stop after implementing only the dashboard.
 
-``` text
-sources/
-├── base.py
-├── paimana/
-│   ├── extractor.py
-│   ├── parser.py
-│   ├── normalizer.py
-│   └── validator.py
-├── source_b/
-└── source_c/
-```
-
-This makes additional sources easier to add.
-
-------------------------------------------------------------------------
-
-# 64. Recommended Django App Structure
-
-``` text
-backend/
-├── config/
-│
-├── apps/
-│   ├── projects/
-│   ├── organizations/
-│   ├── locations/
-│   ├── analytics/
-│   ├── sources/
-│   ├── ingestion/
-│   ├── documents/
-│   ├── accounts/
-│   └── alerts/
-│
-├── services/
-│   ├── change_detection/
-│   ├── normalization/
-│   ├── deduplication/
-│   └── analytics/
-│
-└── manage.py
-```
-
-------------------------------------------------------------------------
-
-# 65. Recommended React Architecture
-
-``` text
-frontend/
-└── src/
-    ├── components/
-    │   ├── common/
-    │   ├── dashboard/
-    │   ├── projects/
-    │   ├── analytics/
-    │   ├── maps/
-    │   └── ui/
-    │
-    ├── pages/
-    ├── services/
-    ├── hooks/
-    ├── utils/
-    ├── constants/
-    └── App.jsx
-```
-
-------------------------------------------------------------------------
-
-# 66. Development Roadmap
-
-## Sprint 1 --- Foundation
-
-Build:
-
--   Django
--   PostgreSQL
--   React
--   Tailwind
--   Base layout
--   API structure
--   Environment configuration
-
-## Sprint 2 --- Data Pipeline
-
-Build:
-
--   Source connector
--   Raw data ingestion
--   Normalization
--   Validation
--   Project database
-
-## Sprint 3 --- Project Explorer
-
-Build:
-
--   Search
--   Filters
--   Pagination
--   Sorting
--   Project list
-
-## Sprint 4 --- Project Details
-
-Build:
-
--   Summary
--   Financial information
--   Progress
--   Timeline
--   Source information
-
-## Sprint 5 --- Historical Tracking
-
-Build:
-
--   Snapshots
--   Change detection
--   Change log
--   Historical charts
-
-## Sprint 6 --- Analytics
-
-Build:
-
--   Dashboard
--   State analytics
--   Sector analytics
--   Ministry analytics
--   Cost analytics
-
-## Sprint 7 --- Map
-
-Build:
-
--   India map
--   State filtering
--   District filtering
--   Project markers
-
-## Sprint 8 --- AI
-
-Build:
-
--   Natural-language search
--   Project summaries
--   Document extraction
--   Semantic search
-
-------------------------------------------------------------------------
-
-# 67. MVP Acceptance Criteria
-
-## Dashboard
-
--   [ ] Total projects displayed
--   [ ] Total project cost displayed
--   [ ] Total expenditure displayed
--   [ ] Progress analytics displayed
--   [ ] State analytics displayed
--   [ ] Sector analytics displayed
--   [ ] Data freshness displayed
-
-## Project Explorer
-
--   [ ] Search works
--   [ ] Filters work
--   [ ] Pagination works
--   [ ] Sorting works
--   [ ] Project details open correctly
-
-## Project Details
-
--   [ ] Project metadata displayed
--   [ ] Financial information displayed
--   [ ] Progress displayed
--   [ ] Completion dates displayed
--   [ ] Source displayed
--   [ ] Last updated date displayed
-
-## Historical Tracking
-
--   [ ] Snapshots stored
--   [ ] Cost changes detected
--   [ ] Progress changes detected
--   [ ] Completion-date changes detected
--   [ ] Change history displayed
-
-## Data Pipeline
-
--   [ ] Source connector works
--   [ ] Validation works
--   [ ] Normalization works
--   [ ] Failed jobs recorded
--   [ ] Ingestion metrics recorded
-
-------------------------------------------------------------------------
-
-# 68. Testing Strategy
-
-## Backend
-
-Use:
-
--   pytest
--   Django TestCase
--   API tests
-
-Test:
-
-``` text
-Project creation
-Project update
-Search
-Filtering
-Pagination
-Change detection
-Snapshot creation
-Validation
-Deduplication
-```
-
-## Data Pipeline
-
-Test:
-
-``` text
-CSV parsing
-XLSX parsing
-Date normalization
-Currency normalization
-Missing values
-Duplicate records
-Invalid progress
-Changed project values
-```
-
-## Frontend
-
-Test:
-
-``` text
-Dashboard
-Filters
-Search
-Project details
-Comparison
-Responsive layout
-Loading states
-Error states
-Empty states
-```
-
-------------------------------------------------------------------------
-
-# 69. Observability
-
-Track:
-
-``` text
-Application logs
-API response times
-Database errors
-Ingestion failures
-Source availability
-Data-quality errors
-AI request failures
-```
-
-Create an admin monitoring page.
-
-------------------------------------------------------------------------
-
-# 70. Important Data Principles
-
-## Principle 1 --- Source First
-
-Do not invent government facts.
-
-## Principle 2 --- Historical Data Matters
-
-Do not overwrite previous observations.
-
-## Principle 3 --- Provenance Matters
-
-Users should know where information came from.
-
-## Principle 4 --- Separate Facts from Calculations
-
-Example:
-
-``` text
-Source fact:
-Reported cost = ₹620 Cr
-
-Platform calculation:
-Cost increased by 24%
-```
-
-## Principle 5 --- Missing Data Is Valid Data
-
-If a source does not provide a field:
-
-``` text
-Unknown / Not Reported
-```
-
-Do not guess.
-
-## Principle 6 --- No Unsupported Conclusions
-
-The platform should show data and transparent calculations.
-
-------------------------------------------------------------------------
-
-# 71. Example End-to-End Scenario
-
-User searches:
-
-``` text
-Karnataka road projects above ₹500 crore
-```
-
-System:
-
-``` text
-Search Query
-     ↓
-API
-     ↓
-PostgreSQL
-     ↓
-Filters:
-State = Karnataka
-Sector = Roads
-Cost > ₹500 Cr
-     ↓
-Results
-```
-
-Results:
-
-``` text
-Project A
-₹800 Cr
-64%
-Completion: 2027
-
-Project B
-₹620 Cr
-48%
-Completion: 2028
-
-Project C
-₹1,200 Cr
-81%
-Completion: 2026
-```
-
-User opens Project A.
-
-System displays:
-
-``` text
-Project Overview
-
-Original Cost: ₹700 Cr
-Current Cost: ₹800 Cr
-Expenditure: ₹500 Cr
-Progress: 64%
-
-Original Completion: Dec 2026
-Current Completion: Jun 2027
-```
-
-Then:
-
-``` text
-Change History
-
-Cost:
-₹700 Cr → ₹800 Cr
-
-Completion:
-Dec 2026 → Jun 2027
-
-Progress:
-51% → 64%
-```
-
-This is the core product experience.
-
-------------------------------------------------------------------------
-
-# 72. Future Advanced Features
-
-Potential future features:
-
--   Project news aggregation from official sources
--   Government budget allocation tracking
--   Tender-to-project linking
--   Contractor-to-project relationships
--   Project document repository
--   Procurement intelligence
--   District development dashboards
--   Infrastructure heatmaps
--   Historical state-level trends
--   Public APIs
--   Data export
--   CSV/XLSX export
--   Research workspace
-
-Any cross-source entity linking must include confidence/provenance
-information.
-
-------------------------------------------------------------------------
-
-# 73. Tender Integration --- Future Module
-
-A future version can connect:
-
-``` text
-Tender
-   ↓
-Bid / Award
-   ↓
-Contractor
-   ↓
-Government Project
-   ↓
-Project Progress
-```
-
-Potential model:
-
-``` text
-Tender
-├── Tender ID
-├── Organization
-├── Tender Value
-├── Publication Date
-├── Closing Date
-├── Award Date
-└── Contractor
-
-Project
-├── Project ID
-├── Cost
-├── Location
-├── Progress
-└── Timeline
-```
-
-If a reliable relationship between a tender and project cannot be
-established, do not automatically link them.
-
-------------------------------------------------------------------------
-
-# 74. AI Architecture --- Future
-
-``` text
-                    User
-                     ↓
-              AI Assistant
-                     ↓
-             Intent Detection
-                     ↓
-        ┌────────────┼────────────┐
-        ↓            ↓            ↓
-   SQL Query     Vector Search   Documents
-        ↓            ↓            ↓
-        └────────────┼────────────┘
-                     ↓
-              Verified Results
-                     ↓
-             LLM Explanation
-                     ↓
-           Source-backed Answer
-```
-
-The AI should never be the source of truth.
-
-The database and original government sources remain the source of truth.
-
-------------------------------------------------------------------------
-
-# 75. Deployment
-
-Recommended initial deployment:
-
-``` text
-Frontend
-React + Vite
-      ↓
-Vercel / equivalent
-
-Backend
-Django
-      ↓
-Render / Railway / equivalent
-
-Database
-PostgreSQL
-
-Redis
-Managed Redis
-
-Worker
-Celery Worker
-
-Scheduler
-Celery Beat / managed scheduler
-```
-
-Production architecture can later move to AWS/GCP/Azure if required.
-
-------------------------------------------------------------------------
-
-# 76. Environment Variables
-
-Example:
-
-``` text
-DATABASE_URL=
-REDIS_URL=
-
-SECRET_KEY=
-
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-
-SOURCE_API_KEY=
-
-STORAGE_BUCKET=
-```
-
-Never commit `.env` files.
-
-------------------------------------------------------------------------
-
-# 77. Suggested MVP Technology Stack
-
-## Frontend
-
-``` text
-React
-Vite
-Tailwind CSS
-Recharts
-React Router
-Axios / Fetch
-```
-
-## Backend
-
-``` text
-Python
-Django
-Django REST Framework
-Celery
-Redis
-```
-
-## Database
-
-``` text
-PostgreSQL
-```
-
-## Data Engineering
-
-``` text
-pandas
-openpyxl
-requests/httpx
-```
-
-## AI
-
-Later:
-
-``` text
-LLM API
-pgvector
-Embeddings
-RAG
-```
-
-------------------------------------------------------------------------
-
-# 78. Resume Description
-
-After implementation, a concise resume description could be:
-
-> **Government Project Intelligence Platform** --- Built a Python/Django
-> data platform that aggregates publicly available government
-> infrastructure-project data, normalizes heterogeneous datasets,
-> maintains historical project snapshots, detects cost/schedule/progress
-> changes, and provides React-based analytics, geographic visualization,
-> and source-backed AI search.
-
-------------------------------------------------------------------------
-
-# 79. Portfolio Description
-
-> A data-driven government project intelligence platform that transforms
-> publicly available government infrastructure data into a searchable
-> and historical project database. The system uses Python ETL pipelines,
-> Django REST APIs, PostgreSQL, React analytics dashboards, scheduled
-> ingestion, change detection, geographic visualization, and AI-powered
-> natural-language search.
-
-------------------------------------------------------------------------
-
-# 80. Core Architecture Summary
-
-``` text
-                    OFFICIAL PUBLIC SOURCES
-                              │
-                              ↓
-                       DATA CONNECTORS
-                              │
-                              ↓
-                         RAW DATA
-                              │
-                              ↓
-                 VALIDATION + NORMALIZATION
-                              │
-                              ↓
-                       DEDUPLICATION
-                              │
-                              ↓
-                       POSTGRESQL
-                              │
-               ┌──────────────┼──────────────┐
-               ↓              ↓              ↓
-          CURRENT DATA     SNAPSHOTS     CHANGE EVENTS
-               │              │              │
-               └──────────────┼──────────────┘
-                              ↓
-                         DJANGO API
-                              │
-              ┌───────────────┼───────────────┐
-              ↓               ↓               ↓
-         DASHBOARD       PROJECT UI       ANALYTICS
-              │               │               │
-              └───────────────┼───────────────┘
-                              ↓
-                       REACT FRONTEND
-                              │
-                    ┌─────────┴─────────┐
-                    ↓                   ↓
-                MAP VIEW            AI ASSISTANT
-```
-
-------------------------------------------------------------------------
-
-# 81. Final Product Definition
-
-The product should be understood as:
-
-> **A source-backed government project intelligence and historical
-> tracking platform.**
-
-The MVP should focus on **one high-quality official source**, excellent
-normalization, historical snapshots, change detection, project search,
-project details, and analytics.
-
-Do not start by building AI.
-
-Build the reliable data foundation first:
-
-``` text
-SOURCE
-  ↓
-DATA
-  ↓
-DATABASE
-  ↓
-HISTORY
-  ↓
-ANALYTICS
-  ↓
-UI
-  ↓
-AI
-```
-
-That order is important because the quality of the AI layer will depend
-on the quality and provenance of the underlying project data.
+The entire **InfraIndia** frontend should be brought to a consistent production-quality standard.

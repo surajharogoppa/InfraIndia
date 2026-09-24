@@ -8,10 +8,11 @@ import ExportButton from '../components/ExportButton';
 import { formatCrore, formatPercent } from '../utils/format';
 import { useTheme } from '../context/ThemeContext';
 import {
-  MapPin, Info, ArrowRight, SlidersHorizontal,
-  Palette, BarChart3, IndianRupee, Activity, TrendingUp,
-  Search, X, ZoomIn, ZoomOut, RotateCcw, Move
+  MapPin, ArrowRight,
+  Search, X, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
+import { Card, CardHeader } from '../components/ui/Card';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import indiaGeo from '../assets/india_states.json';
 
 function normalizeStateName(name) {
@@ -158,23 +159,27 @@ function getProgressColor(progress, isDark) {
 }
 
 const LABEL_OFFSETS = {
-  'delhi': [15, 10],
-  'haryana': [-15, 0],
-  'punjab': [-15, -15],
-  'sikkim': [20, -5],
-  'assam': [10, -5],
-  'meghalaya': [-5, 15],
-  'tripura': [-20, 15],
-  'mizoram': [0, 20],
-  'manipur': [25, 0],
-  'nagaland': [25, -10],
-  'arunachal pradesh': [20, -5],
-  'goa': [-15, 10],
-  'kerala': [-10, 0],
-  'puducherry': [15, 10],
-  'dadra and nagar haveli and daman and diu': [-30, 0],
-  'lakshadweep': [-10, 10],
-  'andaman and nicobar': [10, 10]
+  // North
+  'punjab': [-12, -15],
+  'haryana': [0, 8],
+  'himachal pradesh': [12, -15],
+  'uttarakhand': [18, 5],
+
+  // Northeast
+  'sikkim': [0, -18],
+  'assam': [15, -18],
+  'arunachal pradesh': [30, -20],
+  'nagaland': [35, -5],
+  'manipur': [35, 10],
+  'mizoram': [20, 30],
+  'tripura': [-15, 30],
+  'meghalaya': [-10, 15],
+  'west bengal': [-10, 15],
+
+  // West/South
+  'goa': [-25, 5],
+  'kerala': [-15, 15],
+  'tamil nadu': [15, 10]
 };
 
 // Extremely small states/UTs where labels will always be hidden (use hover instead)
@@ -220,9 +225,20 @@ const MemoizedGeographies = memo(({ indiaGeo, selectedState, handleStateClick, s
             />
             {data && showLabel && (
               <Marker coordinates={centroid}>
-                <text y={dy} fontSize={8.5} textAnchor="middle" fill={isDark ? '#f8f8f8' : '#111'} style={{ pointerEvents: 'none', fontWeight: 700 }}>
+                <text
+                  y={dy}
+                  fontSize={11.5}
+                  textAnchor="middle"
+                  fill={isDark ? '#ffffff' : '#0f172a'}
+                  style={{
+                    pointerEvents: 'none',
+                    fontWeight: 700
+                  }}
+                >
                   <tspan x={dx} dy="-0.3em">{geoName}</tspan>
-                  <tspan x={dx} dy="1.1em">{labelValue}</tspan>
+                  <tspan x={dx} dy="1.15em" fontSize="10.5px" fontWeight="800" fill={isDark ? '#38bdf8' : '#0284c7'}>
+                    {labelValue}
+                  </tspan>
                 </text>
               </Marker>
             )}
@@ -277,7 +293,7 @@ export default function MapExplorer() {
   const [tooltip, setTooltip] = useState(null);
 
   useEffect(() => {
-    document.title = 'Map Explorer — GovProject Intelligence';
+    document.title = 'Map Explorer — InfraIndia';
   }, []);
 
   // Prevent default scroll behavior when using wheel on map
@@ -329,7 +345,7 @@ export default function MapExplorer() {
       if (entry) {
         return isDark ? entry.dark : entry.light;
       }
-      return isDark ? '#60a5fa' : '#3b82f6';
+      return isDark ? '#1e293b' : '#e2e8f0';
     }
 
     // 2. Zonal Regions Palette
@@ -404,10 +420,22 @@ export default function MapExplorer() {
   const handleMouseUp = () => setIsDragging(false);
 
   const handleWheel = (e) => {
-    e.preventDefault();
+    // Only handle synthetic if it somehow fires, but we rely on native event below
     const delta = e.deltaY < 0 ? 1.15 : 0.85;
     setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.8), 4));
   };
+
+  useEffect(() => {
+    const mapNode = mapContainerRef.current;
+    if (!mapNode) return;
+    const onNativeWheel = (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 1.15 : 0.85;
+      setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.8), 4));
+    };
+    mapNode.addEventListener('wheel', onNativeWheel, { passive: false });
+    return () => mapNode.removeEventListener('wheel', onNativeWheel);
+  }, []);
 
   async function handleStateClick(geoName) {
     // Ignore click if user was actively dragging
@@ -455,6 +483,7 @@ export default function MapExplorer() {
 
   return (
     <div className="page-body">
+      <Breadcrumbs />
       {/* Full Map Export Wrapper */}
       <div id="full-map-export-wrapper" style={{ padding: '4px', background: 'var(--bg-base)', borderRadius: 'var(--radius)' }}>
         {/* Slice & Dice Toolbar - Compact Horizontal */}
@@ -490,7 +519,7 @@ export default function MapExplorer() {
               className="select-input"
               value={selectedSector}
               onChange={e => setSelectedSector(e.target.value)}
-              style={{ padding: '4px 28px 4px 8px', fontSize: '0.75rem', height: '28px' }}
+              style={{ padding: '4px 32px 4px 8px', fontSize: '0.75rem', height: '28px' }}
             >
               <option value="">All Sectors</option>
               {sectorList.map(s => (
@@ -501,7 +530,7 @@ export default function MapExplorer() {
               className="select-input"
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value)}
-              style={{ padding: '4px 28px 4px 8px', fontSize: '0.75rem', height: '28px' }}
+              style={{ padding: '4px 32px 4px 8px', fontSize: '0.75rem', height: '28px' }}
             >
               <option value="">All Statuses</option>
               <option value="ACTIVE">Active</option>
@@ -531,7 +560,7 @@ export default function MapExplorer() {
             onMouseLeave={handleMouseUp}
             onWheel={handleWheel}
             style={{
-              minHeight: 520,
+              minHeight: 400,
               position: 'relative',
               cursor: isDragging ? 'grabbing' : 'grab',
               userSelect: 'none'
@@ -605,7 +634,7 @@ export default function MapExplorer() {
               }}
               width={800}
               height={520}
-              style={{ width: '100%', height: 520 }}
+              style={{ width: '100%', height: 400 }}
               id="map-container-export"
             >
               <g
@@ -751,26 +780,24 @@ export default function MapExplorer() {
           {selectedState && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
               {/* Summary Card */}
-              <div className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <div className="card-title" style={{ marginBottom: 2 }}>
-                      <MapPin size={18} style={{ color: 'var(--accent)' }} /> {selectedState}
-                    </div>
-                    {getStateZone(selectedState) && (
-                      <span className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)', fontSize: '0.68rem' }}>
-                        {getStateZone(selectedState).name}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    className="btn btn-ghost btn-icon btn-sm"
-                    onClick={() => setSelectedState(null)}
-                    title="Close panel"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
+              <Card style={{ padding: 'var(--gap)' }}>
+                <CardHeader
+                  title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={18} style={{ color: 'var(--accent)' }} /> {selectedState}</span>}
+                  subtitle={getStateZone(selectedState) && (
+                    <span className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)', fontSize: '0.68rem', marginTop: '4px' }}>
+                      {getStateZone(selectedState).name}
+                    </span>
+                  )}
+                  action={
+                    <button
+                      className="btn btn-ghost btn-icon btn-sm"
+                      onClick={() => setSelectedState(null)}
+                      title="Close panel"
+                    >
+                      <X size={14} />
+                    </button>
+                  }
+                />
 
                 {selectedStateData ? (
                   <>
@@ -828,10 +855,10 @@ export default function MapExplorer() {
                     No standalone projects recorded exclusively under {selectedState} matching current filters.
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* State Projects Directory */}
-              <div className="table-container" style={{ flex: 1, minHeight: 350 }}>
+              <div className="table-container" style={{ flex: 1, minHeight: 250 }}>
                 <div className="table-header">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 'var(--gap-sm)' }}>
                     <div className="table-title" style={{ fontSize: '0.88rem' }}>
@@ -880,7 +907,7 @@ export default function MapExplorer() {
                     </div>
                   ))
                 ) : filteredProjects.length > 0 ? (
-                  <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+                  <div style={{ maxHeight: 280, overflowY: 'auto' }}>
                     {filteredProjects.map(p => (
                       <div
                         key={p.id}

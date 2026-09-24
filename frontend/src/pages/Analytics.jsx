@@ -7,9 +7,14 @@ import {
   Cell, PieChart, Pie, Legend, LabelList
 } from 'recharts';
 import ExportButton from '../components/ExportButton';
+import { Card, CardHeader } from '../components/ui/Card';
+import StatCard from '../components/ui/StatCard';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const p0 = payload[0];
+  const title = label || p0?.name || p0?.payload?.sector_name || p0?.payload?.state_name || p0?.payload?.ministry_name || p0?.payload?.name;
   return (
     <div style={{
       background: 'var(--bg-card)',
@@ -19,18 +24,20 @@ const CustomTooltip = ({ active, payload, label }) => {
       fontSize: '0.8rem',
       color: 'var(--text-primary)',
       boxShadow: 'var(--shadow)',
+      zIndex: 1000
     }}>
-      <div style={{ color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>{label}</div>
+      {title && <div style={{ color: 'var(--text-primary)', marginBottom: 4, fontWeight: 700 }}>{title}</div>}
       {payload.map((p, i) => (
-        <div key={i} style={{ color: p.color || 'var(--text-primary)' }}>
-          {p.name}: <strong>{typeof p.value === 'number' ? p.value.toLocaleString('en-IN') : p.value}</strong>
+        <div key={i} style={{ color: p.payload?.fill || p.color || 'var(--text-secondary)', display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+          <span>{p.name}:</span>
+          <strong>{typeof p.value === 'number' ? p.value.toLocaleString('en-IN') : p.value}</strong>
         </div>
       ))}
     </div>
   );
 };
 
-const TABS = ['States', 'Sectors', 'Ministries', 'Costs'];
+const TABS = ['States', 'Sectors', 'Ministries', 'Costs', 'Progress'];
 
 export default function Analytics() {
   const [tab, setTab] = useState('States');
@@ -38,23 +45,23 @@ export default function Analytics() {
   const { data: sectors } = useApi(() => analyticsApi.sectors());
   const { data: ministries } = useApi(() => analyticsApi.ministries());
   const { data: costs } = useApi(() => analyticsApi.costs());
+  const { data: progress } = useApi(() => analyticsApi.progress());
+  const { data: years } = useApi(() => analyticsApi.years());
 
-  useEffect(() => { document.title = 'Analytics — GovProject Intelligence'; }, []);
+  useEffect(() => { document.title = 'Analytics — InfraIndia'; }, []);
 
   function StateTab() {
     const top = (states || []).slice(0, 15);
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
-        <div className="chart-card" id="analytics-state-chart">
-          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div className="chart-title">Top 15 States by Project Count</div>
-              <div className="chart-subtitle">Number of ongoing infrastructure projects per State/UT</div>
-            </div>
-            <ExportButton targetId="analytics-state-chart" fileName="analytics_top_states" />
-          </div>
-          <ResponsiveContainer width="100%" height={440}>
-            <BarChart data={top} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
+        <Card id="analytics-state-chart" style={{ padding: 'var(--gap)' }}>
+          <CardHeader 
+            title="Top 15 States by Project Count" 
+            subtitle="Number of ongoing infrastructure projects per State/UT"
+            action={<ExportButton targetId="analytics-state-chart" fileName="analytics_top_states" />}
+          />
+          <ResponsiveContainer width="100%" height={360}>
+            <BarChart data={top} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="state_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
@@ -63,7 +70,7 @@ export default function Analytics() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
         <div className="table-container">
           <div className="table-header"><div className="table-title">State Summary</div></div>
           <table>
@@ -100,28 +107,27 @@ export default function Analytics() {
       ...topSectors.map((s, idx) => ({ name: s.sector_name, value: s.project_count, fill: sectorColor(idx) })),
       ...(otherCount > 0 ? [{ name: 'Other Sectors', value: otherCount, fill: 'hsl(220 12% 50%)' }] : [])
     ];
+    const totalSectorProjects = pieData.reduce((acc, d) => acc + (d.value || 0), 0);
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
         <div className="charts-grid">
-          <div className="chart-card" id="analytics-sector-pie">
-            <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div className="chart-title">Projects by Sector Share</div>
-                <div className="chart-subtitle">Top sectors vs others</div>
-              </div>
-              <ExportButton targetId="analytics-sector-pie" fileName="analytics_sector_share" />
-            </div>
-            <ResponsiveContainer width="100%" height={320}>
+          <Card id="analytics-sector-pie" style={{ padding: 'var(--gap)' }}>
+            <CardHeader 
+              title="Projects by Sector Share" 
+              subtitle="Top sectors vs others"
+              action={<ExportButton targetId="analytics-sector-pie" fileName="analytics_sector_share" />}
+            />
+            <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  cy="45%"
+                  innerRadius={48}
+                  outerRadius={78}
                   paddingAngle={3}
                 >
                   {pieData.map(entry => (
@@ -129,30 +135,32 @@ export default function Analytics() {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend formatter={v => <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>{v}</span>} />
+                <Legend formatter={(v, entry) => {
+                  const val = entry?.payload?.value || 0;
+                  const pct = totalSectorProjects > 0 ? ((val / totalSectorProjects) * 100).toFixed(0) : 0;
+                  return <span style={{ color: 'var(--text-secondary)', fontSize: '0.74rem' }}>{v} ({pct}%)</span>;
+                }} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-          <div className="chart-card" id="analytics-sector-bar">
-            <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div className="chart-title">Total Cost by Sector (₹ Cr)</div>
-                <div className="chart-subtitle">Cost across top 8 sectors</div>
-              </div>
-              <ExportButton targetId="analytics-sector-bar" fileName="analytics_sector_cost" />
-            </div>
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
+          </Card>
+          <Card id="analytics-sector-bar" style={{ padding: 'var(--gap)' }}>
+            <CardHeader 
+              title="Total Cost by Sector (₹ Cr)" 
+              subtitle="Cost across top 8 sectors"
+              action={<ExportButton targetId="analytics-sector-bar" fileName="analytics_sector_cost" />}
+            />
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 65, top: 10, bottom: 10 }}>
                 <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
                 <Bar dataKey="total_cost_crore" name="Cost (Cr)" radius={[0, 4, 4, 0]}>
-                  <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={11} formatter={(v) => typeof v === 'number' ? v.toLocaleString('en-IN') : v} />
+                  <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={11} formatter={(v) => typeof v === 'number' ? `₹${v.toLocaleString('en-IN')}` : v} />
                   {(sectors || []).slice(0, 8).map((_, i) => <Cell key={i} fill={sectorColor(i)} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </Card>
         </div>
         <div className="table-container">
           <div className="table-header"><div className="table-title">Sector Summary</div></div>
@@ -180,25 +188,23 @@ export default function Analytics() {
   function MinistriesTab() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
-        <div className="chart-card" id="analytics-ministry-chart">
-          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div className="chart-title">Projects by Ministry (Top 10)</div>
-              <div className="chart-subtitle">Count of projects overseen per Union Ministry</div>
-            </div>
-            <ExportButton targetId="analytics-ministry-chart" fileName="analytics_top_ministries" />
-          </div>
-          <ResponsiveContainer width="100%" height={360}>
-            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
+        <Card id="analytics-ministry-chart" style={{ padding: 'var(--gap)' }}>
+          <CardHeader 
+            title="Projects by Ministry (Top 10)" 
+            subtitle="Count of projects overseen per Union Ministry"
+            action={<ExportButton targetId="analytics-ministry-chart" fileName="analytics_top_ministries" />}
+          />
+          <ResponsiveContainer width="100%" height={340}>
+            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} />
+              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} tickFormatter={(v) => v?.length > 28 ? v.slice(0, 26) + '…' : v} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]}>
                 <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
         <div className="table-container">
           <div className="table-header"><div className="table-title">Ministry Summary</div></div>
           <table>
@@ -231,23 +237,23 @@ export default function Analytics() {
             { label: 'Minimum Cost', value: formatCrore(costs?.min_cost_crore) },
             { label: 'Maximum Cost', value: formatCrore(costs?.max_cost_crore) },
           ].map(({ label, value }) => (
-            <div key={label} className="kpi-card">
-              <div className="kpi-value">{value}</div>
-              <div className="kpi-label">{label}</div>
-              <div className="kpi-sub platform-derived-note" style={{ marginTop: 6 }}>Platform-derived</div>
-            </div>
+            <StatCard 
+              key={label}
+              title={label}
+              value={value}
+              description="Platform-derived"
+              bgColor="var(--bg-card)"
+            />
           ))}
         </div>
-        <div className="chart-card" id="analytics-costs-chart">
-          <div className="chart-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div className="chart-title">Cost Distribution</div>
-              <div className="chart-subtitle">Distribution of central sector projects across cost brackets</div>
-            </div>
-            <ExportButton targetId="analytics-costs-chart" fileName="analytics_cost_distribution" />
-          </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 10, top: 10 }}>
+        <Card id="analytics-costs-chart" style={{ padding: 'var(--gap)' }}>
+          <CardHeader 
+            title="Cost Distribution" 
+            subtitle="Distribution of central sector projects across cost brackets"
+            action={<ExportButton targetId="analytics-costs-chart" fileName="analytics_cost_distribution" />}
+          />
+          <ResponsiveContainer width="100%" height={230}>
+            <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 15, top: 20 }}>
               <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} height={35} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
@@ -256,13 +262,71 @@ export default function Analytics() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
+      </div>
+    );
+  }
+
+  function ProgressTab() {
+    const progressData = progress ? [
+      { name: '0–25%', count: progress['0_25'] || 0, fill: '#ef4444' },
+      { name: '25–50%', count: progress['25_50'] || 0, fill: '#f97316' },
+      { name: '50–75%', count: progress['50_75'] || 0, fill: '#f59e0b' },
+      { name: '75–100%', count: progress['75_100'] || 0, fill: '#10b981' },
+      { name: 'Completed', count: progress['completed'] || 0, fill: '#3b82f6' },
+    ] : [];
+
+    const validYears = (years || []).filter(y => y.year >= 2020 && y.year <= 2038);
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
+        <Card id="analytics-progress-chart" style={{ padding: 'var(--gap)' }}>
+          <CardHeader 
+            title="Physical Progress Distribution" 
+            subtitle="Breakdown of ongoing projects by reported completion stages"
+            action={<ExportButton targetId="analytics-progress-chart" fileName="analytics_progress_distribution" />}
+          />
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={progressData} margin={{ top: 20, right: 10, left: 10, bottom: 10 }}>
+              <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
+              <Bar dataKey="count" name="Projects" radius={[4, 4, 0, 0]}>
+                {progressData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+                <LabelList dataKey="count" position="top" fill="var(--text-secondary)" fontSize={11} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+
+        {validYears.length > 0 && (
+          <Card id="analytics-completion-years-chart" style={{ padding: 'var(--gap)' }}>
+            <CardHeader 
+              title="Target Completion Timeline (by Year)" 
+              subtitle="Scheduled delivery volume of central sector projects across target completion years"
+              action={<ExportButton targetId="analytics-completion-years-chart" fileName="analytics_target_completion_years" />}
+            />
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={validYears} margin={{ top: 20, right: 15, left: 10, bottom: 10 }}>
+                <XAxis dataKey="year" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} width={35} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
+                <Bar dataKey="project_count" name="Projects Scheduled" fill="var(--accent)" radius={[4, 4, 0, 0]}>
+                  <LabelList dataKey="project_count" position="top" fill="var(--text-secondary)" fontSize={11} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+        )}
       </div>
     );
   }
 
   return (
     <div className="page-body">
+      <Breadcrumbs />
       <div className="section-header mb-lg">
         <div>
           <div className="section-title">Analytics</div>
@@ -281,6 +345,7 @@ export default function Analytics() {
       {tab === 'Sectors' && <SectorTab />}
       {tab === 'Ministries' && <MinistriesTab />}
       {tab === 'Costs' && <CostsTab />}
+      {tab === 'Progress' && <ProgressTab />}
     </div>
   );
 }
