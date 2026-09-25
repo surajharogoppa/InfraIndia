@@ -327,6 +327,13 @@ def sync_mospi_flash_report(
     source.last_successful_sync = timezone.now()
     source.save(update_fields=["last_successful_sync"])
 
+    # Archive file to data/raw/flash_reports and register Document in DB so it shows up in Data Sources
+    try:
+        archive_and_register_document(source, run, resolved_file, record_count=len(raw_records))
+        _log(f"Archived file to data/raw/flash_reports and registered in Data Sources: {Path(resolved_file).name}")
+    except Exception as doc_exc:
+        _log(f"Notice: Document registration post-step: {doc_exc}", level="warning")
+
     _log(
         f"Ingestion finalized: {inserted} new projects inserted, {updated} updated, "
         f"{unchanged} unchanged, {rejected} rejected/invalid. Run ID: #{run.id} ({run.status})"
@@ -344,3 +351,98 @@ def sync_mospi_flash_report(
         "date_changes": date_changes,
         "source_file": Path(resolved_file).name,
     }
+
+
+def archive_and_register_document(source, run, file_path: str, record_count: int = 0):
+    """
+    Archives the ingested file into data/raw/flash_reports/ and registers
+    or updates a Document record in the database so that it immediately
+    shows up on the frontend Data Sources page with direct download capability.
+    """
+    import os
+    import shutil
+    from pathlib import Path
+    from django.conf import settings
+    from django.core.files import File
+    from django.utils import timezone
+    # pyrefly: ignore [missing-import]
+    from apps.documents.models import Document
+
+    if not file_path:
+        return None
+
+    src_p = Path(file_path).resolve()
+    if not src_p.exists():
+        logger.warning(f"archive_and_register_document: File does not exist at {src_p}")
+        return None
+
+    backend_dir = Path(settings.BASE_DIR).resolve()
+    raw_dir = backend_dir / "data" / "raw" / "flash_reports"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    dest_file = raw_dir / src_p.name
+    if src_p.resolve() != dest_file.resolve():
+        try:
+            shutil.copy2(str(src_p), str(dest_file))
+            logger.info(f"Archived ingested file to {dest_file}")
+        except Exception as e:
+            logger.warning(f"Could not copy file to raw_dir {dest_file}: {e}")
+
+    # Also copy to frontend/public/data_sources/ if folder exists
+    try:
+        frontend_dir = backend_dir.parent / "frontend" / "public" / "data_sources"
+        if frontend_dir.exists():
+            shutil.copy2(str(src_p), str(frontend_dir / src_p.name))
+    except Exception:
+        pass
+
+    # Determine document type & metadata
+    ext = src_p.suffix.lower()
+    doc_type = Document.DocumentType.FLASH_REPORT if ext == ".pdf" else Document.DocumentType.DATA_EXPORT
+    clean_stem = src_p.stem.replace("_", " ").title()
+    title = f"{source.name} — {clean_stem}" if ("MoSPI" not in clean_stem and "Flash Report" not in clean_stem) else clean_stem
+
+    file_size = src_p.stat().st_size
+    now = timezone.now()
+
+    # Find existing or create Document
+    doc = Document.objects.filter(file__icontains=src_p.name).first()
+    if not doc:
+        doc = Document.objects.filter(title=title).first()
+
+    if not doc:
+        doc = Document(
+            title=title,
+            document_type=doc_type,
+            data_source=source,
+            ingestion_run=run,
+            source_url=getattr(source, "base_url", "") or "https://mospi.gov.in/flash-reports",
+            file_size_bytes=file_size,
+            metadata={
+                "period": now.strftime("%B %Y"),
+                "records_count": f"{record_count} Records" if record_count else "Verified Data",
+                "description": f"Official {ext.upper().replace('.', '')} dataset ingested from {source.name} on {now.strftime('%d %b %Y')}."
+            }
+        )
+
+    # Attach file to Django media model
+    try:
+        with open(str(src_p), "rb") as f:
+            doc.file.save(src_p.name, File(f), save=False)
+    except Exception as e:
+        logger.warning(f"Could not attach file to Document model: {e}")
+
+    doc.data_source = source
+    doc.ingestion_run = run
+    doc.file_size_bytes = file_size
+    if not doc.metadata:
+        doc.metadata = {}
+    if record_count:
+        doc.metadata["projects_monitored"] = record_count
+        doc.metadata["records_count"] = f"{record_count} Records"
+    doc.metadata["period"] = now.strftime("%B %Y")
+    doc.metadata["description"] = f"Official {ext.upper().replace('.', '')} dataset ingested from {source.name} on {now.strftime('%d %b %Y')}."
+    doc.save()
+
+    logger.info(f"Registered document in database: {doc.id} ({doc.title})")
+    return doc

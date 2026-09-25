@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<InfraIndiaDataFeed xmlns="http://infraindia.gov.in/schema/v1" reportMonth="August 2026" publishedDate="2026-08-31" sourceAgency="Ministry of Statistics and Programme Implementation (MoSPI)" sourceDivision="Infrastructure and Project Monitoring Division (IPMD)">
+  <Metadata>
+    <ReportTitle>460th Flash Report on Central Sector Infrastructure Projects (₹150 Cr and above)</ReportTitle>
+    <ReportingPeriod>August 2026</ReportingPeriod>
+    <TotalProjectsMonitored>1825</TotalProjectsMonitored>
+    <SourcePortal>https://mospi.gov.in/flash-reports</SourcePortal>
+    <FormatVersion>1.2.0</FormatVersion>
+    <License>Open Government Data (OGD) Platform India</License>
+    <ExportTimestamp>2026-08-31T23:59:59Z</ExportTimestamp>
+  </Metadata>
+  <Projects>
+    <Project id="PRJ-NH44-PKG1">
+      <Name>Four-laning of NH-44 from Nagpur to Hyderabad (Package I)</Name>
+      <Ministry>Ministry of Road Transport &amp; Highways</Ministry>
+      <Sector>Roads</Sector>
+      <State>Telangana</State>
+      <ApprovedCost unit="INR_Crores">1247.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">1550.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">1200.50</CumulativeExpenditure>
+      <OriginalCompletionDate>2022-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2024-12-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>92.5</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-NH44-PKG2">
+      <Name>Four-laning of NH-44 from Nagpur to Hyderabad (Package II)</Name>
+      <Ministry>Ministry of Road Transport &amp; Highways</Ministry>
+      <Sector>Roads</Sector>
+      <State>Maharashtra</State>
+      <ApprovedCost unit="INR_Crores">985.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">1180.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">960.30</CumulativeExpenditure>
+      <OriginalCompletionDate>2022-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2025-03-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>84.2</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-NTPC-LARA1">
+      <Name>NTPC Lara Super Thermal Power Project (Stage-I 1600 MW)</Name>
+      <Ministry>Ministry of Power</Ministry>
+      <Sector>Power</Sector>
+      <State>Chhattisgarh</State>
+      <ApprovedCost unit="INR_Crores">12300.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">15200.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">14100.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2021-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2025-06-30</RevisedCompletionDate>
+      <PhysicalProgressPercentage>95.0</PhysicalProgressPercentage>
+      <Status>Completed</Status>
+    </Project>
+    <Project id="PRJ-LKO-METRO2">
+      <Name>Metro Rail Lucknow Phase-2</Name>
+      <Ministry>Ministry of Housing and Urban Affairs</Ministry>
+      <Sector>Urban Development</Sector>
+      <State>Uttar Pradesh</State>
+      <ApprovedCost unit="INR_Crores">8654.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">9200.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">5200.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2024-12-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2026-12-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>56.8</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-RSH-KRN-RL">
+      <Name>Rishikesh-Karnaprayag Rail Line Project</Name>
+      <Ministry>Ministry of Railways</Ministry>
+      <Sector>Railways</Sector>
+      <State>Uttarakhand</State>
+      <ApprovedCost unit="INR_Crores">16216.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">18900.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">11200.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2024-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2027-06-30</RevisedCompletionDate>
+      <PhysicalProgressPercentage>63.0</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-POLAVARAM">
+      <Name>Polavaram Irrigation Project</Name>
+      <Ministry>Ministry of Jal Shakti</Ministry>
+      <Sector>Irrigation</Sector>
+      <State>Andhra Pradesh</State>
+      <ApprovedCost unit="INR_Crores">20398.61</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">58000.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">26400.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2018-12-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2028-03-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>61.2</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-ZOJILA-TUN">
+      <Name>Zojila Pass Tunnel</Name>
+      <Ministry>Ministry of Road Transport &amp; Highways</Ministry>
+      <Sector>Roads</Sector>
+      <State>Jammu and Kashmir</State>
+      <ApprovedCost unit="INR_Crores">2519.23</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">4100.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">2200.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2026-09-30</OriginalCompletionDate>
+      <RevisedCompletionDate>2029-09-30</RevisedCompletionDate>
+      <PhysicalProgressPercentage>54.8</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-DEL-MEERUT">
+      <Name>Delhi-Meerut RRTS Corridor</Name>
+      <Ministry>Ministry of Housing and Urban Affairs</Ministry>
+      <Sector>Urban Development</Sector>
+      <State>Uttar Pradesh</State>
+      <ApprovedCost unit="INR_Crores">30274.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">34200.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">30100.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2023-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2025-12-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>89.0</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-DIBANG-HYD">
+      <Name>Dibang Multipurpose Project</Name>
+      <Ministry>Ministry of Jal Shakti</Ministry>
+      <Sector>Irrigation</Sector>
+      <State>Arunachal Pradesh</State>
+      <ApprovedCost unit="INR_Crores">28000.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">36000.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">11200.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2028-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2031-03-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>30.2</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+    <Project id="PRJ-BLR-METRO2">
+      <Name>Bangalore Metro Phase-2 Reach-1</Name>
+      <Ministry>Ministry of Housing and Urban Affairs</Ministry>
+      <Sector>Urban Development</Sector>
+      <State>Karnataka</State>
+      <ApprovedCost unit="INR_Crores">11609.00</ApprovedCost>
+      <LatestRevisedCost unit="INR_Crores">15200.00</LatestRevisedCost>
+      <CumulativeExpenditure unit="INR_Crores">13400.00</CumulativeExpenditure>
+      <OriginalCompletionDate>2024-03-31</OriginalCompletionDate>
+      <RevisedCompletionDate>2026-03-31</RevisedCompletionDate>
+      <PhysicalProgressPercentage>91.0</PhysicalProgressPercentage>
+      <Status>Ongoing</Status>
+    </Project>
+  </Projects>
+</InfraIndiaDataFeed>

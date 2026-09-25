@@ -4,6 +4,14 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from .models import DataSource
 from apps.ingestion.models import IngestionRun
+from apps.documents.models import Document
+
+
+class DocumentInline(admin.TabularInline):
+    model = Document
+    extra = 1
+    fields = ["title", "document_type", "file", "source_url"]
+    show_change_link = True
 
 
 class IngestionRunInline(admin.TabularInline):
@@ -48,7 +56,7 @@ class DataSourceAdmin(admin.ModelAdmin):
     search_fields = ["name", "organization", "base_url"]
     readonly_fields = ["created_at", "updated_at", "last_successful_sync", "last_failed_sync"]
     actions = ["enable_selected_sources", "disable_selected_sources", "trigger_ingestion_for_sources"]
-    inlines = [IngestionRunInline]
+    inlines = [DocumentInline, IngestionRunInline]
 
     fieldsets = (
         ("Core Identity", {

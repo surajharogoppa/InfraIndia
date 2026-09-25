@@ -1683,4 +1683,109 @@ tbody tr:hover { background: var(--bg-hover); }
   }
 }
 
+/* Downloadable Data Source Documents */
+.source-docs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.source-doc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.source-doc-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+}
+
+.doc-badge-pdf {
+  background: hsl(0 75% 50% / 0.12);
+  color: hsl(0 80% 65%);
+  border: 1px solid hsl(0 75% 50% / 0.25);
+}
+
+.doc-badge-xml {
+  background: hsl(38 92% 50% / 0.12);
+  color: hsl(38 95% 55%);
+  border: 1px solid hsl(38 92% 50% / 0.25);
+}
+
+.doc-badge-csv {
+  background: hsl(152 70% 45% / 0.12);
+  color: hsl(152 75% 45%);
+  border: 1px solid hsl(152 70% 45% / 0.25);
+}
+
+.doc-preview-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.doc-preview-modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.doc-preview-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.doc-preview-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  background: var(--bg-card);
+}
+
+.doc-preview-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text-primary);
+  margin: 0;
+}
+
 

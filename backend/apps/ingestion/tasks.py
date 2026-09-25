@@ -172,6 +172,13 @@ def run_ingestion(self, source_id: int, file_path: str = None):
         source.last_successful_sync = timezone.now()
         source.save(update_fields=["last_successful_sync"])
 
+        # Archive file to data/raw/flash_reports and register Document in DB so it shows up in Data Sources
+        try:
+            from apps.ingestion.services import archive_and_register_document
+            archive_and_register_document(source, run, file_path, record_count=len(raw_records))
+        except Exception as doc_err:
+            logger.warning(f"Could not archive and register document: {doc_err}")
+
         logger.info(
             f"Ingestion run {run.id} complete: "
             f"{inserted} inserted, {updated} updated, "
@@ -340,6 +347,10 @@ def _get_or_create_state(name: str | None):
     from apps.locations.models import State
 
     clean_name = " ".join(name.strip().split())
+    if len(clean_name) > 80 or "," in clean_name or "/" in clean_name or "MULTI" in clean_name.upper():
+        clean_name = "Multi-State"
+    clean_name = clean_name[:100]
+
     state = State.objects.filter(name__iexact=clean_name).first()
     if state:
         return state

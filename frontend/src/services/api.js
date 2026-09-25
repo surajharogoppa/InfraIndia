@@ -33,6 +33,7 @@ export const refApi = {
   sectors: () => api.get('/organizations/sectors/'),
   ministries: () => api.get('/organizations/ministries/'),
   sources: () => api.get('/sources/'),
+  documents: (params) => api.get('/documents/', { params }),
   ingestionRuns: (params) => api.get('/ingestion/runs/', { params }),
   qualityIssues: (params) => api.get('/ingestion/quality/', { params }),
   resolveIssue: (id, data) => api.patch(`/ingestion/quality/${id}/resolve/`, data),
