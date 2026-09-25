@@ -32,10 +32,14 @@ export default function AIAssistant() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     document.title = 'AI Assistant — InfraIndia';
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -175,26 +179,26 @@ export default function AIAssistant() {
   }
 
   return (
-    <div className="page-body" style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
+    <div className="page-body ai-assistant-page" style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
       <Breadcrumbs />
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--gap)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
         <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={20} color="var(--accent)" />
+          <h1 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <Sparkles size={18} color="var(--accent)" />
             InfraIndia Assistant
           </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+          <p className="desktop-only" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
             AI-powered semantic querying and intelligence over MoSPI central sector infrastructure data
           </p>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={clearHistory} title="Clear conversation">
-          <Trash2 size={14} /> Clear
+        <button className="btn btn-ghost btn-sm" onClick={clearHistory} title="Clear conversation" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '28px' }}>
+          <Trash2 size={13} /> <span>Clear</span>
         </button>
       </div>
 
       {/* Suggested Prompts Pills */}
-      <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px', marginBottom: 'var(--gap-sm)' }}>
+      <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '6px', marginBottom: '8px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', flexShrink: 0 }}>
         {SUGGESTED_PROMPTS.map((prompt, i) => (
           <button
             key={i}
@@ -205,7 +209,8 @@ export default function AIAssistant() {
               border: '1px solid var(--border)',
               background: 'var(--bg-surface)',
               borderRadius: '999px',
-              padding: '4px 12px'
+              padding: '4px 12px',
+              flexShrink: 0
             }}
             onClick={() => handleSend(prompt)}
           >
@@ -273,46 +278,83 @@ export default function AIAssistant() {
                 </div>
               )}
 
-              {/* Data Table */}
+              {/* Data Display: Desktop Table & Mobile Cards */}
               {msg.data && msg.data.length > 0 && (
-                <div className="table-container" style={{ margin: '12px 0 6px', border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Project</th>
-                        <th>State</th>
-                        <th>Sector</th>
-                        <th>Cost</th>
-                        <th>Progress</th>
-                        <th>Status</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {msg.data.map(p => (
-                        <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/projects/${p.id}`)}>
-                          <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
-                          <td style={{ fontSize: '0.8rem' }}>{p.state_name || '—'}</td>
-                          <td>
-                            {p.sector_name ? <span className="badge badge-sector">{p.sector_name}</span> : '—'}
-                          </td>
-                          <td style={{ fontWeight: 600 }}>{formatCrore(p.current_cost_crore)}</td>
-                          <td>{p.current_progress != null ? `${p.current_progress}%` : '—'}</td>
-                          <td>
-                            <span className={`badge ${statusBadgeClass(p.platform_status)}`}>
-                              {statusLabel(p.platform_status)}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>
-                              <ArrowRight size={14} />
-                            </span>
-                          </td>
+                <>
+                  {/* Desktop Table View */}
+                  <div className="table-container desktop-only" style={{ margin: '12px 0 6px', border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Project</th>
+                          <th>State</th>
+                          <th>Sector</th>
+                          <th>Cost</th>
+                          <th>Progress</th>
+                          <th>Status</th>
+                          <th></th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {msg.data.map(p => (
+                          <tr key={p.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/projects/${p.id}`)}>
+                            <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</td>
+                            <td style={{ fontSize: '0.8rem' }}>{p.state_name || '—'}</td>
+                            <td>
+                              {p.sector_name ? <span className="badge badge-sector">{p.sector_name}</span> : '—'}
+                            </td>
+                            <td style={{ fontWeight: 600 }}>{formatCrore(p.current_cost_crore)}</td>
+                            <td>{p.current_progress != null ? `${p.current_progress}%` : '—'}</td>
+                            <td>
+                              <span className={`badge ${statusBadgeClass(p.platform_status)}`}>
+                                {statusLabel(p.platform_status)}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>
+                                <ArrowRight size={14} />
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Project Cards List */}
+                  <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '10px 0 6px' }}>
+                    {msg.data.map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => navigate(`/projects/${p.id}`)}
+                        style={{
+                          background: 'var(--bg-surface)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 'var(--radius)',
+                          padding: '10px 12px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.84rem', color: 'var(--text-primary)' }}>{p.name}</span>
+                          <ArrowRight size={14} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 2 }} />
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          {p.state_name || 'India'} · {p.sector_name || 'Infrastructure'}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--text-primary)' }}>{formatCrore(p.current_cost_crore)}</span>
+                          <span className={`badge ${statusBadgeClass(p.platform_status)}`} style={{ fontSize: '0.66rem' }}>
+                            {p.current_progress != null ? `${p.current_progress}%` : statusLabel(p.platform_status)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
 
               {/* Attribution */}
@@ -350,7 +392,7 @@ export default function AIAssistant() {
         <input
           className="search-input"
           style={{ flex: 1, padding: '10px 14px', borderRadius: 'var(--radius)', fontSize: '0.85rem' }}
-          placeholder="Ask InfraIndia Assistant (e.g. 'Show railway projects in Gujarat above ₹1000 crore')..."
+          placeholder={isMobile ? "Ask about projects, costs, states..." : "Ask InfraIndia Assistant (e.g. 'Show railway projects in Gujarat above ₹1000 crore')..."}
           value={input}
           onChange={e => setInput(e.target.value)}
           disabled={loading}
@@ -358,11 +400,12 @@ export default function AIAssistant() {
         <button
           type="submit"
           className="btn btn-primary"
-          style={{ padding: '0 18px', display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ padding: '0 16px', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
           disabled={!input.trim() || loading}
+          aria-label="Send query"
         >
           <Send size={15} />
-          <span>Ask</span>
+          <span className="desktop-only">Ask</span>
         </button>
       </form>
     </div>

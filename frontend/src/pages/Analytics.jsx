@@ -41,6 +41,14 @@ const TABS = ['States', 'Sectors', 'Ministries', 'Costs', 'Progress'];
 
 export default function Analytics() {
   const [tab, setTab] = useState('States');
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const { data: states } = useApi(() => analyticsApi.states());
   const { data: sectors } = useApi(() => analyticsApi.sectors());
   const { data: ministries } = useApi(() => analyticsApi.ministries());
@@ -60,13 +68,22 @@ export default function Analytics() {
             subtitle="Number of ongoing infrastructure projects per State/UT"
             action={<ExportButton targetId="analytics-state-chart" fileName="analytics_top_states" />}
           />
-          <ResponsiveContainer width="100%" height={420}>
-            <BarChart data={top} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
-              <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="state_name" width={150} tick={{ fill: 'var(--text-secondary)', fontSize: 10.5 }} axisLine={false} tickLine={false} interval={0} />
+          <ResponsiveContainer width="100%" height={isMobile ? 380 : 420}>
+            <BarChart data={top} layout="vertical" margin={{ left: isMobile ? 0 : 10, right: isMobile ? 35 : 45, top: 10, bottom: 10 }}>
+              <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis
+                type="category"
+                dataKey="state_name"
+                width={isMobile ? 100 : 150}
+                tick={{ fill: 'var(--text-secondary)', fontSize: isMobile ? 9 : 10.5 }}
+                tickFormatter={(v) => isMobile && v?.length > 13 ? v.slice(0, 12) + '…' : v}
+                axisLine={false}
+                tickLine={false}
+                interval={0}
+              />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]}>
-                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={isMobile ? 9.5 : 11} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -118,7 +135,7 @@ export default function Analytics() {
               subtitle="Top sectors vs others"
               action={<ExportButton targetId="analytics-sector-pie" fileName="analytics_sector_share" />}
             />
-            <ResponsiveContainer width="100%" height={260}>
+            <ResponsiveContainer width="100%" height={isMobile ? 240 : 260}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -126,8 +143,8 @@ export default function Analytics() {
                   nameKey="name"
                   cx="50%"
                   cy="45%"
-                  innerRadius={48}
-                  outerRadius={78}
+                  innerRadius={isMobile ? 36 : 48}
+                  outerRadius={isMobile ? 68 : 78}
                   paddingAngle={3}
                 >
                   {pieData.map(entry => (
@@ -138,7 +155,7 @@ export default function Analytics() {
                 <Legend formatter={(v, entry) => {
                   const val = entry?.payload?.value || 0;
                   const pct = totalSectorProjects > 0 ? ((val / totalSectorProjects) * 100).toFixed(0) : 0;
-                  return <span style={{ color: 'var(--text-secondary)', fontSize: '0.74rem' }}>{v} ({pct}%)</span>;
+                  return <span style={{ color: 'var(--text-secondary)', fontSize: isMobile ? '0.68rem' : '0.74rem' }}>{v} ({pct}%)</span>;
                 }} />
               </PieChart>
             </ResponsiveContainer>
@@ -149,13 +166,22 @@ export default function Analytics() {
               subtitle="Cost across top 8 sectors"
               action={<ExportButton targetId="analytics-sector-bar" fileName="analytics_sector_cost" />}
             />
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 65, top: 10, bottom: 10 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 260 : 280}>
+              <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: isMobile ? 0 : 10, right: isMobile ? 55 : 65, top: 10, bottom: 10 }}>
                 <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} />
+                <YAxis
+                  type="category"
+                  dataKey="sector_name"
+                  width={isMobile ? 95 : 140}
+                  tick={{ fill: 'var(--text-secondary)', fontSize: isMobile ? 9 : 11 }}
+                  tickFormatter={(v) => isMobile && v?.length > 12 ? v.slice(0, 11) + '…' : v}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={0}
+                />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
                 <Bar dataKey="total_cost_crore" name="Cost (Cr)" radius={[0, 4, 4, 0]}>
-                  <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={11} formatter={(v) => typeof v === 'number' ? `₹${v.toLocaleString('en-IN')}` : v} />
+                  <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={isMobile ? 9.5 : 11} formatter={(v) => typeof v === 'number' ? `₹${Math.round(v).toLocaleString('en-IN')}` : v} />
                   {(sectors || []).slice(0, 8).map((_, i) => <Cell key={i} fill={sectorColor(i)} />)}
                 </Bar>
               </BarChart>
@@ -194,13 +220,22 @@ export default function Analytics() {
             subtitle="Count of projects overseen per Union Ministry"
             action={<ExportButton targetId="analytics-ministry-chart" fileName="analytics_top_ministries" />}
           />
-          <ResponsiveContainer width="100%" height={360}>
-            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
-              <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} interval={0} tickFormatter={(v) => v?.length > 28 ? v.slice(0, 26) + '…' : v} />
+          <ResponsiveContainer width="100%" height={isMobile ? 320 : 360}>
+            <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: isMobile ? 0 : 10, right: isMobile ? 35 : 45, top: 10, bottom: 10 }}>
+              <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis
+                type="category"
+                dataKey="ministry_name"
+                tick={{ fill: 'var(--text-secondary)', fontSize: isMobile ? 8.5 : 10 }}
+                axisLine={false}
+                tickLine={false}
+                width={isMobile ? 110 : 220}
+                interval={0}
+                tickFormatter={(v) => isMobile ? (v?.length > 15 ? v.slice(0, 14) + '…' : v) : (v?.length > 28 ? v.slice(0, 26) + '…' : v)}
+              />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]}>
-                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
+                <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={isMobile ? 9.5 : 11} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -253,12 +288,21 @@ export default function Analytics() {
             action={<ExportButton targetId="analytics-costs-chart" fileName="analytics_cost_distribution" />}
           />
           <ResponsiveContainer width="100%" height={230}>
-            <BarChart data={costs?.distribution || []} margin={{ bottom: 25, left: 10, right: 15, top: 20 }}>
-              <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} height={35} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <BarChart data={costs?.distribution || []} margin={{ bottom: isMobile ? 35 : 25, left: 0, right: 15, top: 20 }}>
+              <XAxis
+                dataKey="label"
+                tick={{ fill: 'var(--text-muted)', fontSize: isMobile ? 9 : 11 }}
+                axisLine={false}
+                tickLine={false}
+                interval={0}
+                angle={isMobile ? -20 : 0}
+                textAnchor={isMobile ? 'end' : 'middle'}
+                height={isMobile ? 45 : 35}
+              />
+              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} width={isMobile ? 25 : 40} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="count" name="Projects" fill="hsl(174 65% 48%)" radius={[4, 4, 0, 0]}>
-                <LabelList dataKey="count" position="top" fill="var(--text-secondary)" fontSize={11} />
+                <LabelList dataKey="count" position="top" fill="var(--text-secondary)" fontSize={isMobile ? 9.5 : 11} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

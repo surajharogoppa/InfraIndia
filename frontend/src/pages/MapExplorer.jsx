@@ -9,7 +9,8 @@ import { formatCrore, formatPercent } from '../utils/format';
 import { useTheme } from '../context/ThemeContext';
 import {
   MapPin, ArrowRight,
-  Search, X, ZoomIn, ZoomOut, RotateCcw
+  Search, X, ZoomIn, ZoomOut, RotateCcw,
+  SlidersHorizontal, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import Breadcrumbs from '../components/common/Breadcrumbs';
@@ -275,6 +276,7 @@ export default function MapExplorer() {
   const [selectedPalette, setSelectedPalette] = useState('colorful'); // 'colorful' | 'zonal' | 'spectrum' | 'progress' | 'monochrome'
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Zoom and Pan States (default 100% zoom so full India fits container exactly on landing)
   const [zoom, setZoom] = useState(0.90);
@@ -502,35 +504,52 @@ export default function MapExplorer() {
       <Breadcrumbs />
       {/* Full Map Export Wrapper */}
       <div id="full-map-export-wrapper" style={{ padding: '4px', background: 'var(--bg-base)', borderRadius: 'var(--radius)' }}>
-        {/* Slice & Dice Toolbar - Compact Horizontal */}
-        <div className="card mb-sm" style={{ padding: '6px 12px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+        {/* Slice & Dice Toolbar - Responsive */}
+        <div className="card mb-sm map-slicer-bar">
+          <div className="map-slicer-main">
             {/* Metric Slicer */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>METRIC:</span>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button type="button" className={`map-chip-btn${selectedMetric === 'project_count' ? ' active' : ''}`} onClick={() => setSelectedMetric('project_count')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>Projects</button>
-                <button type="button" className={`map-chip-btn${selectedMetric === 'total_cost_crore' ? ' active' : ''}`} onClick={() => setSelectedMetric('total_cost_crore')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>Cost</button>
-                <button type="button" className={`map-chip-btn${selectedMetric === 'total_expenditure_crore' ? ' active' : ''}`} onClick={() => setSelectedMetric('total_expenditure_crore')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>Spend</button>
-                <button type="button" className={`map-chip-btn${selectedMetric === 'avg_progress' ? ' active' : ''}`} onClick={() => setSelectedMetric('avg_progress')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>Progress</button>
+            <div className="map-slicer-section">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>METRIC:</span>
+                {/* Mobile Filter Toggle Button */}
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm mobile-only"
+                  onClick={() => setMobileFiltersOpen(prev => !prev)}
+                  style={{ fontSize: '0.72rem', padding: '2px 8px', gap: '4px', alignItems: 'center', height: '26px' }}
+                  aria-label="Toggle map filters"
+                >
+                  <SlidersHorizontal size={12} />
+                  <span>Filters</span>
+                  {(selectedSector || selectedStatus || selectedPalette !== 'colorful') && (
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)' }} />
+                  )}
+                  {mobileFiltersOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+              </div>
+              <div className="map-slicer-chips">
+                <button type="button" className={`map-chip-btn${selectedMetric === 'project_count' ? ' active' : ''}`} onClick={() => setSelectedMetric('project_count')}>Projects</button>
+                <button type="button" className={`map-chip-btn${selectedMetric === 'total_cost_crore' ? ' active' : ''}`} onClick={() => setSelectedMetric('total_cost_crore')}>Cost</button>
+                <button type="button" className={`map-chip-btn${selectedMetric === 'total_expenditure_crore' ? ' active' : ''}`} onClick={() => setSelectedMetric('total_expenditure_crore')}>Spend</button>
+                <button type="button" className={`map-chip-btn${selectedMetric === 'avg_progress' ? ' active' : ''}`} onClick={() => setSelectedMetric('avg_progress')}>Progress</button>
               </div>
             </div>
 
-            {/* Color Palette Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Color Palette Selector - Always visible on desktop, toggleable on mobile */}
+            <div className={`map-slicer-section${!mobileFiltersOpen ? ' mobile-hidden' : ''}`}>
               <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>PALETTE:</span>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button type="button" className={`map-chip-btn${selectedPalette === 'colorful' ? ' active' : ''}`} onClick={() => setSelectedPalette('colorful')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>🎨 Colorful</button>
-                <button type="button" className={`map-chip-btn${selectedPalette === 'zonal' ? ' active' : ''}`} onClick={() => setSelectedPalette('zonal')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>🗺️ Zonal</button>
-                <button type="button" className={`map-chip-btn${selectedPalette === 'spectrum' ? ' active' : ''}`} onClick={() => setSelectedPalette('spectrum')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>🌈 Heatmap</button>
-                <button type="button" className={`map-chip-btn${selectedPalette === 'progress' ? ' active' : ''}`} onClick={() => setSelectedPalette('progress')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>🚦 Status</button>
-                <button type="button" className={`map-chip-btn${selectedPalette === 'monochrome' ? ' active' : ''}`} onClick={() => setSelectedPalette('monochrome')} style={{ padding: '2px 8px', fontSize: '0.75rem' }}>💎 Classic</button>
+              <div className="map-slicer-chips">
+                <button type="button" className={`map-chip-btn${selectedPalette === 'colorful' ? ' active' : ''}`} onClick={() => setSelectedPalette('colorful')}>🎨 Colorful</button>
+                <button type="button" className={`map-chip-btn${selectedPalette === 'zonal' ? ' active' : ''}`} onClick={() => setSelectedPalette('zonal')}>🗺️ Zonal</button>
+                <button type="button" className={`map-chip-btn${selectedPalette === 'spectrum' ? ' active' : ''}`} onClick={() => setSelectedPalette('spectrum')}>🌈 Heatmap</button>
+                <button type="button" className={`map-chip-btn${selectedPalette === 'progress' ? ' active' : ''}`} onClick={() => setSelectedPalette('progress')}>🚦 Status</button>
+                <button type="button" className={`map-chip-btn${selectedPalette === 'monochrome' ? ' active' : ''}`} onClick={() => setSelectedPalette('monochrome')}>💎 Classic</button>
               </div>
             </div>
           </div>
 
-          {/* Sector & Status Slicers */}
-          <div style={{ display: 'flex', gap: '8px' }}>
+          {/* Sector & Status Slicers - Always visible on desktop, toggleable on mobile */}
+          <div className={`map-slicer-selects${!mobileFiltersOpen ? ' mobile-hidden' : ''}`}>
             <select
               className="select-input"
               value={selectedSector}

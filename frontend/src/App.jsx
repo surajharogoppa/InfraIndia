@@ -14,7 +14,7 @@ import Contact from './pages/Contact';
 import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/common/ThemeToggle';
 import SearchPalette from './components/common/SearchPalette';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User, Menu } from 'lucide-react';
 
 function MainApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +46,19 @@ function MainApp() {
         {/* Global Application Header */}
         <header className="page-header" style={{ padding: '0 var(--gap-lg)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-sm)' }}>
+            {/* Mobile Hamburger Menu Toggle */}
+            <button
+              type="button"
+              className="btn btn-ghost btn-icon mobile-only"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              aria-label="Toggle navigation menu"
+              title="Open Navigation"
+              id="mobile-nav-toggle"
+              style={{ padding: '6px' }}
+            >
+              <Menu size={20} />
+            </button>
+
             {/* Logo and InfraIndia Branding in Global Header */}
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
               <div style={{
