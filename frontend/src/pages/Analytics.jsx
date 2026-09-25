@@ -60,10 +60,10 @@ export default function Analytics() {
             subtitle="Number of ongoing infrastructure projects per State/UT"
             action={<ExportButton targetId="analytics-state-chart" fileName="analytics_top_states" />}
           />
-          <ResponsiveContainer width="100%" height={360}>
+          <ResponsiveContainer width="100%" height={420}>
             <BarChart data={top} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="state_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="state_name" width={150} tick={{ fill: 'var(--text-secondary)', fontSize: 10.5 }} axisLine={false} tickLine={false} interval={0} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]}>
                 <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />
@@ -149,10 +149,10 @@ export default function Analytics() {
               subtitle="Cost across top 8 sectors"
               action={<ExportButton targetId="analytics-sector-bar" fileName="analytics_sector_cost" />}
             />
-            <ResponsiveContainer width="100%" height={260}>
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart data={(sectors || []).slice(0, 8)} layout="vertical" margin={{ left: 10, right: 65, top: 10, bottom: 10 }}>
                 <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="sector_name" width={140} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
                 <Bar dataKey="total_cost_crore" name="Cost (Cr)" radius={[0, 4, 4, 0]}>
                   <LabelList dataKey="total_cost_crore" position="right" fill="var(--text-secondary)" fontSize={11} formatter={(v) => typeof v === 'number' ? `₹${v.toLocaleString('en-IN')}` : v} />
@@ -194,10 +194,10 @@ export default function Analytics() {
             subtitle="Count of projects overseen per Union Ministry"
             action={<ExportButton targetId="analytics-ministry-chart" fileName="analytics_top_ministries" />}
           />
-          <ResponsiveContainer width="100%" height={340}>
+          <ResponsiveContainer width="100%" height={360}>
             <BarChart data={(ministries || []).slice(0, 10)} layout="vertical" margin={{ left: 10, right: 45, top: 10, bottom: 10 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} tickFormatter={(v) => v?.length > 28 ? v.slice(0, 26) + '…' : v} />
+              <YAxis type="category" dataKey="ministry_name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} width={220} interval={0} tickFormatter={(v) => v?.length > 28 ? v.slice(0, 26) + '…' : v} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="hsl(262 80% 65%)" radius={[0, 4, 4, 0]}>
                 <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={11} />

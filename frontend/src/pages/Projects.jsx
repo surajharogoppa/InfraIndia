@@ -150,8 +150,8 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Desktop Search & Filters Toolbar */}
-      <div className="filter-bar desktop-only" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: 'var(--gap)', alignItems: 'center' }}>
+      {/* Search & Filters Toolbar */}
+      <div className="filter-bar">
         <div className="search-input-wrap" style={{ flex: '1 1 240px' }}>
           <Search className="search-input-icon" size={16} />
           <input
@@ -163,93 +163,84 @@ export default function Projects() {
           />
         </div>
 
-        <select
-          className="select-input"
-          value={filters.state}
-          onChange={e => { setFilters(f => ({ ...f, state: e.target.value })); setPage(1); }}
-        >
-          <option value="">All States</option>
-          {(Array.isArray(states) ? states : []).map(s => (
-            <option key={s.id} value={s.name}>{s.name}</option>
-          ))}
-        </select>
-
-        <select
-          className="select-input"
-          value={filters.sector}
-          onChange={e => { setFilters(f => ({ ...f, sector: e.target.value })); setPage(1); }}
-        >
-          <option value="">All Sectors</option>
-          {(Array.isArray(sectors) ? sectors : []).map(s => (
-            <option key={s.id} value={s.name}>{s.name}</option>
-          ))}
-        </select>
-
-        <select
-          className="select-input"
-          value={filters.platform_status}
-          onChange={e => { setFilters(f => ({ ...f, platform_status: e.target.value })); setPage(1); }}
-        >
-          <option value="">All Statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="PLANNED">Planned</option>
-          <option value="UNKNOWN">Unknown</option>
-        </select>
-
-        <input
-          className="select-input"
-          type="number"
-          placeholder="Min cost (Cr)"
-          style={{ width: 110 }}
-          value={filters.min_cost}
-          onChange={e => { setFilters(f => ({ ...f, min_cost: e.target.value })); setPage(1); }}
-        />
-        <input
-          className="select-input"
-          type="number"
-          placeholder="Max cost (Cr)"
-          style={{ width: 110 }}
-          value={filters.max_cost}
-          onChange={e => { setFilters(f => ({ ...f, max_cost: e.target.value })); setPage(1); }}
-        />
-
-        <input
-          className="select-input"
-          type="number"
-          placeholder="Min prog %"
-          style={{ width: 100 }}
-          value={filters.progress_min}
-          onChange={e => { setFilters(f => ({ ...f, progress_min: e.target.value })); setPage(1); }}
-        />
-
-        {activeFilterCount > 0 && (
-          <button className="btn btn-ghost btn-sm" onClick={clearAllFilters}>
-            Clear
-          </button>
-        )}
-      </div>
-
-      {/* Mobile Search & Filter Button */}
-      <div className="mobile-only" style={{ display: 'flex', gap: '8px', marginBottom: 'var(--gap)' }}>
-        <div className="search-input-wrap" style={{ flex: 1 }}>
-          <Search className="search-input-icon" size={16} />
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Search projects..."
-            value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
-          />
-        </div>
+        {/* Mobile Filter Button */}
         <button
-          className={`btn ${activeFilterCount > 0 ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+          className={`btn ${activeFilterCount > 0 ? 'btn-primary' : 'btn-secondary'} btn-sm filter-mobile-btn`}
           onClick={() => setMobileFilterOpen(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+          style={{ alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
         >
           <Filter size={15} />
           <span>Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}</span>
         </button>
+
+        {/* Desktop Filter Controls */}
+        <div className="desktop-filters">
+          <select
+            className="select-input"
+            value={filters.state}
+            onChange={e => { setFilters(f => ({ ...f, state: e.target.value })); setPage(1); }}
+          >
+            <option value="">All States</option>
+            {(Array.isArray(states) ? states : []).map(s => (
+              <option key={s.id} value={s.name}>{s.name}</option>
+            ))}
+          </select>
+
+          <select
+            className="select-input"
+            value={filters.sector}
+            onChange={e => { setFilters(f => ({ ...f, sector: e.target.value })); setPage(1); }}
+          >
+            <option value="">All Sectors</option>
+            {(Array.isArray(sectors) ? sectors : []).map(s => (
+              <option key={s.id} value={s.name}>{s.name}</option>
+            ))}
+          </select>
+
+          <select
+            className="select-input"
+            value={filters.platform_status}
+            onChange={e => { setFilters(f => ({ ...f, platform_status: e.target.value })); setPage(1); }}
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="PLANNED">Planned</option>
+            <option value="UNKNOWN">Unknown</option>
+          </select>
+
+          <input
+            className="select-input"
+            type="number"
+            placeholder="Min cost (Cr)"
+            style={{ width: 110 }}
+            value={filters.min_cost}
+            onChange={e => { setFilters(f => ({ ...f, min_cost: e.target.value })); setPage(1); }}
+          />
+          <input
+            className="select-input"
+            type="number"
+            placeholder="Max cost (Cr)"
+            style={{ width: 110 }}
+            value={filters.max_cost}
+            onChange={e => { setFilters(f => ({ ...f, max_cost: e.target.value })); setPage(1); }}
+          />
+
+          <input
+            className="select-input"
+            type="number"
+            placeholder="Min prog %"
+            style={{ width: 100 }}
+            value={filters.progress_min}
+            onChange={e => { setFilters(f => ({ ...f, progress_min: e.target.value })); setPage(1); }}
+          />
+
+          {activeFilterCount > 0 && (
+            <button className="btn btn-ghost btn-sm" onClick={clearAllFilters}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile Filter Drawer Modal */}
@@ -489,7 +480,7 @@ export default function Projects() {
       </div>
 
       {/* Mobile Project Cards List */}
-      <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-sm)' }}>
+      <div className="mobile-cards-list">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="skeleton skeleton-card" style={{ height: 120 }} />

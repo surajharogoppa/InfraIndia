@@ -29,93 +29,93 @@ function normalizeStateName(name) {
   return clean;
 }
 
-// Distinct Vibrant Colors for All 37 Indian States & UTs (Atlas Palette)
+// Distinct Soft, Slightly Light Colors for All 37 Indian States & UTs (Atlas Palette)
 const STATE_COLORS = {
   // Northern Region
-  'jammu and kashmir': { color: '#3b82f6', light: '#2563eb', dark: '#60a5fa' },
-  'ladakh': { color: '#8b5cf6', light: '#7c3aed', dark: '#a78bfa' },
-  'himachal pradesh': { color: '#10b981', light: '#059669', dark: '#34d399' },
-  'punjab': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
-  'haryana': { color: '#ec4899', light: '#db2777', dark: '#f472b6' },
-  'uttarakhand': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
-  'delhi': { color: '#ef4444', light: '#dc2626', dark: '#f87171' },
-  'rajasthan': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
-  'uttar pradesh': { color: '#6366f1', light: '#4f46e5', dark: '#818cf8' },
-  'chandigarh': { color: '#14b8a6', light: '#0d9488', dark: '#2dd4bf' },
+  'jammu and kashmir': { color: '#93c5fd', light: '#bfdbfe', dark: '#38bdf8' },
+  'ladakh': { color: '#c4b5fd', light: '#ddd6fe', dark: '#a78bfa' },
+  'himachal pradesh': { color: '#86efac', light: '#bbf7d0', dark: '#34d399' },
+  'punjab': { color: '#fde047', light: '#fef08a', dark: '#fbbf24' },
+  'haryana': { color: '#f9a8d4', light: '#fbcfe8', dark: '#f472b6' },
+  'uttarakhand': { color: '#67e8f9', light: '#a5f3fc', dark: '#22d3ee' },
+  'delhi': { color: '#fca5a5', light: '#fecaca', dark: '#f87171' },
+  'rajasthan': { color: '#fdba74', light: '#fed7aa', dark: '#fb923c' },
+  'uttar pradesh': { color: '#a5b4fc', light: '#c7d2fe', dark: '#818cf8' },
+  'chandigarh': { color: '#5eead4', light: '#99f6e4', dark: '#2dd4bf' },
 
   // Central Region
-  'madhya pradesh': { color: '#0284c7', light: '#0369a1', dark: '#38bdf8' },
-  'chhattisgarh': { color: '#9333ea', light: '#7e22ce', dark: '#c084fc' },
+  'madhya pradesh': { color: '#7dd3fc', light: '#bae6fd', dark: '#38bdf8' },
+  'chhattisgarh': { color: '#d8b4fe', light: '#e9d5ff', dark: '#c084fc' },
 
   // Western Region
-  'gujarat': { color: '#eab308', light: '#ca8a04', dark: '#facc15' },
-  'maharashtra': { color: '#8b5cf6', light: '#7c3aed', dark: '#a78bfa' },
-  'goa': { color: '#d946ef', light: '#c026d3', dark: '#e879f9' },
-  'dadra and nagar haveli and daman and diu': { color: '#f43f5e', light: '#e11d48', dark: '#fb7185' },
+  'gujarat': { color: '#fde047', light: '#fef08a', dark: '#facc15' },
+  'maharashtra': { color: '#c4b5fd', light: '#ddd6fe', dark: '#a78bfa' },
+  'goa': { color: '#f0abfc', light: '#f5d0fe', dark: '#e879f9' },
+  'dadra and nagar haveli and daman and diu': { color: '#fda4af', light: '#fecdd3', dark: '#fb7185' },
 
   // Eastern Region
-  'bihar': { color: '#10b981', light: '#059669', dark: '#34d399' },
-  'jharkhand': { color: '#f43f5e', light: '#e11d48', dark: '#fb7185' },
-  'odisha': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
-  'west bengal': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
-  'andaman and nicobar': { color: '#0284c7', light: '#0369a1', dark: '#38bdf8' },
+  'bihar': { color: '#86efac', light: '#bbf7d0', dark: '#34d399' },
+  'jharkhand': { color: '#fda4af', light: '#fecdd3', dark: '#fb7185' },
+  'odisha': { color: '#fcd34d', light: '#fde68a', dark: '#fbbf24' },
+  'west bengal': { color: '#67e8f9', light: '#a5f3fc', dark: '#22d3ee' },
+  'andaman and nicobar': { color: '#7dd3fc', light: '#bae6fd', dark: '#38bdf8' },
 
   // Southern Region
-  'andhra pradesh': { color: '#14b8a6', light: '#0d9488', dark: '#2dd4bf' },
-  'telangana': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
-  'karnataka': { color: '#16a34a', light: '#15803d', dark: '#4ade80' },
-  'tamil nadu': { color: '#2563eb', light: '#1d4ed8', dark: '#60a5fa' },
-  'kerala': { color: '#059669', light: '#047857', dark: '#10b981' },
-  'puducherry': { color: '#a855f7', light: '#9333ea', dark: '#c084fc' },
-  'lakshadweep': { color: '#06b6d4', light: '#0891b2', dark: '#22d3ee' },
+  'andhra pradesh': { color: '#5eead4', light: '#99f6e4', dark: '#2dd4bf' },
+  'telangana': { color: '#fdba74', light: '#fed7aa', dark: '#fb923c' },
+  'karnataka': { color: '#86efac', light: '#bbf7d0', dark: '#4ade80' },
+  'tamil nadu': { color: '#93c5fd', light: '#bfdbfe', dark: '#60a5fa' },
+  'kerala': { color: '#6ee7b7', light: '#a7f3d0', dark: '#10b981' },
+  'puducherry': { color: '#d8b4fe', light: '#e9d5ff', dark: '#c084fc' },
+  'lakshadweep': { color: '#67e8f9', light: '#a5f3fc', dark: '#22d3ee' },
 
   // North-Eastern Region
-  'sikkim': { color: '#84cc16', light: '#65a30d', dark: '#a3e635' },
-  'assam': { color: '#f97316', light: '#ea580c', dark: '#fb923c' },
-  'arunachal pradesh': { color: '#6366f1', light: '#4f46e5', dark: '#818cf8' },
-  'nagaland': { color: '#d946ef', light: '#c026d3', dark: '#e879f9' },
-  'manipur': { color: '#0ea5e9', light: '#0284c7', dark: '#38bdf8' },
-  'mizoram': { color: '#10b981', light: '#059669', dark: '#34d399' },
-  'tripura': { color: '#f59e0b', light: '#d97706', dark: '#fbbf24' },
-  'meghalaya': { color: '#ec4899', light: '#db2777', dark: '#f472b6' },
+  'sikkim': { color: '#bef264', light: '#d9f99d', dark: '#a3e635' },
+  'assam': { color: '#fdba74', light: '#fed7aa', dark: '#fb923c' },
+  'arunachal pradesh': { color: '#a5b4fc', light: '#c7d2fe', dark: '#818cf8' },
+  'nagaland': { color: '#f0abfc', light: '#f5d0fe', dark: '#e879f9' },
+  'manipur': { color: '#7dd3fc', light: '#bae6fd', dark: '#38bdf8' },
+  'mizoram': { color: '#86efac', light: '#bbf7d0', dark: '#34d399' },
+  'tripura': { color: '#fde047', light: '#fef08a', dark: '#fbbf24' },
+  'meghalaya': { color: '#f9a8d4', light: '#fbcfe8', dark: '#f472b6' },
 };
 
 // Indian Geopolitical Zones
 const ZONES = {
   north: {
     name: 'North Zone',
-    colorDark: 'hsl(215 90% 55%)',
-    colorLight: 'hsl(215 85% 60%)',
+    colorDark: 'hsl(215 70% 50%)',
+    colorLight: 'hsl(215 80% 82%)',
     states: ['jammu and kashmir', 'ladakh', 'himachal pradesh', 'punjab', 'haryana', 'delhi', 'chandigarh', 'rajasthan', 'uttarakhand', 'uttar pradesh']
   },
   west: {
     name: 'West Zone',
-    colorDark: 'hsl(28 95% 55%)',
-    colorLight: 'hsl(28 90% 58%)',
+    colorDark: 'hsl(28 75% 50%)',
+    colorLight: 'hsl(28 90% 82%)',
     states: ['gujarat', 'maharashtra', 'goa', 'dadra and nagar haveli and daman and diu']
   },
   south: {
     name: 'South Zone',
-    colorDark: 'hsl(145 75% 45%)',
-    colorLight: 'hsl(145 70% 48%)',
+    colorDark: 'hsl(145 60% 45%)',
+    colorLight: 'hsl(145 65% 80%)',
     states: ['karnataka', 'kerala', 'tamil nadu', 'andhra pradesh', 'telangana', 'puducherry', 'lakshadweep']
   },
   east: {
     name: 'East Zone',
-    colorDark: 'hsl(270 80% 60%)',
-    colorLight: 'hsl(270 75% 62%)',
+    colorDark: 'hsl(270 65% 55%)',
+    colorLight: 'hsl(270 70% 83%)',
     states: ['bihar', 'jharkhand', 'odisha', 'west bengal', 'andaman and nicobar']
   },
   central: {
     name: 'Central Zone',
-    colorDark: 'hsl(340 85% 58%)',
-    colorLight: 'hsl(340 80% 60%)',
+    colorDark: 'hsl(340 70% 55%)',
+    colorLight: 'hsl(340 75% 83%)',
     states: ['madhya pradesh', 'chhattisgarh']
   },
   northeast: {
     name: 'Northeast Zone',
-    colorDark: 'hsl(175 85% 45%)',
-    colorLight: 'hsl(175 80% 45%)',
+    colorDark: 'hsl(175 70% 45%)',
+    colorLight: 'hsl(175 65% 78%)',
     states: ['assam', 'arunachal pradesh', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'sikkim', 'tripura']
   }
 };
@@ -128,25 +128,41 @@ function getStateZone(stateName) {
   return null;
 }
 
-// Multi-color spectrum interpolation (Violet -> Blue -> Teal -> Green -> Amber -> Ruby)
+// Thermal Heatmap palette: Low (Cool Blue) -> Cyan -> Green -> Warm Yellow -> Fiery Red (High)
+const HEATMAP_STOPS_DARK = [
+  { p: 0.0, r: 37, g: 99, b: 235 },   // #2563eb Blue
+  { p: 0.25, r: 6, g: 182, b: 212 },  // #06b6d4 Cyan
+  { p: 0.5, r: 34, g: 197, b: 94 },   // #22c55e Green
+  { p: 0.75, r: 245, g: 158, b: 11 }, // #f59e0b Amber
+  { p: 1.0, r: 239, g: 68, b: 68 },   // #ef4444 Fiery Red
+];
+
+const HEATMAP_STOPS_LIGHT = [
+  { p: 0.0, r: 147, g: 197, b: 253 }, // #93c5fd Soft sky blue
+  { p: 0.25, r: 103, g: 232, b: 249 }, // #67e8f9 Cyan
+  { p: 0.5, r: 134, g: 239, b: 172 },  // #86efac Fresh green
+  { p: 0.75, r: 253, g: 224, b: 71 },  // #fde047 Warm yellow
+  { p: 1.0, r: 248, g: 113, b: 113 },  // #f87171 Coral red
+];
+
 function getSpectrumColor(t, isDark) {
   const clamped = Math.min(Math.max(t, 0), 1);
-  if (clamped < 0.2) {
-    const local = clamped / 0.2;
-    return `hsl(${250 - local * 30} 85% ${isDark ? 50 + local * 5 : 55 - local * 5}%)`;
-  } else if (clamped < 0.4) {
-    const local = (clamped - 0.2) / 0.2;
-    return `hsl(${220 - local * 45} 90% ${isDark ? 52 : 50}%)`;
-  } else if (clamped < 0.6) {
-    const local = (clamped - 0.4) / 0.2;
-    return `hsl(${175 - local * 35} 80% ${isDark ? 48 : 45}%)`;
-  } else if (clamped < 0.8) {
-    const local = (clamped - 0.6) / 0.2;
-    return `hsl(${140 - local * 95} 90% ${isDark ? 50 : 48}%)`;
-  } else {
-    const local = (clamped - 0.8) / 0.2;
-    return `hsl(${45 - local * 38} 95% ${isDark ? 55 : 50}%)`;
+  const stops = isDark ? HEATMAP_STOPS_DARK : HEATMAP_STOPS_LIGHT;
+  let i = 0;
+  while (i < stops.length - 1 && clamped > stops[i + 1].p) {
+    i++;
   }
+  if (i >= stops.length - 1) {
+    const last = stops[stops.length - 1];
+    return `rgb(${last.r}, ${last.g}, ${last.b})`;
+  }
+  const s0 = stops[i];
+  const s1 = stops[i + 1];
+  const factor = (clamped - s0.p) / (s1.p - s0.p);
+  const r = Math.round(s0.r + (s1.r - s0.r) * factor);
+  const g = Math.round(s0.g + (s1.g - s0.g) * factor);
+  const b = Math.round(s0.b + (s1.b - s0.b) * factor);
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 // Progress traffic-light color
@@ -260,8 +276,8 @@ export default function MapExplorer() {
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
-  // Zoom and Pan States
-  const [zoom, setZoom] = useState(1);
+  // Zoom and Pan States (default 100% zoom so full India fits container exactly on landing)
+  const [zoom, setZoom] = useState(0.90);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -392,8 +408,8 @@ export default function MapExplorer() {
   }
 
   // Zoom & Pan Handlers
-  const handleZoomIn = () => setZoom(z => Math.min(Number((z * 1.3).toFixed(2)), 4));
-  const handleZoomOut = () => setZoom(z => Math.max(Number((z / 1.3).toFixed(2)), 0.8));
+  const handleZoomIn = () => setZoom(z => Math.min(Number((z * 1.25).toFixed(2)), 4));
+  const handleZoomOut = () => setZoom(z => Math.max(Number((z / 1.25).toFixed(2)), 0.5));
   const handleResetZoom = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
@@ -422,7 +438,7 @@ export default function MapExplorer() {
   const handleWheel = (e) => {
     // Only handle synthetic if it somehow fires, but we rely on native event below
     const delta = e.deltaY < 0 ? 1.15 : 0.85;
-    setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.8), 4));
+    setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.5), 4));
   };
 
   useEffect(() => {
@@ -431,7 +447,7 @@ export default function MapExplorer() {
     const onNativeWheel = (e) => {
       e.preventDefault();
       const delta = e.deltaY < 0 ? 1.15 : 0.85;
-      setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.8), 4));
+      setZoom(z => Math.min(Math.max(Number((z * delta).toFixed(2)), 0.5), 4));
     };
     mapNode.addEventListener('wheel', onNativeWheel, { passive: false });
     return () => mapNode.removeEventListener('wheel', onNativeWheel);
@@ -482,12 +498,12 @@ export default function MapExplorer() {
   }, [stateProjects]);
 
   return (
-    <div className="page-body">
+    <div className="page-body" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
       <Breadcrumbs />
       {/* Full Map Export Wrapper */}
       <div id="full-map-export-wrapper" style={{ padding: '4px', background: 'var(--bg-base)', borderRadius: 'var(--radius)' }}>
         {/* Slice & Dice Toolbar - Compact Horizontal */}
-        <div className="card mb-sm" style={{ padding: '8px 12px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="card mb-sm" style={{ padding: '6px 12px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
             {/* Metric Slicer */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -560,7 +576,9 @@ export default function MapExplorer() {
             onMouseLeave={handleMouseUp}
             onWheel={handleWheel}
             style={{
-              minHeight: 400,
+              height: 'calc(100vh - 145px)',
+              maxHeight: 'calc(100vh - 145px)',
+              minHeight: '440px',
               position: 'relative',
               cursor: isDragging ? 'grabbing' : 'grab',
               userSelect: 'none'
@@ -629,19 +647,19 @@ export default function MapExplorer() {
             <ComposableMap
               projection="geoMercator"
               projectionConfig={{
-                center: [82.5, 23.0],
-                scale: 860
+                center: [82.5, 21.2],
+                scale: 930
               }}
               width={800}
-              height={520}
-              style={{ width: '100%', height: 400 }}
+              height={600}
+              style={{ width: '100%', height: '100%', maxHeight: '100%' }}
               id="map-container-export"
             >
               <g
                 id="map-zoom-group"
                 transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}
                 style={{
-                  transformOrigin: '400px 260px',
+                  transformOrigin: '400px 300px',
                   transition: isDragging ? 'none' : 'transform 180ms cubic-bezier(0.2, 0, 0, 1)'
                 }}
               >
@@ -752,11 +770,11 @@ export default function MapExplorer() {
               ) : (
                 <div>
                   <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
-                    {selectedMetric === 'project_count' ? 'Project Count' : selectedMetric === 'total_cost_crore' ? 'Total Cost (₹ Cr)' : 'Cumulative Spend (₹ Cr)'} Intensity
+                    {selectedPalette === 'spectrum' ? '🔥 Thermal Heatmap' : `${selectedMetric === 'project_count' ? 'Project Count' : selectedMetric === 'total_cost_crore' ? 'Total Cost (₹ Cr)' : 'Cumulative Spend (₹ Cr)'} Intensity`}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span>Low</span>
-                    {[0.1, 0.3, 0.5, 0.7, 0.9].map(t => (
+                    <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Low</span>
+                    {[0.05, 0.25, 0.5, 0.75, 0.95].map(t => (
                       <div
                         key={t}
                         style={{
@@ -769,7 +787,7 @@ export default function MapExplorer() {
                         }}
                       />
                     ))}
-                    <span>High</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>High</span>
                   </div>
                 </div>
               )}
@@ -778,7 +796,7 @@ export default function MapExplorer() {
 
           {/* Selected State Drilldown & Dicing Panel */}
           {selectedState && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)', height: 'calc(100vh - 145px)', maxHeight: 'calc(100vh - 145px)', minHeight: '440px', overflowY: 'auto' }}>
               {/* Summary Card */}
               <Card style={{ padding: 'var(--gap)' }}>
                 <CardHeader
@@ -858,7 +876,7 @@ export default function MapExplorer() {
               </Card>
 
               {/* State Projects Directory */}
-              <div className="table-container" style={{ flex: 1, minHeight: 250 }}>
+              <div className="table-container" style={{ flex: 1, minHeight: 280, display: 'flex', flexDirection: 'column' }}>
                 <div className="table-header">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 'var(--gap-sm)' }}>
                     <div className="table-title" style={{ fontSize: '0.88rem' }}>
@@ -907,7 +925,7 @@ export default function MapExplorer() {
                     </div>
                   ))
                 ) : filteredProjects.length > 0 ? (
-                  <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+                  <div style={{ flex: 1, minHeight: 200, overflowY: 'auto' }}>
                     {filteredProjects.map(p => (
                       <div
                         key={p.id}

@@ -216,10 +216,10 @@ export default function Dashboard() {
             subtitle="Count and total cost"
             action={<ExportButton targetId="dashboard-sector-chart" fileName="dashboard_sector_projects" />}
           />
-          <ResponsiveContainer width="100%" height={195}>
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart data={topSectors} layout="vertical" margin={{ left: 10, right: 35, top: 4, bottom: 4 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="sector_name" width={130} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="sector_name" width={130} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" radius={[0, 4, 4, 0]}>
                 <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={10} />
@@ -238,7 +238,7 @@ export default function Dashboard() {
             subtitle={<span className="platform-derived-note" style={{ fontSize: '0.65rem' }}>Platform-derived indicator</span>}
             action={<ExportButton targetId="dashboard-progress-chart" fileName="dashboard_progress" />}
           />
-          <ResponsiveContainer width="100%" height={195}>
+          <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={validProgress}
@@ -275,10 +275,10 @@ export default function Dashboard() {
             subtitle="Number of projects per state"
             action={<ExportButton targetId="dashboard-state-chart" fileName="dashboard_top_states" />}
           />
-          <ResponsiveContainer width="100%" height={210}>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart data={topStates} layout="vertical" margin={{ left: 10, right: 40, top: 4, bottom: 4 }}>
               <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="state_name" width={120} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="state_name" width={130} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
               <Bar dataKey="project_count" name="Projects" fill="var(--accent)" radius={[0, 4, 4, 0]}>
                 <LabelList dataKey="project_count" position="right" fill="var(--text-secondary)" fontSize={10} />
@@ -294,7 +294,7 @@ export default function Dashboard() {
             subtitle="Projects by cost range"
             action={<ExportButton targetId="dashboard-cost-chart" fileName="dashboard_cost_distribution" />}
           />
-          <ResponsiveContainer width="100%" height={210}>
+          <ResponsiveContainer width="100%" height={240}>
             <BarChart data={costs?.distribution || []} margin={{ bottom: 20, left: 10, right: 15, top: 16 }}>
               <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 9.5 }} axisLine={false} tickLine={false} interval={0} height={30} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
