@@ -779,80 +779,73 @@ export default function MapExplorer() {
               </div>
             )}
 
-            {/* Map Legend based on active palette */}
-            <div style={{
-              position: 'absolute',
-              top: 14,
-              left: 14,
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              padding: '8px 14px',
-              fontSize: '0.74rem',
-              color: 'var(--text-muted)',
-              boxShadow: 'var(--shadow)',
-              maxWidth: 360
-            }}>
-              {selectedPalette === 'colorful' ? (
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 2, color: 'var(--text-primary)' }}>
-                    🎨 Vivid State Atlas Palette
+            {/* Map Legend based on active palette - hidden for colorful palette */}
+            {selectedPalette !== 'colorful' && (
+              <div style={{
+                position: 'absolute',
+                top: 14,
+                left: 14,
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '8px 14px',
+                fontSize: '0.74rem',
+                color: 'var(--text-muted)',
+                boxShadow: 'var(--shadow)',
+                maxWidth: 360
+              }}>
+                {selectedPalette === 'zonal' ? (
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                      🗺️ Geographic Zones of India
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px 12px' }}>
+                      {Object.values(ZONES).map(z => (
+                        <div key={z.name} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: 2, background: isDark ? z.colorDark : z.colorLight }} />
+                          <span style={{ fontSize: '0.7rem' }}>{z.name.replace(' Zone', '')}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                    Distinct vibrant coloring, Click any state to drill down.
+                ) : selectedPalette === 'progress' || selectedMetric === 'avg_progress' ? (
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                      🚦 Physical Progress Gauge
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ color: 'hsl(0 75% 55%)', fontWeight: 600 }}>● &lt;35%</span>
+                      <span style={{ color: 'hsl(28 90% 55%)', fontWeight: 600 }}>● 35–55%</span>
+                      <span style={{ color: 'hsl(45 95% 52%)', fontWeight: 600 }}>● 55–75%</span>
+                      <span style={{ color: 'hsl(142 75% 48%)', fontWeight: 600 }}>● &ge;75%</span>
+                    </div>
                   </div>
-                </div>
-              ) : selectedPalette === 'zonal' ? (
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
-                    🗺️ Geographic Zones of India
+                ) : (
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                      {selectedPalette === 'spectrum' ? '🔥 Thermal Heatmap' : `${selectedMetric === 'project_count' ? 'Project Count' : selectedMetric === 'total_cost_crore' ? 'Total Cost (₹ Cr)' : 'Cumulative Spend (₹ Cr)'} Intensity`}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Low</span>
+                      {[0.05, 0.25, 0.5, 0.75, 0.95].map(t => (
+                        <div
+                          key={t}
+                          style={{
+                            width: 20,
+                            height: 12,
+                            borderRadius: 2,
+                            background: selectedPalette === 'spectrum'
+                              ? getSpectrumColor(t, isDark)
+                              : isDark ? `hsl(218 90% ${28 + t * 36}%)` : `hsl(218 85% ${82 - t * 38}%)`
+                          }}
+                        />
+                      ))}
+                      <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>High</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px 12px' }}>
-                    {Object.values(ZONES).map(z => (
-                      <div key={z.name} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <div style={{ width: 10, height: 10, borderRadius: 2, background: isDark ? z.colorDark : z.colorLight }} />
-                        <span style={{ fontSize: '0.7rem' }}>{z.name.replace(' Zone', '')}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : selectedPalette === 'progress' || selectedMetric === 'avg_progress' ? (
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
-                    🚦 Physical Progress Gauge
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ color: 'hsl(0 75% 55%)', fontWeight: 600 }}>● &lt;35%</span>
-                    <span style={{ color: 'hsl(28 90% 55%)', fontWeight: 600 }}>● 35–55%</span>
-                    <span style={{ color: 'hsl(45 95% 52%)', fontWeight: 600 }}>● 55–75%</span>
-                    <span style={{ color: 'hsl(142 75% 48%)', fontWeight: 600 }}>● &ge;75%</span>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
-                    {selectedPalette === 'spectrum' ? '🔥 Thermal Heatmap' : `${selectedMetric === 'project_count' ? 'Project Count' : selectedMetric === 'total_cost_crore' ? 'Total Cost (₹ Cr)' : 'Cumulative Spend (₹ Cr)'} Intensity`}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Low</span>
-                    {[0.05, 0.25, 0.5, 0.75, 0.95].map(t => (
-                      <div
-                        key={t}
-                        style={{
-                          width: 20,
-                          height: 12,
-                          borderRadius: 2,
-                          background: selectedPalette === 'spectrum'
-                            ? getSpectrumColor(t, isDark)
-                            : isDark ? `hsl(218 90% ${28 + t * 36}%)` : `hsl(218 85% ${82 - t * 38}%)`
-                        }}
-                      />
-                    ))}
-                    <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>High</span>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Selected State Drilldown & Dicing Panel */}

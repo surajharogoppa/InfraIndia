@@ -24,19 +24,39 @@ export default function ExportButton({ targetId, fileName }) {
       zoomGroup.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
-    // Force 3:4 ratio on the export wrapper if it's the map
+    // Crop cleanly at the bottom of the map when exporting full map
     const isMap = targetId === 'full-map-export-wrapper';
     let originalWidth = element.style.width;
     let originalHeight = element.style.height;
+    let originalOverflow = element.style.overflow;
     let mapSvg = element.querySelector('#map-container-export');
     let originalSvgHeight = '';
+    let originalSvgWidth = '';
+    let mapWrap = element.querySelector('.map-wrap');
+    let originalMapWrapHeight = '';
+    let originalMapWrapMaxHeight = '';
+    let originalMapWrapMinHeight = '';
+    let originalMapWrapOverflow = '';
     
     if (isMap) {
       element.style.width = '900px';
-      element.style.height = '1200px'; // 3:4 ratio
+      element.style.height = 'auto';
+      element.style.overflow = 'hidden';
+      if (mapWrap) {
+        originalMapWrapHeight = mapWrap.style.height;
+        originalMapWrapMaxHeight = mapWrap.style.maxHeight;
+        originalMapWrapMinHeight = mapWrap.style.minHeight;
+        originalMapWrapOverflow = mapWrap.style.overflow;
+        mapWrap.style.height = '620px';
+        mapWrap.style.maxHeight = '620px';
+        mapWrap.style.minHeight = '0px';
+        mapWrap.style.overflow = 'hidden';
+      }
       if (mapSvg) {
         originalSvgHeight = mapSvg.style.height;
-        mapSvg.style.height = '1000px'; // fill most of the 1200px
+        originalSvgWidth = mapSvg.style.width;
+        mapSvg.style.width = '100%';
+        mapSvg.style.height = '675px';
       }
     }
 
@@ -60,7 +80,17 @@ export default function ExportButton({ targetId, fileName }) {
       if (isMap) {
         element.style.width = originalWidth;
         element.style.height = originalHeight;
-        if (mapSvg) mapSvg.style.height = originalSvgHeight;
+        element.style.overflow = originalOverflow;
+        if (mapWrap) {
+          mapWrap.style.height = originalMapWrapHeight;
+          mapWrap.style.maxHeight = originalMapWrapMaxHeight;
+          mapWrap.style.minHeight = originalMapWrapMinHeight;
+          mapWrap.style.overflow = originalMapWrapOverflow;
+        }
+        if (mapSvg) {
+          mapSvg.style.height = originalSvgHeight;
+          mapSvg.style.width = originalSvgWidth;
+        }
       }
       if (zoomGroup) {
         zoomGroup.style.transition = originalTransition;
@@ -91,19 +121,39 @@ export default function ExportButton({ targetId, fileName }) {
       zoomGroup.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
-    // Force 3:4 ratio on the export wrapper if it's the map
+    // Crop cleanly at the bottom of the map when exporting full map
     const isMap = targetId === 'full-map-export-wrapper';
     let originalWidth = element.style.width;
     let originalHeight = element.style.height;
+    let originalOverflow = element.style.overflow;
     let mapSvg = element.querySelector('#map-container-export');
     let originalSvgHeight = '';
+    let originalSvgWidth = '';
+    let mapWrap = element.querySelector('.map-wrap');
+    let originalMapWrapHeight = '';
+    let originalMapWrapMaxHeight = '';
+    let originalMapWrapMinHeight = '';
+    let originalMapWrapOverflow = '';
     
     if (isMap) {
       element.style.width = '900px';
-      element.style.height = '1200px'; // 3:4 ratio
+      element.style.height = 'auto';
+      element.style.overflow = 'hidden';
+      if (mapWrap) {
+        originalMapWrapHeight = mapWrap.style.height;
+        originalMapWrapMaxHeight = mapWrap.style.maxHeight;
+        originalMapWrapMinHeight = mapWrap.style.minHeight;
+        originalMapWrapOverflow = mapWrap.style.overflow;
+        mapWrap.style.height = '620px';
+        mapWrap.style.maxHeight = '620px';
+        mapWrap.style.minHeight = '0px';
+        mapWrap.style.overflow = 'hidden';
+      }
       if (mapSvg) {
         originalSvgHeight = mapSvg.style.height;
-        mapSvg.style.height = '1000px'; // fill most of the 1200px
+        originalSvgWidth = mapSvg.style.width;
+        mapSvg.style.width = '100%';
+        mapSvg.style.height = '675px';
       }
     }
 
@@ -145,7 +195,17 @@ export default function ExportButton({ targetId, fileName }) {
       if (isMap) {
         element.style.width = originalWidth;
         element.style.height = originalHeight;
-        if (mapSvg) mapSvg.style.height = originalSvgHeight;
+        element.style.overflow = originalOverflow;
+        if (mapWrap) {
+          mapWrap.style.height = originalMapWrapHeight;
+          mapWrap.style.maxHeight = originalMapWrapMaxHeight;
+          mapWrap.style.minHeight = originalMapWrapMinHeight;
+          mapWrap.style.overflow = originalMapWrapOverflow;
+        }
+        if (mapSvg) {
+          mapSvg.style.height = originalSvgHeight;
+          mapSvg.style.width = originalSvgWidth;
+        }
       }
       if (zoomGroup) {
         zoomGroup.style.transition = originalTransition;
