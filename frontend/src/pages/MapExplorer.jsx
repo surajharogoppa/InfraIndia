@@ -177,26 +177,36 @@ function getProgressColor(progress, isDark) {
 
 const LABEL_OFFSETS = {
   // North
-  'punjab': [-12, -15],
-  'haryana': [0, 8],
-  'himachal pradesh': [12, -15],
-  'uttarakhand': [18, 5],
+  'ladakh': [0, -6],
+  'jammu and kashmir': [-16, -10],
+  'himachal pradesh': [16, -2],
+  'punjab': [-16, 8],
+  'haryana': [-4, 14],
+  'uttarakhand': [18, 6],
+
+  // Central / East
+  'jharkhand': [-14, -2],
+  'west bengal': [14, 16],
+  'chhattisgarh': [-10, 0],
+  'odisha': [10, 6],
+
+  // South
+  'telangana': [0, -8],
+  'andhra pradesh': [8, 18],
+  'karnataka': [-6, 6],
+  'goa': [-24, 0],
+  'kerala': [-14, 14],
+  'tamil nadu': [14, 10],
 
   // Northeast
-  'sikkim': [0, -18],
-  'assam': [15, -18],
-  'arunachal pradesh': [30, -20],
-  'nagaland': [35, -5],
-  'manipur': [35, 10],
-  'mizoram': [20, 30],
-  'tripura': [-15, 30],
-  'meghalaya': [-10, 15],
-  'west bengal': [-10, 15],
-
-  // West/South
-  'goa': [-25, 5],
-  'kerala': [-15, 15],
-  'tamil nadu': [15, 10]
+  'sikkim': [0, -16],
+  'assam': [12, -10],
+  'arunachal pradesh': [28, -16],
+  'meghalaya': [-6, 14],
+  'nagaland': [34, -6],
+  'manipur': [34, 8],
+  'mizoram': [18, 26],
+  'tripura': [-15, 24]
 };
 
 // Extremely small states/UTs where labels will always be hidden (use hover instead)
@@ -207,8 +217,10 @@ const HIDE_LABELS = new Set([
 
 const MemoizedGeographies = memo(({ indiaGeo, selectedState, handleStateClick, setTooltip, getStateColor, isDark, stateMap, selectedMetric }) => (
   <Geographies geography={indiaGeo}>
-    {({ geographies }) =>
-      geographies.map(geo => {
+    {({ geographies }) => {
+      const markers = [];
+
+      const paths = geographies.map(geo => {
         const geoName = geo.properties?.ST_NM || geo.properties?.NAME_1 || geo.properties?.state || '';
         const norm = normalizeStateName(geoName);
         const data = stateMap[norm] || null;
@@ -227,42 +239,72 @@ const MemoizedGeographies = memo(({ indiaGeo, selectedState, handleStateClick, s
           else if (selectedMetric === 'avg_progress') labelValue = `${Math.round(data.avg_progress)}%`;
         }
 
+        if (data && showLabel) {
+          markers.push({
+            key: `marker-${geo.rsmKey}`,
+            centroid,
+            dx,
+            dy,
+            geoName: geoName.replace('Jammu and Kashmir', 'Jammu & Kashmir'),
+            labelValue
+          });
+        }
+
         return (
-          <g key={geo.rsmKey}>
-            <Geography
-              geography={geo}
-              onClick={() => handleStateClick(geoName)}
-              onMouseEnter={() => setTooltip({ name: geoName, data })}
-              onMouseLeave={() => setTooltip(null)}
-              fill={isSelected ? 'var(--accent)' : getStateColor(geoName)}
-              stroke={isDark ? 'hsl(222 22% 14%)' : '#ffffff'}
-              strokeWidth={isSelected ? 2.5 : 0.85}
-              className="map-state-path"
-              style={{ outline: 'none', cursor: 'pointer' }}
-            />
-            {data && showLabel && (
-              <Marker coordinates={centroid}>
+          <Geography
+            key={geo.rsmKey}
+            geography={geo}
+            onClick={() => handleStateClick(geoName)}
+            onMouseEnter={() => setTooltip({ name: geoName, data })}
+            onMouseLeave={() => setTooltip(null)}
+            fill={isSelected ? 'var(--accent)' : getStateColor(geoName)}
+            stroke={isDark ? 'hsl(222 22% 14%)' : '#ffffff'}
+            strokeWidth={isSelected ? 2.5 : 0.85}
+            className="map-state-path"
+            style={{ outline: 'none', cursor: 'pointer' }}
+          />
+        );
+      });
+
+      return (
+        <>
+          <g id="map-states-paths">{paths}</g>
+          <g id="map-states-labels" style={{ pointerEvents: 'none' }}>
+            {markers.map(m => (
+              <Marker key={m.key} coordinates={m.centroid}>
                 <text
-                  y={dy}
-                  fontSize={11.5}
+                  y={m.dy}
+                  fontSize={10.2}
                   textAnchor="middle"
-                  fill={isDark ? '#ffffff' : '#0f172a'}
+                  fill={isDark ? '#f8fafc' : '#0f172a'}
+                  stroke={isDark ? 'hsl(222 24% 12%)' : '#ffffff'}
+                  strokeWidth={2.5}
+                  strokeLinejoin="round"
                   style={{
-                    pointerEvents: 'none',
+                    paintOrder: 'stroke fill',
                     fontWeight: 700
                   }}
                 >
-                  <tspan x={dx} dy="-0.3em">{geoName}</tspan>
-                  <tspan x={dx} dy="1.15em" fontSize="10.5px" fontWeight="800" fill={isDark ? '#38bdf8' : '#0284c7'}>
-                    {labelValue}
+                  <tspan x={m.dx} dy="-0.3em">{m.geoName}</tspan>
+                  <tspan
+                    x={m.dx}
+                    dy="1.15em"
+                    fontSize="9.8px"
+                    fontWeight="800"
+                    fill={isDark ? '#38bdf8' : '#0284c7'}
+                    stroke={isDark ? 'hsl(222 24% 12%)' : '#ffffff'}
+                    strokeWidth={2}
+                    style={{ paintOrder: 'stroke fill' }}
+                  >
+                    {m.labelValue}
                   </tspan>
                 </text>
               </Marker>
-            )}
+            ))}
           </g>
-        );
-      })
-    }
+        </>
+      );
+    }}
   </Geographies>
 ));
 
