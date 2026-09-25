@@ -14,11 +14,11 @@ import Contact from './pages/Contact';
 import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/common/ThemeToggle';
 import SearchPalette from './components/common/SearchPalette';
-import { Search, Bell, User, Menu } from 'lucide-react';
+import { Search, User, Menu } from 'lucide-react';
 
 function MainApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Global shortcut Ctrl+K / Cmd+K to open Search
@@ -103,15 +103,6 @@ function MainApp() {
                 aria-label="Search projects"
               >
                 <Search size={18} color="var(--text-secondary)" />
-              </button>
-
-              <button
-                className="btn btn-ghost btn-icon desktop-only"
-                title="System notifications"
-                aria-label="Notifications"
-                onClick={() => alert('No unread system notifications. Dataset is synced and up to date.')}
-              >
-                <Bell size={18} color="var(--text-secondary)" />
               </button>
 
               <ThemeToggle showLabel={false} />

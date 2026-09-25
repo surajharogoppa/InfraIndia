@@ -55,22 +55,24 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
     };
   }, [open]);
 
+  const isCollapsed = collapsed && !open;
+
   return (
     <>
       {/* Overlay for mobile */}
       {open && <div className="sidebar-overlay" onClick={onClose} />}
 
-      <aside className={`sidebar${open ? ' open' : ''}${collapsed ? ' collapsed' : ''}`}>
+      <aside className={`sidebar${open ? ' open' : ''}${isCollapsed ? ' collapsed' : ''}`}>
         {/* Top Header with Hamburger Toggle */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          padding: collapsed ? '12px 0' : '10px 14px',
+          justifyContent: isCollapsed ? 'center' : 'space-between',
+          padding: isCollapsed ? '12px 0' : '10px 14px',
           borderBottom: '1px solid var(--border)',
           minHeight: '44px'
         }}>
-          {!collapsed && (
+          {!isCollapsed && (
             <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
               Menu
             </span>
@@ -78,7 +80,7 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
           <button
             className="btn btn-ghost btn-icon btn-sm"
             onClick={open ? onClose : onToggleCollapse}
-            title={open ? "Close Menu" : (collapsed ? "Expand Sidebar" : "Collapse Sidebar")}
+            title={open ? "Close Menu" : (isCollapsed ? "Expand Sidebar" : "Collapse Sidebar")}
             aria-label="Toggle navigation menu"
             style={{ color: 'var(--text-secondary)' }}
           >
@@ -100,7 +102,7 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
                   end={to === '/'}
                   className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
                   onClick={onClose}
-                  title={collapsed ? label : undefined}
+                  title={isCollapsed ? label : undefined}
                 >
                   <Icon className="nav-link-icon" size={18} />
                   <span className="nav-link-label">{label}</span>

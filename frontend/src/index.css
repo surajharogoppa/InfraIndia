@@ -1215,8 +1215,9 @@ tbody tr:hover { background: var(--bg-hover); }
     z-index: 999;
     backdrop-filter: blur(2px);
   }
-  .main-content {
-    margin-left: 0;
+  .main-content,
+  .main-content.collapsed {
+    margin-left: 0 !important;
   }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .summary-cards { grid-template-columns: 1fr; }
