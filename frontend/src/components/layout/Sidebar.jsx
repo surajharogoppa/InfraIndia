@@ -1,8 +1,17 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, FolderKanban, BarChart3, Map,
-  Database, GitCompare, Info, Sparkles, X, Menu
+  LayoutDashboard,
+  Building2,
+  BarChart3,
+  MapPinned,
+  ArrowLeftRight,
+  Sparkles,
+  Database,
+  Info,
+  MessageSquareText,
+  X,
+  Menu
 } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -11,17 +20,24 @@ const NAV = [
     section: 'Platform',
     items: [
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-      { to: '/projects', icon: FolderKanban, label: 'Project Explorer' },
+      { to: '/projects', icon: Building2, label: 'Project Explorer' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
-      { to: '/map', icon: Map, label: 'Map Explorer' },
-      { to: '/compare', icon: GitCompare, label: 'Compare Projects' },
+      { to: '/map', icon: MapPinned, label: 'Map Explorer' },
+      { to: '/compare', icon: ArrowLeftRight, label: 'Compare Projects' },
       { to: '/ai', icon: Sparkles, label: 'AI Assistant' },
     ]
   },
   {
-    section: 'System',
+    section: 'Data & System',
     items: [
       { to: '/sources', icon: Database, label: 'Data Sources' },
+    ]
+  },
+  {
+    section: 'Information',
+    items: [
+      { to: '/about', icon: Info, label: 'About Platform' },
+      { to: '/contact', icon: MessageSquareText, label: 'Contact & Support' },
     ]
   },
 ];

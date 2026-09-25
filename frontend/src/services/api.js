@@ -49,4 +49,9 @@ export const aiService = {
   overview: async () => analyticsApi.overview(),
 };
 
+// ── Contact / Feedback ─────────────────────────────────────────
+export const contactApi = {
+  submit: (data) => api.post('/contact/', data),
+};
+
 export default api;
