@@ -6,7 +6,7 @@ import {
   Sparkles, Send, Bot, User, Database, ArrowRight,
   TrendingUp, AlertTriangle, CheckCircle, RefreshCw, Trash2,
   FileText, ShieldCheck, Cpu, ChevronDown, ChevronUp, BookOpen,
-  Copy, Check, Compass, CornerDownLeft, Info
+  Copy, Check, Compass, CornerDownLeft, Info, ArrowUp
 } from 'lucide-react';
 
 const SUGGESTION_CATEGORIES = [
@@ -1004,23 +1004,12 @@ export default function AIAssistant() {
 
             <button
               type="submit"
-              className="btn btn-primary"
-              style={{
-                borderRadius: '12px',
-                padding: '8px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontWeight: 600,
-                fontSize: '0.84rem',
-                boxShadow: '0 2px 10px var(--accent-glow)',
-                flexShrink: 0,
-                cursor: !input.trim() || loading ? 'not-allowed' : 'pointer'
-              }}
+              className="ai-send-btn"
               disabled={!input.trim() || loading}
+              title="Submit query (Enter)"
+              aria-label="Submit query"
             >
-              <span>Query</span>
-              <CornerDownLeft size={14} />
+              <ArrowUp size={18} strokeWidth={2.4} />
             </button>
           </form>
 
