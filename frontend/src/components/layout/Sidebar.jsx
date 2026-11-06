@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
+  Sparkles,
   LayoutDashboard,
   Building2,
   BarChart3,
   MapPinned,
   ArrowLeftRight,
-  Sparkles,
   Database,
   Info,
   MessageSquareText,
@@ -19,12 +19,12 @@ const NAV = [
   {
     section: 'Platform',
     items: [
+      { to: '/ai', icon: Sparkles, label: 'AI Assistant', badge: 'AI', isAi: true },
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/projects', icon: Building2, label: 'Project Explorer' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
       { to: '/map', icon: MapPinned, label: 'Map Explorer' },
       { to: '/compare', icon: ArrowLeftRight, label: 'Compare Projects' },
-      { to: '/ai', icon: Sparkles, label: 'AI Assistant' },
     ]
   },
   {
@@ -91,21 +91,47 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
         {/* Navigation */}
         <nav className="sidebar-nav" style={{ paddingTop: 'var(--gap-xs)' }}>
           {NAV.map(({ section, items }) => (
-            <div key={section}>
-              <div className="sidebar-section">
-                <div className="sidebar-section-label">{section}</div>
-              </div>
-              {items.map(({ to, icon: Icon, label }) => (
+            <div key={section} className="sidebar-group">
+              {!isCollapsed && (
+                <div className="sidebar-section">
+                  <div className="sidebar-section-label">{section}</div>
+                </div>
+              )}
+              {items.map(({ to, icon: Icon, label, badge, isAi }) => (
                 <NavLink
                   key={to}
                   to={to}
                   end={to === '/'}
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}${isAi ? ' nav-link-ai' : ''}`}
                   onClick={onClose}
                   title={isCollapsed ? label : undefined}
                 >
-                  <Icon className="nav-link-icon" size={18} />
-                  <span className="nav-link-label">{label}</span>
+                  {isAi ? (
+                    <span className="nav-ai-icon-circle" title={label}>
+                      <Icon size={16} />
+                    </span>
+                  ) : (
+                    <Icon className="nav-link-icon" size={19} />
+                  )}
+                  {!isCollapsed && (
+                    <span className="nav-link-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>{label}</span>
+                      {badge && (
+                        <span style={{
+                          fontSize: '0.62rem',
+                          fontWeight: 700,
+                          padding: '1px 6px',
+                          borderRadius: '5px',
+                          background: 'linear-gradient(135deg, hsl(220 90% 55%), hsl(260 85% 65%))',
+                          color: '#ffffff',
+                          letterSpacing: '0.04em',
+                          boxShadow: '0 1px 5px var(--accent-glow)'
+                        }}>
+                          {badge}
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -113,18 +139,20 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
         </nav>
 
         {/* Footer */}
-        <div className="sidebar-footer">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Info size={12} />
-              <strong>InfraIndia</strong>
+        {!isCollapsed && (
+          <div className="sidebar-footer">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Info size={12} />
+                <strong>InfraIndia</strong>
+              </div>
+              <ThemeToggle showLabel={false} />
             </div>
-            <ThemeToggle showLabel={false} />
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+              Data sourced from official MoSPI flash reports. Independent platform.
+            </div>
           </div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-            Data sourced from official MoSPI flash reports. Independent platform.
-          </div>
-        </div>
+        )}
       </aside>
     </>
   );

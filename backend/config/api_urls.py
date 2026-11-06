@@ -10,4 +10,5 @@ urlpatterns = [
     path("ingestion/", include("apps.ingestion.urls")),
     path("documents/", include("apps.documents.urls")),
     path("alerts/", include("apps.alerts.urls")),
+    path("assistant/", include("apps.assistant.urls")),
 ]

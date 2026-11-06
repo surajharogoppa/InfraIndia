@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver,0.0.0.0").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.documents",
     "apps.accounts",
     "apps.alerts",
+    "apps.assistant",
 ]
 
 MIDDLEWARE = [

@@ -45,7 +45,16 @@ export const projectService = projectsApi;
 export const analyticsService = analyticsApi;
 export const sourceService = refApi;
 
+// ── AI Assistant (Groq LLM + LangChain + ChromaDB RAG) ───────
+export const assistantApi = {
+  chat: (data) => api.post('/assistant/chat/', data),
+  status: () => api.get('/assistant/status/'),
+  reindex: (data) => api.post('/assistant/reindex/', data),
+};
+
 export const aiService = {
+  chat: (data) => assistantApi.chat(data),
+  status: () => assistantApi.status(),
   query: async (params) => projectsApi.list(params),
   overview: async () => analyticsApi.overview(),
 };

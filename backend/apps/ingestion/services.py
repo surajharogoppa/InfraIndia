@@ -62,21 +62,26 @@ def sync_mospi_flash_report(
     )
     # pyrefly: ignore [missing-import]
     from services.connectors.mospi_flash_report.downloader import (
-        try_download_latest_flash_report
+        try_download_latest_flash_report,
+        parse_period_from_string,
     )
 
     if source is None:
-        source, _ = DataSource.objects.get_or_create(
-            name="MoSPI Flash Report (PAIMANA)",
-            defaults={
-                "organization": "Ministry of Statistics and Programme Implementation (MoSPI), IPMD",
-                "source_type": DataSource.SourceType.PDF,
-                "access_method": DataSource.AccessMethod.SCHEDULED_DOWNLOAD,
-                "base_url": "https://mospi.gov.in/publications-reports",
-                "update_frequency": "Monthly",
-                "is_active": True,
-            }
+        source = (
+            DataSource.objects.filter(name__icontains="MoSPI").first()
+            or DataSource.objects.filter(name__icontains="Flash Report").first()
         )
+        if not source:
+            source = DataSource.objects.create(
+                name="MoSPI Flash Report",
+                organization="Ministry of Statistics and Programme Implementation (MoSPI), IPMD",
+                source_type=DataSource.SourceType.PDF,
+                access_method=DataSource.AccessMethod.SCHEDULED_DOWNLOAD,
+                base_url="https://mospi.gov.in/publications-reports",
+                update_frequency="Monthly",
+                is_active=True,
+                configuration={},
+            )
 
     _log(f"Starting MoSPI PAIMANA synchronization for source: {source.name}...")
     backend_dir = Path(__file__).resolve().parent.parent.parent
@@ -102,16 +107,20 @@ def sync_mospi_flash_report(
             _log(f"Successfully downloaded live report: {downloaded.name}")
 
     if not resolved_file:
-        # Fallback to local files in raw_dir, strictly prioritizing complete full PDFs
+        # Fallback to local files in raw_dir, strictly prioritizing newest period and full PDFs
         if raw_dir.exists():
+            def _file_sort_key(f: Path):
+                period = parse_period_from_string(f.name) or (0, 0)
+                return (period[0], period[1], f.stat().st_size, f.stat().st_mtime)
+
             pdf_files = sorted(
                 list(raw_dir.glob("*.pdf")),
-                key=lambda f: (f.stat().st_size, f.stat().st_mtime),
+                key=_file_sort_key,
                 reverse=True
             )
             csv_files = sorted(
                 list(raw_dir.glob("*.csv")),
-                key=lambda f: f.stat().st_mtime,
+                key=_file_sort_key,
                 reverse=True
             )
             candidates = pdf_files + csv_files
@@ -397,18 +406,31 @@ def archive_and_register_document(source, run, file_path: str, record_count: int
         pass
 
     # Determine document type & metadata
+    from services.connectors.mospi_flash_report.downloader import parse_period_from_string
     ext = src_p.suffix.lower()
     doc_type = Document.DocumentType.FLASH_REPORT if ext == ".pdf" else Document.DocumentType.DATA_EXPORT
-    clean_stem = src_p.stem.replace("_", " ").title()
-    title = f"{source.name} — {clean_stem}" if ("MoSPI" not in clean_stem and "Flash Report" not in clean_stem) else clean_stem
+    
+    period_tuple = parse_period_from_string(src_p.name)
+    now = timezone.now()
+    if period_tuple:
+        period_str = datetime(period_tuple[0], period_tuple[1], 1).strftime("%B %Y")
+    else:
+        period_str = now.strftime("%B %Y")
+
+    if ext == ".pdf":
+        title = f"MoSPI Central Sector Flash Report — {period_str}"
+    else:
+        clean_stem = src_p.stem.replace("_", " ").title()
+        title = f"{source.name} — {clean_stem}" if ("MoSPI" not in clean_stem and "Flash Report" not in clean_stem) else clean_stem
 
     file_size = src_p.stat().st_size
-    now = timezone.now()
 
     # Find existing or create Document
     doc = Document.objects.filter(file__icontains=src_p.name).first()
     if not doc:
         doc = Document.objects.filter(title=title).first()
+    if not doc and ext == ".pdf":
+        doc = Document.objects.filter(title__icontains=period_str, document_type=Document.DocumentType.FLASH_REPORT).first()
 
     if not doc:
         doc = Document(
@@ -419,7 +441,7 @@ def archive_and_register_document(source, run, file_path: str, record_count: int
             source_url=getattr(source, "base_url", "") or "https://mospi.gov.in/flash-reports",
             file_size_bytes=file_size,
             metadata={
-                "period": now.strftime("%B %Y"),
+                "period": period_str,
                 "records_count": f"{record_count} Records" if record_count else "Verified Data",
                 "description": f"Official {ext.upper().replace('.', '')} dataset ingested from {source.name} on {now.strftime('%d %b %Y')}."
             }
@@ -440,8 +462,8 @@ def archive_and_register_document(source, run, file_path: str, record_count: int
     if record_count:
         doc.metadata["projects_monitored"] = record_count
         doc.metadata["records_count"] = f"{record_count} Records"
-    doc.metadata["period"] = now.strftime("%B %Y")
-    doc.metadata["description"] = f"Official {ext.upper().replace('.', '')} dataset ingested from {source.name} on {now.strftime('%d %b %Y')}."
+    doc.metadata["period"] = period_str
+    doc.metadata["description"] = f"Official {ext.upper().replace('.', '')} dataset ({period_str}) ingested from {source.name} on {now.strftime('%d %b %Y')}."
     doc.save()
 
     logger.info(f"Registered document in database: {doc.id} ({doc.title})")
