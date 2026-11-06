@@ -20,7 +20,7 @@ const NAV = [
     section: 'Platform',
     items: [
       { to: '/ai', icon: Sparkles, label: 'AI Assistant', badge: 'AI', isAi: true },
-      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', isDashboard: true },
       { to: '/projects', icon: Building2, label: 'Project Explorer' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
       { to: '/map', icon: MapPinned, label: 'Map Explorer' },
@@ -97,43 +97,49 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
                   <div className="sidebar-section-label">{section}</div>
                 </div>
               )}
-              {items.map(({ to, icon: Icon, label, badge, isAi }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === '/ai' || to === '/dashboard'}
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}${isAi ? ' nav-link-ai' : ''}`}
-                  onClick={onClose}
-                  title={isCollapsed ? label : undefined}
-                >
-                  {isAi ? (
-                    <span className="nav-ai-icon-circle" title={label}>
-                      <Icon size={16} />
-                    </span>
-                  ) : (
-                    <Icon className="nav-link-icon" size={19} />
-                  )}
-                  {!isCollapsed && (
-                    <span className="nav-link-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <span>{label}</span>
-                      {badge && (
-                        <span style={{
-                          fontSize: '0.62rem',
-                          fontWeight: 700,
-                          padding: '1px 6px',
-                          borderRadius: '5px',
-                          background: 'linear-gradient(135deg, hsl(220 90% 55%), hsl(260 85% 65%))',
-                          color: '#ffffff',
-                          letterSpacing: '0.04em',
-                          boxShadow: '0 1px 5px var(--accent-glow)'
-                        }}>
-                          {badge}
+                {
+                  items.map(({ to, icon: Icon, label, badge, isAi, isDashboard }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      end={to === '/ai' || to === '/dashboard'}
+                      className={({ isActive }) => `nav-link${isActive ? ' active' : ''}${isAi ? ' nav-link-ai' : ''}${isDashboard ? ' nav-link-dashboard' : ''}`}
+                      onClick={onClose}
+                      title={isCollapsed ? label : undefined}
+                    >
+                      {isAi ? (
+                        <span className="nav-ai-icon-circle" title={label}>
+                          <Icon size={16} />
+                        </span>
+                      ) : isDashboard ? (
+                        <span className="nav-dashboard-icon-wrap" title={label}>
+                          <Icon size={16} />
+                        </span>
+                      ) : (
+                        <Icon className="nav-link-icon" size={19} />
+                      )}
+                      {!isCollapsed && (
+                        <span className="nav-link-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                          <span>{label}</span>
+                          {badge && (
+                            <span style={{
+                              fontSize: '0.62rem',
+                              fontWeight: 700,
+                              padding: '1px 6px',
+                              borderRadius: '5px',
+                              background: 'linear-gradient(135deg, hsl(220 90% 55%), hsl(260 85% 65%))',
+                              color: '#ffffff',
+                              letterSpacing: '0.04em',
+                              boxShadow: '0 1px 5px var(--accent-glow)'
+                            }}>
+                              {badge}
+                            </span>
+                          )}
                         </span>
                       )}
-                    </span>
-                  )}
-                </NavLink>
-              ))}
+                    </NavLink>
+                  ))
+                }
             </div>
           ))}
         </nav>

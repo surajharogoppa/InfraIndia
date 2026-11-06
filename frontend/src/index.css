@@ -336,6 +336,40 @@ a:hover { color: #fff; }
   transform: scale(1.06);
 }
 
+/* Dashboard Link & Enhanced Icon Styling */
+.nav-link-dashboard {
+  font-weight: 550;
+}
+.nav-dashboard-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(220 20% 50% / 0.08);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.sidebar.collapsed .nav-dashboard-icon-wrap {
+  margin: 0 auto;
+}
+.nav-link-dashboard:hover .nav-dashboard-icon-wrap {
+  background: hsl(220 85% 55% / 0.12);
+  border-color: hsl(220 85% 60% / 0.35);
+  color: var(--accent);
+  transform: scale(1.05);
+}
+.nav-link-dashboard.active .nav-dashboard-icon-wrap {
+  background: linear-gradient(135deg, hsl(220 90% 55% / 0.18), hsl(200 90% 50% / 0.18));
+  border-color: hsl(220 90% 60% / 0.45);
+  color: var(--accent);
+  box-shadow: 0 0 10px hsl(220 90% 55% / 0.22);
+  transform: scale(1.05);
+}
+
 .sidebar-footer {
   padding: var(--gap);
   border-top: 1px solid var(--border);
