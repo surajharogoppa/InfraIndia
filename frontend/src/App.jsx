@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
@@ -120,7 +120,8 @@ function MainApp() {
 
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Navigate to="/ai" replace />} />
+          <Route path="/ai" element={<AIAssistant />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
@@ -128,10 +129,9 @@ function MainApp() {
           <Route path="/map" element={<MapExplorer />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/sources" element={<DataSources />} />
-          <Route path="/ai" element={<AIAssistant />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/ai" replace />} />
         </Routes>
       </div>
 

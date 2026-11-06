@@ -1000,7 +1000,6 @@ export default function AIAssistant() {
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={loading}
-              autoFocus
             />
 
             <button

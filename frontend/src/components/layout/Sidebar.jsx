@@ -20,7 +20,7 @@ const NAV = [
     section: 'Platform',
     items: [
       { to: '/ai', icon: Sparkles, label: 'AI Assistant', badge: 'AI', isAi: true },
-      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/projects', icon: Building2, label: 'Project Explorer' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
       { to: '/map', icon: MapPinned, label: 'Map Explorer' },
@@ -101,7 +101,7 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
                 <NavLink
                   key={to}
                   to={to}
-                  end={to === '/'}
+                  end={to === '/ai' || to === '/dashboard'}
                   className={({ isActive }) => `nav-link${isActive ? ' active' : ''}${isAi ? ' nav-link-ai' : ''}`}
                   onClick={onClose}
                   title={isCollapsed ? label : undefined}
