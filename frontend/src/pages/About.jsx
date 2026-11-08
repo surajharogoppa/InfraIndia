@@ -91,25 +91,42 @@ export default function About() {
       {/* Sleek Integrated Hero Section */}
       <div className="about-hero-section">
         <div style={{ marginBottom: '20px' }}>
-          <h1 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '1.75rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 8px',
-            letterSpacing: '-0.02em'
-          }}>
-            About InfraIndia
-          </h1>
-          <p style={{
-            fontSize: '0.94rem',
-            color: 'var(--text-secondary)',
-            margin: '0 0 14px',
-            maxWidth: '740px',
-            lineHeight: 1.55
-          }}>
-            An independent project intelligence platform dedicated to making India's central infrastructure projects transparent, structured, and easy to track.
-          </p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '18px', flexWrap: 'wrap', marginBottom: '14px' }}>
+            <img
+              src="/logo.png"
+              alt="InfraIndia Logo"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: '14px',
+                objectFit: 'cover',
+                boxShadow: 'var(--shadow-md)',
+                border: '1px solid var(--border)',
+                flexShrink: 0
+              }}
+            />
+            <div style={{ flex: 1, minWidth: '260px' }}>
+              <h1 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: 'var(--text-primary)',
+                margin: '0 0 8px',
+                letterSpacing: '-0.02em'
+              }}>
+                About InfraIndia
+              </h1>
+              <p style={{
+                fontSize: '0.94rem',
+                color: 'var(--text-secondary)',
+                margin: 0,
+                maxWidth: '740px',
+                lineHeight: 1.55
+              }}>
+                An independent project intelligence platform dedicated to making India's central infrastructure projects transparent, structured, and easy to track.
+              </p>
+            </div>
+          </div>
           <p style={{
             fontSize: '0.84rem',
             color: 'var(--text-muted)',

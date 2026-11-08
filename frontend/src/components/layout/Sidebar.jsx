@@ -72,11 +72,18 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
           borderBottom: '1px solid var(--border)',
           minHeight: '44px'
         }}>
-          {!isCollapsed && (
-            <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
-              Menu
-            </span>
-          )}
+          {!isCollapsed ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img
+                src="/logo.png"
+                alt="InfraIndia"
+                style={{ width: 22, height: 22, borderRadius: '5px', objectFit: 'cover' }}
+              />
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                InfraIndia
+              </span>
+            </div>
+          ) : null}
           <button
             className="btn btn-ghost btn-icon btn-sm"
             onClick={open ? onClose : onToggleCollapse}

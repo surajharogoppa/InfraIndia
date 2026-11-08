@@ -152,6 +152,35 @@ def format_crore(paise: Optional[int]) -> str:
     return f"₹{paise / 10_000_000:,.2f} Cr"
 
 
+def clean_rag_answer(text: str) -> str:
+    """
+    Remove any raw source annotations or citation disclaimers that may have
+    been appended by the LLM (e.g. *Source: Project: Jamrani Dam..., Page/Section 1*).
+    """
+    if not text:
+        return ""
+    # Strip full lines starting with Source: or Reference:
+    text = re.sub(
+        r"(?mi)^\s*(?:[\*\_\(\[\s]*\**\s*)?(?:Source|Reference)\s*:\s*.*?(?:\*+|\_+|\)|\])?\s*$",
+        "",
+        text,
+    )
+    # Strip inline or trailing source citations like *Source: Project: ... Page/Section 1*
+    text = re.sub(
+        r"(?i)[\*\_\(\[]*\s*(?:Source|Reference)\s*:\s*(?:Project\s*:\s*)?.*?(?:Page\/Section|\bPage\b|\bSection\b)\s*\d*[\*\_\)\]]*",
+        "",
+        text,
+    )
+    # Strip trailing *Source: ...*
+    text = re.sub(
+        r"(?mi)\s*[\*\_]+\s*(?:Source|Reference)\s*:.*?[\*\_]+\s*$",
+        "",
+        text,
+    )
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return text
+
+
 class InfraRAGEngine:
     def __init__(self):
         self.collection = get_collection()
@@ -662,7 +691,7 @@ class InfraRAGEngine:
                     "snippet": chunk["text"][:200] + "...",
                 })
             
-            context_parts.append(f"--- SOURCE CHUNK [{idx + 1}] (Reference: {title}, Page/Section: {page}) ---\n{chunk['text']}")
+            context_parts.append(f"--- CONTEXT RECORD [{idx + 1}] ({title}) ---\n{chunk['text']}")
 
         # 2. Strict grounding check: if no context found at all
         if not context_parts:
@@ -686,7 +715,7 @@ class InfraRAGEngine:
             "(for example: general world knowledge, celebrities, sports, recipes, coding help, or infrastructure facts not mentioned in the text), "
             f"you MUST reply ONLY with EXACTLY:\n\"{STRICT_FALLBACK_ANSWER}\"\n"
             "3. Do NOT assume, extrapolate, or invent any numbers, dates, project costs, delays, or implementing agencies.\n"
-            "4. Cite sources clearly in brackets like [Source Title, Page X] or [Project: Name] when mentioning facts.\n"
+            "4. Provide direct, factual, and professional answers. Do NOT append source citations, chunk annotations, or trailing disclaimers (such as '*Source: ...*' or 'Page/Section') to your answer.\n"
             "5. Format output cleanly in Markdown with bold titles, bullet points, and tables where helpful."
         )
 
@@ -754,9 +783,10 @@ class InfraRAGEngine:
             matched_projects_data = ProjectListSerializer(ordered_projects, many=True).data
 
         is_refusal = STRICT_FALLBACK_ANSWER in raw_answer
+        final_answer = raw_answer.strip() if is_refusal else clean_rag_answer(raw_answer)
 
         return {
-            "answer": raw_answer.strip(),
+            "answer": final_answer,
             "sources": [] if is_refusal else sources,
             "matched_projects": [] if is_refusal else matched_projects_data,
             "grounded": not is_refusal,

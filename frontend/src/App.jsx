@@ -60,20 +60,19 @@ function MainApp() {
             </button>
 
             {/* Logo and InfraIndia Branding in Global Header */}
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
-              <div style={{
-                width: 28,
-                height: 28,
-                borderRadius: 'var(--radius-sm)',
-                background: 'linear-gradient(135deg, hsl(220 90% 60%), hsl(262 80% 65%))',
-                display: 'grid',
-                placeItems: 'center',
-                fontSize: '14px',
-                flexShrink: 0,
-                boxShadow: 'var(--shadow-sm)'
-              }}>
-                🏛
-              </div>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}>
+              <img
+                src="/logo.png"
+                alt="InfraIndia Logo"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '7px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.12)'
+                }}
+              />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontWeight: 800, fontSize: '0.98rem', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
                   InfraIndia

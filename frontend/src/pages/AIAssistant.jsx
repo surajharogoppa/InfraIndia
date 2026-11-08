@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { assistantApi } from '../services/api';
-import { formatCrore, statusBadgeClass, statusLabel } from '../utils/format';
 import {
   Sparkles, Send, Bot, User, Database, ArrowRight,
   TrendingUp, AlertTriangle, CheckCircle, RefreshCw, Trash2,
-  FileText, ShieldCheck, Cpu, ChevronDown, ChevronUp, BookOpen,
+  FileText, ShieldCheck, Cpu, BookOpen,
   Copy, Check, Compass, CornerDownLeft, Info, ArrowUp
 } from 'lucide-react';
 
@@ -152,13 +150,29 @@ function AILoadingIndicator() {
   );
 }
 
+function stripSourceAnnotations(text) {
+  if (!text) return '';
+  return text
+    // Strip standalone source/reference lines with any markdown decoration
+    .replace(/^[\s*(_[]*(?:\*{1,2}|_{1,2})?\s*(?:source|reference)\s*:.*?(?:\*{1,2}|_{1,2}|\)|\])?\s*$/gmi, '')
+    // Strip inline source citations like *Source: Project: ...* or [Source: ...] or (Source: ...)
+    .replace(/[*_([\]]*\s*(?:source|reference)\s*:\s*(?:project\s*:)?.*?(?:page\/section|\bpage\b|\bsection\b)\s*\d*[*_\[\])]*/gi, '')
+    // Strip trailing *Source: ...* at line endings
+    .replace(/[*_]+\s*(?:source|reference)\s*:.*?[*_]+\s*$/gmi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 /**
  * Lightweight, elegant Markdown renderer for structured AI output.
  */
 function MarkdownRenderer({ content }) {
   if (!content) return null;
 
-  const lines = content.split('\n');
+  const cleanedContent = stripSourceAnnotations(content);
+  if (!cleanedContent) return null;
+
+  const lines = cleanedContent.split('\n');
   const elements = [];
   let tableRows = [];
   let inTable = false;
@@ -256,13 +270,20 @@ function MarkdownRenderer({ content }) {
         );
       }
 
-      // Bold text handling
+      // Bold and italic text handling
       const boldParts = part.split(/(\*\*.*?\*\*)/g);
       return boldParts.map((bPart, bIdx) => {
         if (bPart.startsWith('**') && bPart.endsWith('**')) {
           return <strong key={bIdx} style={{ fontWeight: 700 }}>{bPart.slice(2, -2)}</strong>;
         }
-        return bPart;
+        const italicParts = bPart.split(/(\*[^*\n]+\*|_[^_\n]+_)/g);
+        return italicParts.map((iPart, iIdx) => {
+          if ((iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) ||
+              (iPart.startsWith('_') && iPart.endsWith('_') && iPart.length > 2)) {
+            return <em key={iIdx} style={{ fontStyle: 'italic' }}>{iPart.slice(1, -1)}</em>;
+          }
+          return iPart;
+        });
       });
     });
   }
@@ -324,31 +345,12 @@ function MarkdownRenderer({ content }) {
   return <div className="ai-markdown-body" style={{ wordBreak: 'break-word' }}>{elements}</div>;
 }
 
-function getProjectsSummary(projects) {
-  if (!projects || projects.length === 0) return null;
-  const count = projects.length;
-  const totalCost = projects.reduce((acc, p) => acc + (parseFloat(p.current_cost_crore) || 0), 0);
-  const progressVals = projects
-    .map(p => p.current_progress)
-    .filter(v => v !== null && v !== undefined);
-  const avgProgress = progressVals.length > 0
-    ? Math.round(progressVals.reduce((a, b) => a + b, 0) / progressVals.length)
-    : null;
-  const sectors = Array.from(new Set(projects.map(p => p.sector_name).filter(Boolean)));
-  const states = Array.from(new Set(projects.map(p => p.state_name).filter(Boolean)));
-  const delayedCount = projects.filter(p => p.platform_status === 'DELAYED').length;
-  return { count, totalCost, avgProgress, sectors, states, delayedCount };
-}
-
 export default function AIAssistant() {
-  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [engineStatus, setEngineStatus] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
-  const [expandedSources, setExpandedSources] = useState({});
-  const [expandedProjects, setExpandedProjects] = useState({});
   const messagesEndRef = useRef(null);
   const chatStreamRef = useRef(null);
   const inputRef = useRef(null);
@@ -390,20 +392,6 @@ export default function AIAssistant() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
-  function toggleSources(msgId) {
-    setExpandedSources(prev => ({
-      ...prev,
-      [msgId]: !prev[msgId]
-    }));
-  }
-
-  function toggleProjects(msgId) {
-    setExpandedProjects(prev => ({
-      ...prev,
-      [msgId]: !prev[msgId]
-    }));
-  }
-
   async function handleSend(customQuery) {
     const q = (customQuery || input).trim();
     if (!q || loading) return;
@@ -431,7 +419,7 @@ export default function AIAssistant() {
       const assistantMsg = {
         id: 'assistant-' + Date.now(),
         sender: 'assistant',
-        text: answer,
+        text: stripSourceAnnotations(answer),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         sources: sources || [],
         matched_projects: matched_projects || [],
@@ -507,20 +495,19 @@ export default function AIAssistant() {
             <div style={{ padding: '16px 0 24px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
               {/* Hero Banner */}
               <div style={{ textAlign: 'center', padding: '24px 0 10px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, hsl(220 90% 55%), hsl(260 85% 65%))',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  boxShadow: '0 8px 24px var(--accent-glow)',
-                  marginBottom: '14px'
-                }}>
-                  <Sparkles size={30} />
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="InfraIndia Logo"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '20px',
+                    objectFit: 'cover',
+                    boxShadow: '0 8px 28px rgba(59, 130, 246, 0.22)',
+                    marginBottom: '14px',
+                    border: '1px solid var(--border)'
+                  }}
+                />
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 8px' }}>
                   What would you like to analyze today?
                 </h2>
@@ -727,240 +714,6 @@ export default function AIAssistant() {
 
                     {/* Markdown Body Content */}
                     <MarkdownRenderer content={msg.text} />
-
-                    {/* Verified Citations Drawer */}
-                    {msg.sources && msg.sources.length > 0 && (
-                      <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
-                        <button
-                          onClick={() => toggleSources(msg.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'var(--accent)',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            cursor: 'pointer',
-                            padding: 0
-                          }}
-                        >
-                          <BookOpen size={14} />
-                          <span>Verified Citations ({msg.sources.length} sources retrieved)</span>
-                          {expandedSources[msg.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        </button>
-
-                        {expandedSources[msg.id] && (
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                            gap: '10px',
-                            marginTop: '10px'
-                          }}>
-                            {msg.sources.map((src, sIdx) => (
-                              <div
-                                key={sIdx}
-                                className="ai-interactive-card"
-                                style={{
-                                  background: 'var(--bg-surface)',
-                                  border: '1px solid var(--border)',
-                                  borderRadius: '10px',
-                                  padding: '10px 12px',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: '5px'
-                                }}
-                              >
-                                <div style={{ fontWeight: 700, fontSize: '0.78rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                  <FileText size={13} color="var(--accent)" />
-                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{src.title}</span>
-                                </div>
-                                <div style={{ display: 'flex', gap: '6px', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                                  <span style={{ background: 'var(--bg-hover)', padding: '1px 6px', borderRadius: '4px' }}>{src.type}</span>
-                                  {src.page && <span style={{ background: 'var(--bg-hover)', padding: '1px 6px', borderRadius: '4px' }}>Page {src.page}</span>}
-                                </div>
-                                <div style={{
-                                  fontSize: '0.72rem',
-                                  color: 'var(--text-secondary)',
-                                  fontStyle: 'italic',
-                                  background: 'var(--bg-hover)',
-                                  padding: '6px 8px',
-                                  borderRadius: '6px',
-                                  borderLeft: '2px solid var(--accent)',
-                                  marginTop: '2px'
-                                }}>
-                                  {src.snippet}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Referenced Projects Section (Collapsed by default with instant analytical summary) */}
-                    {msg.matched_projects && msg.matched_projects.length > 0 && (() => {
-                      const summary = getProjectsSummary(msg.matched_projects);
-                      const isExpanded = !!expandedProjects[msg.id];
-
-                      return (
-                        <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-                          {/* Collapsible Header Button with Summary Pills */}
-                          <button
-                            onClick={() => toggleProjects(msg.id)}
-                            style={{
-                              width: '100%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              background: 'var(--bg-hover)',
-                              border: '1px solid var(--border)',
-                              borderRadius: '10px',
-                              padding: '9px 14px',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              gap: '8px'
-                            }}
-                            className="ai-interactive-card"
-                            title={isExpanded ? "Collapse referenced projects" : "Expand referenced projects"}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                              <Database size={14} color="var(--accent)" />
-                              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                                Referenced Projects in Platform Registry ({msg.matched_projects.length})
-                              </span>
-
-                              {/* Quick Analytical Summary Badges */}
-                              {summary && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                  {summary.totalCost > 0 && (
-                                    <span style={{
-                                      fontSize: '0.7rem',
-                                      fontWeight: 600,
-                                      color: 'var(--text-primary)',
-                                      background: 'var(--bg-card)',
-                                      padding: '2px 7px',
-                                      borderRadius: '5px',
-                                      border: '1px solid var(--border)'
-                                    }}>
-                                      Valuation: <strong>{formatCrore(summary.totalCost)}</strong>
-                                    </span>
-                                  )}
-                                  {summary.avgProgress !== null && (
-                                    <span style={{
-                                      fontSize: '0.7rem',
-                                      fontWeight: 600,
-                                      color: 'var(--accent)',
-                                      background: 'rgba(59, 130, 246, 0.12)',
-                                      padding: '2px 7px',
-                                      borderRadius: '5px',
-                                      border: '1px solid rgba(59, 130, 246, 0.25)'
-                                    }}>
-                                      Avg Progress: <strong>{summary.avgProgress}%</strong>
-                                    </span>
-                                  )}
-                                  {summary.sectors.length > 0 && (
-                                    <span className="desktop-only" style={{
-                                      fontSize: '0.7rem',
-                                      color: 'var(--text-secondary)',
-                                      background: 'var(--bg-card)',
-                                      padding: '2px 7px',
-                                      borderRadius: '5px',
-                                      border: '1px solid var(--border)'
-                                    }}>
-                                      {summary.sectors.slice(0, 2).join(', ')}{summary.sectors.length > 2 ? ` +${summary.sectors.length - 2}` : ''}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)', fontSize: '0.74rem', flexShrink: 0 }}>
-                              <span>{isExpanded ? 'Hide' : 'View'}</span>
-                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </div>
-                          </button>
-
-                          {/* Summary Narrative Line */}
-                          {summary && (
-                            <div style={{
-                              fontSize: '0.74rem',
-                              color: 'var(--text-secondary)',
-                              margin: '7px 4px 2px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              lineHeight: 1.4
-                            }}>
-                              <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
-                              <span>
-                                {summary.count} tracked central sector records referenced
-                                {summary.sectors.length > 0 ? ` across ${summary.sectors.slice(0, 3).join(', ')}` : ''}
-                                {summary.totalCost > 0 ? ` with aggregate valuation of ${formatCrore(summary.totalCost)}` : ''}
-                                {summary.delayedCount > 0 ? ` (${summary.delayedCount} delayed)` : ''}.
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Expanded Grid of Project Cards */}
-                          {isExpanded && (
-                            <div style={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                              gap: '10px',
-                              marginTop: '10px',
-                              animation: 'aiMsgSlideIn 0.2s ease-out'
-                            }}>
-                              {msg.matched_projects.map((p, pIdx) => (
-                                <div
-                                  key={pIdx}
-                                  onClick={() => navigate(`/projects/${p.id}`)}
-                                  className="ai-interactive-card"
-                                  style={{
-                                    background: 'var(--bg-surface)',
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '10px',
-                                    padding: '11px 13px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '6px'
-                                  }}
-                                  title="Click to view full project dashboard"
-                                >
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.3 }}>
-                                      {p.name}
-                                    </span>
-                                    <ArrowRight size={14} color="var(--accent)" style={{ flexShrink: 0, marginTop: 2 }} />
-                                  </div>
-
-                                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.72rem' }}>
-                                    {p.state_name && <span className="badge" style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>{p.state_name}</span>}
-                                    {p.sector_name && <span className="badge badge-sector">{p.sector_name}</span>}
-                                    <span className={`badge ${statusBadgeClass(p.platform_status)}`}>
-                                      {statusLabel(p.platform_status)}
-                                    </span>
-                                  </div>
-
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
-                                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                                      Revised: <strong style={{ color: 'var(--text-primary)' }}>{formatCrore(p.current_cost_crore)}</strong>
-                                    </span>
-                                    {p.current_progress != null && (
-                                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)' }}>
-                                        {p.current_progress}% Complete
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
 
                     {/* Footer Attribution */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, fontSize: '0.68rem', color: 'var(--text-muted)' }}>
