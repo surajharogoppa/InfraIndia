@@ -12,6 +12,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logoImg from '../assets/logo.png';
 
 export default function About() {
   useEffect(() => {
@@ -93,15 +94,15 @@ export default function About() {
         <div style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '18px', flexWrap: 'wrap', marginBottom: '14px' }}>
             <img
-              src="/logo.png"
+              src={logoImg}
               alt="InfraIndia Logo"
               style={{
                 width: 56,
                 height: 56,
-                borderRadius: '14px',
+                borderRadius: '50%',
                 objectFit: 'cover',
                 boxShadow: 'var(--shadow-md)',
-                border: '1px solid var(--border)',
+                border: '1.5px solid var(--border)',
                 flexShrink: 0
               }}
             />

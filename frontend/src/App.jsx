@@ -15,6 +15,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/common/ThemeToggle';
 import SearchPalette from './components/common/SearchPalette';
 import { Search, User, Menu } from 'lucide-react';
+import logoImg from './assets/logo.png';
 
 function MainApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -44,7 +45,7 @@ function MainApp() {
 
       <div className={`main-content${sidebarCollapsed ? ' collapsed' : ''}`}>
         {/* Global Application Header */}
-        <header className="page-header" style={{ padding: '0 var(--gap-lg)' }}>
+        <header className="page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-sm)' }}>
             {/* Mobile Hamburger Menu Toggle */}
             <button
@@ -59,26 +60,25 @@ function MainApp() {
               <Menu size={20} />
             </button>
 
-            {/* Logo and InfraIndia Branding in Global Header */}
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}>
+            {/* Header Brand: Logo at start, Title + AI Powered badge, Subtitle */}
+            <Link to="/" className="header-brand">
               <img
-                src="/logo.png"
+                src={logoImg}
                 alt="InfraIndia Logo"
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: '7px',
-                  objectFit: 'cover',
-                  flexShrink: 0,
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.12)'
-                }}
+                className="header-brand-logo"
               />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontWeight: 800, fontSize: '0.98rem', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
-                  InfraIndia
-                </span>
-                <span className="desktop-only" style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Intelligence Platform
+              <div className="header-brand-text">
+                <div className="header-brand-top">
+                  <span className="header-brand-title">
+                    InfraIndia
+                  </span>
+                  <div className="header-brand-badge">
+                    <span className="header-brand-badge-dot" />
+                    <span>AI POWERED</span>
+                  </div>
+                </div>
+                <span className="header-brand-sub">
+                  INFRASTRUCTURE INTELLIGENCE
                 </span>
               </div>
             </Link>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import logoImg from '../../assets/logo.png';
 import {
   Sparkles,
   CircleGauge,
@@ -63,23 +64,16 @@ export default function Sidebar({ open, collapsed, onClose, onToggleCollapse }) 
       {open && <div className="sidebar-overlay" onClick={onClose} />}
 
       <aside className={`sidebar${open ? ' open' : ''}${isCollapsed ? ' collapsed' : ''}`}>
-        {/* Top Header with Hamburger Toggle */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: isCollapsed ? 'center' : 'space-between',
-          padding: isCollapsed ? '12px 0' : '10px 14px',
-          borderBottom: '1px solid var(--border)',
-          minHeight: '44px'
-        }}>
+        {/* Top Header with Hamburger Toggle (aligned with page-header) */}
+        <div className="sidebar-header">
           {!isCollapsed ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img
-                src="/logo.png"
+                src={logoImg}
                 alt="InfraIndia"
-                style={{ width: 22, height: 22, borderRadius: '5px', objectFit: 'cover' }}
+                style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
               />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
                 InfraIndia
               </span>
             </div>

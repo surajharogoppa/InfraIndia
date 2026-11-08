@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { assistantApi } from '../services/api';
+import logoImg from '../assets/logo.png';
 import {
   Sparkles, Send, Bot, User, Database, ArrowRight,
   TrendingUp, AlertTriangle, CheckCircle, RefreshCw, Trash2,
@@ -56,18 +57,6 @@ const SUGGESTION_CATEGORIES = [
         title: "Varanasi Ring Road Package II",
         query: "What is the cost, delay, and progress of the Varanasi Ring Road Pkg-II project?",
         desc: "Deep-dive into Sandaha-Revasa package metrics"
-      }
-    ]
-  },
-  {
-    category: "Anti-Hallucination Policy",
-    icon: ShieldCheck,
-    color: "#8b5cf6",
-    cards: [
-      {
-        title: "Ungrounded Knowledge Check",
-        query: "What is the capital of Japan? or Who won the FIFA World Cup?",
-        desc: "Strict refusal when queries fall outside verified records"
       }
     ]
   }
@@ -496,16 +485,16 @@ export default function AIAssistant() {
               {/* Hero Banner */}
               <div style={{ textAlign: 'center', padding: '24px 0 10px' }}>
                 <img
-                  src="/logo.png"
+                  src={logoImg}
                   alt="InfraIndia Logo"
                   style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '20px',
+                    width: '84px',
+                    height: '84px',
+                    borderRadius: '50%',
                     objectFit: 'cover',
-                    boxShadow: '0 8px 28px rgba(59, 130, 246, 0.22)',
-                    marginBottom: '14px',
-                    border: '1px solid var(--border)'
+                    boxShadow: '0 8px 32px rgba(99, 102, 241, 0.25)',
+                    marginBottom: '16px',
+                    border: '2px solid var(--border)'
                   }}
                 />
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 8px' }}>
